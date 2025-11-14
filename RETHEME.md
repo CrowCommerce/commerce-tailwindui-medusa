@@ -8,28 +8,77 @@ Use this prompt with Claude Code to completely retheme/reskin this Next.js ecomm
 
 **The site now uses semantic color tokens!** To change the primary brand color across the entire site:
 
-1. Open `/tailwind.config.ts`
-2. Change line 12 from:
-   ```typescript
-   primary: colors.indigo,
-   ```
-   to your desired color, e.g.:
-   ```typescript
-   primary: colors.emerald,  // or colors.purple, colors.blue, etc.
-   ```
-3. Run `pnpm dev` to see changes
+1. Open `/app/globals.css`
+2. Find the `@theme` block (lines 6-32)
+3. Replace the `--color-primary-*` hex values with your brand colors:
+
+```css
+@theme {
+  /* Change these indigo values to your brand color */
+  --color-primary-50: #eef2ff;   /* Lightest */
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;  /* Main brand color */
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;  /* Darkest */
+}
+```
 
 **That's it!** All buttons, links, focus states, and interactive elements will automatically use your new color.
 
-### Available Tailwind Colors
+### Example Color Palettes
 
-- `colors.slate`, `colors.gray`, `colors.zinc`, `colors.neutral`, `colors.stone`
-- `colors.red`, `colors.orange`, `colors.amber`, `colors.yellow`, `colors.lime`
-- `colors.green`, `colors.emerald`, `colors.teal`, `colors.cyan`, `colors.sky`
-- `colors.blue`, `colors.indigo`, `colors.violet`, `colors.purple`, `colors.fuchsia`
-- `colors.pink`, `colors.rose`
+**Emerald Green:**
+```css
+--color-primary-50: #ecfdf5;
+--color-primary-100: #d1fae5;
+--color-primary-200: #a7f3d0;
+--color-primary-300: #6ee7b7;
+--color-primary-400: #34d399;
+--color-primary-500: #10b981;
+--color-primary-600: #059669;
+--color-primary-700: #047857;
+--color-primary-800: #065f46;
+--color-primary-900: #064e3b;
+--color-primary-950: #022c22;
+```
 
-[See full color palette](https://tailwindcss.com/docs/customizing-colors#default-color-palette)
+**Purple:**
+```css
+--color-primary-50: #faf5ff;
+--color-primary-100: #f3e8ff;
+--color-primary-200: #e9d5ff;
+--color-primary-300: #d8b4fe;
+--color-primary-400: #c084fc;
+--color-primary-500: #a855f7;
+--color-primary-600: #9333ea;
+--color-primary-700: #7e22ce;
+--color-primary-800: #6b21a8;
+--color-primary-900: #581c87;
+--color-primary-950: #3b0764;
+```
+
+**Rose/Pink:**
+```css
+--color-primary-50: #fff1f2;
+--color-primary-100: #ffe4e6;
+--color-primary-200: #fecdd3;
+--color-primary-300: #fda4af;
+--color-primary-400: #fb7185;
+--color-primary-500: #f43f5e;
+--color-primary-600: #e11d48;
+--color-primary-700: #be123c;
+--color-primary-800: #9f1239;
+--color-primary-900: #881337;
+--color-primary-950: #4c0519;
+```
+
+[See full Tailwind color palette](https://tailwindcss.com/docs/customizing-colors#default-color-palette)
 
 ---
 
