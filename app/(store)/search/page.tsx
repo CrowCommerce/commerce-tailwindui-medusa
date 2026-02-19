@@ -1,6 +1,6 @@
 import ProductGrid from "components/layout/product-grid";
 import { defaultSort, sorting } from "lib/constants";
-import { getProducts } from "lib/shopify";
+import { getProducts } from "lib/medusa";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 

@@ -4,7 +4,7 @@ import {
   getCollection,
   getCollectionProducts,
   getCollections,
-} from "lib/shopify";
+} from "lib/medusa";
 import { baseUrl } from "lib/utils";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";

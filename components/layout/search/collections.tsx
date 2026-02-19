@@ -1,4 +1,4 @@
-import { getCollections } from "lib/shopify";
+import { getCollections } from "lib/medusa";
 import { Suspense } from "react";
 import CollectionsList from "./collections-list";
 

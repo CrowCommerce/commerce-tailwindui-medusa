@@ -13,7 +13,7 @@ import {
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Cart from "components/cart";
 import { SearchButton } from "components/search-command";
-import { Navigation } from "lib/shopify/types";
+import { Navigation } from "lib/types";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";

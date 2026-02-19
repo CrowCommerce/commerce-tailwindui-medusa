@@ -1,4 +1,4 @@
-import { Product } from "lib/shopify/types";
+import { Product } from "lib/types";
 import Image from "next/image";
 import { forwardRef, useEffect, useRef } from "react";
 

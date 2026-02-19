@@ -1,4 +1,4 @@
-import { getCollections, getMenu } from "lib/shopify";
+import { getCollections, getMenu } from "lib/medusa";
 import {
   transformCollectionsToFooterProducts,
   transformMenuToFooterNav,
@@ -6,7 +6,7 @@ import {
 import Link from "next/link";
 
 export default async function FooterNavigation() {
-  // Fetch data from Shopify
+  // Fetch data from Medusa
   const collections = await getCollections();
   const companyMenu = await getMenu("footer-company");
   const customerServiceMenu = await getMenu("footer-customer-service");

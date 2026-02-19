@@ -1,6 +1,6 @@
 "use client";
 
-import type { Product } from "lib/shopify/types";
+import type { Product } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
 import ProductDetail from "./product-detail";
 
@@ -16,7 +16,7 @@ export default function ProductWrapper({
   return (
     <ProductDetail
       product={transformedProduct}
-      shopifyProduct={product}
+      sourceProduct={product}
       options={product.options}
       variants={product.variants}
     />

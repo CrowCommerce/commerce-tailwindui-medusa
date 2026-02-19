@@ -2,7 +2,7 @@
 import Collections from "components/home/collections";
 import Hero from "components/home/hero";
 import TrendingProducts from "components/home/trending-products";
-import { getCollections, getProducts } from "lib/shopify";
+import { getCollections, getProducts } from "lib/medusa";
 import {
   transformCollectionToTailwind,
   transformProductToTailwind,
@@ -11,29 +11,29 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   description:
-    "High-performance ecommerce store built with Next.js, Vercel, and Shopify.",
+    "High-performance ecommerce store built with Next.js, Vercel, and Medusa.",
   openGraph: {
     type: "website",
   },
 };
 
 export default async function HomePage() {
-  // Fetch products from Shopify - most recent first
-  const shopifyProducts = await getProducts({
+  // Fetch products from Medusa - most recent first
+  const allProducts = await getProducts({
     sortKey: "CREATED_AT",
     reverse: true,
   });
 
   // Transform and limit to 4 products for trending section
-  const trendingProducts = shopifyProducts
+  const trendingProducts = allProducts
     .slice(0, 4)
     .map(transformProductToTailwind);
 
-  // Fetch collections from Shopify
-  const shopifyCollections = await getCollections();
+  // Fetch collections from Medusa
+  const allCollections = await getCollections();
 
   // Transform and limit to 3 collections (skip the "All" collection at index 0)
-  const collections = shopifyCollections
+  const collections = allCollections
     .slice(1, 4)
     .map(transformCollectionToTailwind);
 

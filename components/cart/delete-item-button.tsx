@@ -1,7 +1,7 @@
 "use client";
 
 import { removeItem } from "components/cart/actions";
-import type { CartItem } from "lib/shopify/types";
+import type { CartItem } from "lib/types";
 import { useActionState } from "react";
 
 export function DeleteItemButton({

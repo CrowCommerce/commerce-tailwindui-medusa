@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "lib/shopify/types";
+import { Product } from "lib/types";
 import { useEffect, useState } from "react";
 import { searchProducts } from "./actions";
 

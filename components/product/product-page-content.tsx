@@ -2,7 +2,7 @@
 
 import { ProductProvider } from "components/product/product-context";
 import ProductWrapper from "components/product/product-wrapper";
-import { Product } from "lib/shopify/types";
+import { Product } from "lib/types";
 import { baseUrl, transformProductToTailwindDetail } from "lib/utils";
 import { notFound } from "next/navigation";
 import { Suspense, use, type ReactNode } from "react";

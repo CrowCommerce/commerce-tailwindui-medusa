@@ -1,4 +1,4 @@
-import { getNavigation } from "lib/shopify";
+import { getNavigation } from "lib/medusa";
 import NavbarClient from "./navbar-client";
 
 export default async function NavbarData() {

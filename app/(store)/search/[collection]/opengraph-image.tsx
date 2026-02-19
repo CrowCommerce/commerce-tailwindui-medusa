@@ -1,5 +1,5 @@
 import OpengraphImage from "components/template-opengraph-image";
-import { getCollection } from "lib/shopify";
+import { getCollection } from "lib/medusa";
 
 export default async function Image({
   params,

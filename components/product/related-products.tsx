@@ -2,7 +2,7 @@
 
 import { addItem } from "components/cart/actions";
 import { useCart } from "components/cart/cart-context";
-import type { Product } from "lib/shopify/types";
+import type { Product } from "lib/types";
 import type { TailwindRelatedProduct } from "lib/utils";
 import Image from "next/image";
 import Link from "next/link";

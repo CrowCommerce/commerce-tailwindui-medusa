@@ -16,7 +16,7 @@ import { AddToCart } from "components/cart/add-to-cart";
 import Breadcrumbs from "components/layout/breadcrumbs";
 import ProductDetailPrice from "components/price/product-detail-price";
 import { useProduct, useUpdateURL } from "components/product/product-context";
-import type { Product, ProductOption, ProductVariant } from "lib/shopify/types";
+import type { Product, ProductOption, ProductVariant } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -34,14 +34,14 @@ type Combination = {
 
 interface ProductDetailProps {
   product: TailwindProductDetail;
-  shopifyProduct: Product;
+  sourceProduct: Product;
   options: ProductOption[];
   variants: ProductVariant[];
 }
 
 export default function ProductDetail({
   product,
-  shopifyProduct,
+  sourceProduct,
   options,
   variants,
 }: ProductDetailProps) {
@@ -333,7 +333,7 @@ export default function ProductDetail({
 
             <div className="mt-10">
               <AddToCart
-                product={shopifyProduct}
+                product={sourceProduct}
                 className="cursor-pointer mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-8 py-3 text-base font-medium text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:outline-hidden"
               />
             </div>

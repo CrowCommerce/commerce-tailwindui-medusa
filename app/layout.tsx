@@ -8,7 +8,7 @@ import { CartProvider } from "components/cart/cart-context";
 import Footer from "components/layout/footer";
 import Navbar from "components/layout/navbar";
 import { SearchDialog, SearchProvider } from "components/search-command";
-import { getCart } from "lib/shopify";
+import { getCart } from "lib/medusa";
 
 const { SITE_NAME } = process.env;
 

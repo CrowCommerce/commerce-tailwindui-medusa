@@ -1,7 +1,7 @@
 "use server";
 
-import { getProducts } from "lib/shopify";
-import { Product } from "lib/shopify/types";
+import { getProducts } from "lib/medusa";
+import { Product } from "lib/types";
 
 export async function searchProducts(
   query: string,

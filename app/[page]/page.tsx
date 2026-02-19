@@ -1,5 +1,5 @@
 import { PageContent } from "components/page/page-content";
-import { getPage } from "lib/shopify";
+import { getPage } from "lib/medusa";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 

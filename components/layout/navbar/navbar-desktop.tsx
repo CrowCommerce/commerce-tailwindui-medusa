@@ -6,7 +6,7 @@ import {
   PopoverGroup,
   PopoverPanel,
 } from "@headlessui/react";
-import { Navigation } from "lib/shopify/types";
+import { Navigation } from "lib/types";
 import Link from "next/link";
 
 export default function NavbarDesktop({

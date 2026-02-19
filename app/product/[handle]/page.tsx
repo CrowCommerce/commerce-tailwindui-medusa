@@ -10,8 +10,8 @@ import {
   getProduct,
   getProductRecommendations,
   getProducts,
-} from "lib/shopify";
-import type { Product } from "lib/shopify/types";
+} from "lib/medusa";
+import type { Product } from "lib/types";
 import { transformProductsToRelatedProducts } from "lib/utils";
 import { Suspense } from "react";
 
