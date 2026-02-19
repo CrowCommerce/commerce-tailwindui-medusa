@@ -43,6 +43,7 @@ After gathering requirements, create a comprehensive todo list with TodoWrite:
 ### Existing Structure (DO NOT ADD NEW PAGES)
 
 **Pages:**
+
 - `/` - Home (Hero, Trending Products, Collections)
 - `/products` - All products grid with filters/sort
 - `/products/[collection]` - Collection-filtered products
@@ -51,6 +52,7 @@ After gathering requirements, create a comprehensive todo list with TodoWrite:
 - `/[page]` - Dynamic Shopify pages
 
 **Key Components:**
+
 - `components/layout/navbar/` - Desktop/mobile navigation
 - `components/layout/footer/` - Footer with links
 - `components/layout/product-grid.tsx` - Product grid
@@ -64,15 +66,18 @@ After gathering requirements, create a comprehensive todo list with TodoWrite:
 ### Files to Modify
 
 1. **tailwind.config.ts**
+
    - Add custom color tokens with evocative names (not "primary/secondary")
    - Configure custom fonts
    - Adjust spacing/borders if needed
 
 2. **app/globals.css**
+
    - Import custom fonts
    - Add theme-specific base styles
 
 3. **.env**
+
    - Update COMPANY_NAME
    - Update SITE_NAME
 
@@ -85,24 +90,28 @@ After gathering requirements, create a comprehensive todo list with TodoWrite:
 ### Brand Application Guidelines
 
 **Color Usage:**
+
 - Use evocative token names that match the brand (e.g., "moss", "ember", "steel", "parchment")
 - Replace all instances of `indigo-*` with new primary color
 - Replace all instances of `gray-*` with new neutral palette
 - Ensure WCAG 2.1 AA contrast (4.5:1 text, 3:1 UI)
 
 **Typography:**
+
 - Load custom fonts via next/font/google
 - Expose as Tailwind tokens: `font-display`, `font-sans`
 - Apply display font to headings (h1, h2, h3)
 - Apply body font to paragraphs, UI text
 
 **Copy & Microcopy:**
+
 - Update hero headline and tagline
 - Adjust CTA button text
 - Modify section headlines to match brand voice
 - Keep accessibility labels (aria-labels) clear
 
 **Ornamentation:**
+
 - Apply consistent border styles (solid, dashed, gradient)
 - Add shadow patterns
 - Include decorative dividers where appropriate
@@ -113,12 +122,14 @@ After gathering requirements, create a comprehensive todo list with TodoWrite:
 After implementation:
 
 1. **Run checks:**
+
    ```bash
    pnpm prettier:check
    pnpm build
    ```
 
 2. **Verify functionality:**
+
    - [ ] All pages render without errors
    - [ ] Navigation works (desktop + mobile)
    - [ ] Shopping cart slide-out functions
@@ -130,6 +141,7 @@ After implementation:
    - [ ] Breadcrumbs navigate correctly
 
 3. **Check accessibility:**
+
    - [ ] Color contrast meets WCAG 2.1 AA
    - [ ] Focus indicators visible
    - [ ] Keyboard navigation works

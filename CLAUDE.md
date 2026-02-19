@@ -19,7 +19,7 @@ This is a Next.js 16 ecommerce application built on Vercel's Commerce template, 
 
 ```bash
 # Development
-pnpm dev              # Start dev server with Turbopack
+pnpm dev              # Start dev server with Turbopack (port 3000)
 
 # Production
 pnpm build            # Build for production
@@ -29,6 +29,58 @@ pnpm start            # Start production server
 pnpm prettier         # Format all files
 pnpm prettier:check   # Check formatting
 pnpm test             # Runs prettier:check (no test suite currently)
+```
+
+## Medusa Backend
+
+The Medusa v2 backend lives at `../medusa-backend` (sibling directory). It uses PostgreSQL 17 with a `medusa_db` database.
+
+### Starting the Full Dev Environment
+
+```bash
+# 1. Start PostgreSQL (if not already running)
+brew services start postgresql@17
+
+# 2. Start Medusa backend (in a separate terminal)
+cd ../medusa-backend && npm run dev
+# Runs on http://localhost:9000
+# Admin UI at http://localhost:9000/app
+
+# 3. Start the storefront
+pnpm dev
+# Runs on http://localhost:3000
+```
+
+### Stopping Everything
+
+```bash
+# Stop the storefront: Ctrl+C in its terminal
+# Stop Medusa: Ctrl+C in its terminal
+# Stop PostgreSQL (optional):
+brew services stop postgresql@17
+```
+
+### Medusa Admin
+
+Access the Medusa admin dashboard at `http://localhost:9000/app` to manage products, collections, orders, and settings. The initial admin invite was generated during setup.
+
+### Useful Medusa Commands
+
+```bash
+cd ../medusa-backend
+
+npm run dev                    # Start dev server
+npx medusa db:migrate          # Run pending migrations
+npx medusa user -e admin@example.com -p password  # Create admin user
+```
+
+### Getting the Publishable API Key
+
+If you need to retrieve the publishable key from the database:
+
+```bash
+export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
+psql medusa_db -t -c "SELECT token FROM api_key WHERE type = 'publishable' LIMIT 1;"
 ```
 
 ## Environment Setup
@@ -277,6 +329,8 @@ Navigation is built dynamically from Medusa collections via `getNavigation()` in
 5. **Build failures:** Missing environment variables or Medusa backend not reachable
 6. **Prices showing $0.00:** Ensure products have `calculated_price` set (requires `region_id` in API calls)
 7. **Pages returning empty:** Medusa has no native CMS pages — `getPage()`/`getPages()` return stubs
+8. **Price amounts:** Medusa v2 `calculated_amount` is in the main currency unit (10 = $10.00), NOT cents. The `toMoney()` helper in `transforms.ts` does NOT divide by 100.
+9. **Stale prices after transform changes:** Clear the Next.js cache (`rm -rf .next`) and restart the dev server
 
 ## Performance Features
 

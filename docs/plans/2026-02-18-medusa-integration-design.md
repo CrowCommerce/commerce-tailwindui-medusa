@@ -28,22 +28,22 @@ Backend-agnostic types consumed by all components: `Product`, `Cart`, `CartItem`
 
 Same async function signatures as the current Shopify integration:
 
-| Function | Medusa SDK Call |
-|---|---|
-| `getProduct(handle)` | `sdk.store.product.list({ handle })` → first result |
-| `getProducts({query, sortKey, reverse})` | `sdk.store.product.list({q, order, ...})` |
-| `getCollections()` | `sdk.store.collection.list()` |
-| `getCollection(handle)` | `sdk.store.collection.list({ handle })` → first result |
-| `getCollectionProducts({collection, sortKey, reverse})` | Fetch collection → get product IDs → fetch products |
-| `getProductRecommendations(productId)` | `sdk.store.product.list()` filtered (Medusa lacks native recs) |
-| `getCart()` | Read `cartId` cookie → `sdk.store.cart.retrieve(cartId)` |
-| `createCart()` | `sdk.store.cart.create({ region_id })` |
-| `addToCart(lines)` | `sdk.store.cart.createLineItem(cartId, ...)` |
-| `removeFromCart(lineIds)` | `sdk.store.cart.deleteLineItem(cartId, lineId)` |
-| `updateCart(lines)` | `sdk.store.cart.updateLineItem(cartId, lineId, ...)` |
-| `getNavigation()` | Build from collections or use `DEFAULT_NAVIGATION` fallback |
-| `getPage(handle)` / `getPages()` | Return empty/placeholder (no native CMS in Medusa) |
-| `getMenu(handle)` | Build from collections or hardcode |
+| Function                                                | Medusa SDK Call                                                |
+| ------------------------------------------------------- | -------------------------------------------------------------- |
+| `getProduct(handle)`                                    | `sdk.store.product.list({ handle })` → first result            |
+| `getProducts({query, sortKey, reverse})`                | `sdk.store.product.list({q, order, ...})`                      |
+| `getCollections()`                                      | `sdk.store.collection.list()`                                  |
+| `getCollection(handle)`                                 | `sdk.store.collection.list({ handle })` → first result         |
+| `getCollectionProducts({collection, sortKey, reverse})` | Fetch collection → get product IDs → fetch products            |
+| `getProductRecommendations(productId)`                  | `sdk.store.product.list()` filtered (Medusa lacks native recs) |
+| `getCart()`                                             | Read `cartId` cookie → `sdk.store.cart.retrieve(cartId)`       |
+| `createCart()`                                          | `sdk.store.cart.create({ region_id })`                         |
+| `addToCart(lines)`                                      | `sdk.store.cart.createLineItem(cartId, ...)`                   |
+| `removeFromCart(lineIds)`                               | `sdk.store.cart.deleteLineItem(cartId, lineId)`                |
+| `updateCart(lines)`                                     | `sdk.store.cart.updateLineItem(cartId, lineId, ...)`           |
+| `getNavigation()`                                       | Build from collections or use `DEFAULT_NAVIGATION` fallback    |
+| `getPage(handle)` / `getPages()`                        | Return empty/placeholder (no native CMS in Medusa)             |
+| `getMenu(handle)`                                       | Build from collections or hardcode                             |
 
 **Caching:** Uses `"use cache"` / `cacheTag()` / `cacheLife()` (Next.js 16 experimental), same as current implementation.
 
@@ -53,45 +53,45 @@ Same async function signatures as the current Shopify integration:
 
 **Product:**
 
-| Internal field | Medusa source |
-|---|---|
-| `id` | `product.id` |
-| `handle` | `product.handle` |
-| `title` | `product.title` |
-| `description` | `product.description` |
-| `descriptionHtml` | `product.description` (plain text) |
-| `availableForSale` | Derived: `variant.inventory_quantity > 0` or `!variant.manage_inventory` |
-| `options` | `product.options` → `{id, name, values}` |
-| `priceRange` | Min/max of `variant.calculated_price.calculated_amount` |
-| `variants` | Map each → `{id, title, availableForSale, selectedOptions, price: Money}` |
-| `images` | `product.images` → `{url, altText, width, height}` |
-| `featuredImage` | `product.thumbnail` or `images[0]` |
-| `tags` | `product.tags` |
-| `seo` | From `product.metadata` or derived from title/description |
+| Internal field     | Medusa source                                                             |
+| ------------------ | ------------------------------------------------------------------------- |
+| `id`               | `product.id`                                                              |
+| `handle`           | `product.handle`                                                          |
+| `title`            | `product.title`                                                           |
+| `description`      | `product.description`                                                     |
+| `descriptionHtml`  | `product.description` (plain text)                                        |
+| `availableForSale` | Derived: `variant.inventory_quantity > 0` or `!variant.manage_inventory`  |
+| `options`          | `product.options` → `{id, name, values}`                                  |
+| `priceRange`       | Min/max of `variant.calculated_price.calculated_amount`                   |
+| `variants`         | Map each → `{id, title, availableForSale, selectedOptions, price: Money}` |
+| `images`           | `product.images` → `{url, altText, width, height}`                        |
+| `featuredImage`    | `product.thumbnail` or `images[0]`                                        |
+| `tags`             | `product.tags`                                                            |
+| `seo`              | From `product.metadata` or derived from title/description                 |
 
 **Cart:**
 
-| Internal field | Medusa source |
-|---|---|
-| `id` | `cart.id` |
-| `checkoutUrl` | `""` (deferred) |
+| Internal field        | Medusa source                                           |
+| --------------------- | ------------------------------------------------------- |
+| `id`                  | `cart.id`                                               |
+| `checkoutUrl`         | `""` (deferred)                                         |
 | `cost.subtotalAmount` | `cart.subtotal` (convert cents → `Money` string format) |
-| `cost.totalAmount` | `cart.total` |
-| `cost.totalTaxAmount` | `cart.tax_total` |
-| `lines` | `cart.items` → map to `CartItem[]` |
-| `totalQuantity` | Sum of `item.quantity` |
+| `cost.totalAmount`    | `cart.total`                                            |
+| `cost.totalTaxAmount` | `cart.tax_total`                                        |
+| `lines`               | `cart.items` → map to `CartItem[]`                      |
+| `totalQuantity`       | Sum of `item.quantity`                                  |
 
 **Money conversion:** Medusa uses integer cents (e.g., `2999`). Transforms convert to Shopify's string format (`{ amount: "29.99", currencyCode: "USD" }`) that components expect.
 
 **Collection:**
 
-| Internal field | Medusa source |
-|---|---|
-| `handle` | `collection.handle` |
-| `title` | `collection.title` |
-| `description` | `collection.metadata?.description` or `""` |
-| `path` | `/products/${collection.handle}` |
-| `image` | `collection.metadata?.image_url` or placeholder |
+| Internal field | Medusa source                                   |
+| -------------- | ----------------------------------------------- |
+| `handle`       | `collection.handle`                             |
+| `title`        | `collection.title`                              |
+| `description`  | `collection.metadata?.description` or `""`      |
+| `path`         | `/products/${collection.handle}`                |
+| `image`        | `collection.metadata?.image_url` or placeholder |
 
 ## Component Changes
 

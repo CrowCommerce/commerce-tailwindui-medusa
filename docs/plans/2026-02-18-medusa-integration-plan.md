@@ -15,11 +15,13 @@
 ### Task 1: Install Medusa Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Install packages**
 
 Run:
+
 ```bash
 pnpm add @medusajs/js-sdk
 pnpm add -D @medusajs/types
@@ -42,6 +44,7 @@ git commit -m "chore: add @medusajs/js-sdk and @medusajs/types dependencies"
 ### Task 2: Extract Public Types to `lib/types.ts`
 
 **Files:**
+
 - Create: `lib/types.ts`
 - Reference: `lib/shopify/types.ts` (lines 11-96, 275-291)
 
@@ -204,6 +207,7 @@ git commit -m "feat: extract backend-agnostic types to lib/types.ts"
 ### Task 3: Create Medusa SDK Client and Region Helper
 
 **Files:**
+
 - Create: `lib/medusa/index.ts` (initial — SDK client + region helper only)
 
 **Step 1: Create `lib/medusa/index.ts` with SDK client and region caching**
@@ -261,6 +265,7 @@ git commit -m "feat: add Medusa SDK client and region helper"
 ### Task 4: Create Medusa Transform Functions
 
 **Files:**
+
 - Create: `lib/medusa/transforms.ts`
 - Reference: `lib/types.ts` (created in Task 2)
 - Reference: `references/nextjs-starter-medusa/src/lib/data/products.ts` for Medusa type shapes
@@ -287,7 +292,10 @@ import type {
  * Medusa stores amounts as integers (e.g., 2999 = $29.99).
  * Our internal types use string amounts (e.g., "29.99").
  */
-function toMoney(amount: number | undefined | null, currencyCode: string): Money {
+function toMoney(
+  amount: number | undefined | null,
+  currencyCode: string,
+): Money {
   return {
     amount: ((amount ?? 0) / 100).toFixed(2),
     currencyCode: currencyCode.toUpperCase(),
@@ -370,8 +378,18 @@ export function transformProduct(product: HttpTypes.StoreProduct): Product {
   const maxPrice = prices.length ? Math.max(...prices) : 0;
 
   const featuredImage: Image = product.thumbnail
-    ? { url: product.thumbnail, altText: product.title || "", width: 0, height: 0 }
-    : images[0] || { url: "", altText: product.title || "", width: 0, height: 0 };
+    ? {
+        url: product.thumbnail,
+        altText: product.title || "",
+        width: 0,
+        height: 0,
+      }
+    : images[0] || {
+        url: "",
+        altText: product.title || "",
+        width: 0,
+        height: 0,
+      };
 
   // Extract tags from product metadata or tags field
   const tags: string[] = (product.tags || []).map(
@@ -505,6 +523,7 @@ git commit -m "feat: add Medusa-to-internal type transform functions"
 ### Task 5: Implement Product and Collection Data Functions
 
 **Files:**
+
 - Modify: `lib/medusa/index.ts`
 
 Add product and collection fetching functions that match the existing `lib/shopify/index.ts` signatures.
@@ -519,9 +538,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { Collection, Product } from "lib/types";
 import { transformProduct, transformCollection } from "./transforms";
 
-export async function getProduct(
-  handle: string,
-): Promise<Product | undefined> {
+export async function getProduct(handle: string): Promise<Product | undefined> {
   "use cache";
   cacheTag(TAGS.products);
   cacheLife("days");
@@ -566,7 +583,9 @@ export async function getProducts({
   // Map Shopify sort keys to Medusa order params
   let order: string | undefined;
   if (sortKey === "PRICE") {
-    order = reverse ? "-variants.calculated_price.calculated_amount" : "variants.calculated_price.calculated_amount";
+    order = reverse
+      ? "-variants.calculated_price.calculated_amount"
+      : "variants.calculated_price.calculated_amount";
   } else if (sortKey === "CREATED_AT") {
     order = reverse ? "-created_at" : "created_at";
   } else if (sortKey === "BEST_SELLING") {
@@ -594,7 +613,9 @@ export async function getProducts({
 
   return products
     .filter((p) => {
-      const tags = (p.tags || []).map((t: any) => t.value || t.name || String(t));
+      const tags = (p.tags || []).map(
+        (t: any) => t.value || t.name || String(t),
+      );
       return !tags.includes(HIDDEN_PRODUCT_TAG);
     })
     .map(transformProduct);
@@ -686,7 +707,9 @@ export async function getCollectionProducts({
 
   let order: string | undefined;
   if (sortKey === "PRICE") {
-    order = reverse ? "-variants.calculated_price.calculated_amount" : "variants.calculated_price.calculated_amount";
+    order = reverse
+      ? "-variants.calculated_price.calculated_amount"
+      : "variants.calculated_price.calculated_amount";
   } else if (sortKey === "CREATED_AT" || sortKey === "CREATED") {
     order = reverse ? "-created_at" : "created_at";
   }
@@ -711,7 +734,9 @@ export async function getCollectionProducts({
 
   return products
     .filter((p) => {
-      const tags = (p.tags || []).map((t: any) => t.value || t.name || String(t));
+      const tags = (p.tags || []).map(
+        (t: any) => t.value || t.name || String(t),
+      );
       return !tags.includes(HIDDEN_PRODUCT_TAG);
     })
     .map(transformProduct);
@@ -764,6 +789,7 @@ git commit -m "feat: add product and collection data functions for Medusa"
 ### Task 6: Implement Cart Data Functions
 
 **Files:**
+
 - Modify: `lib/medusa/index.ts`
 
 Add cart functions that match the current `lib/shopify/index.ts` cart signatures.
@@ -919,6 +945,7 @@ git commit -m "feat: add cart data functions for Medusa"
 ### Task 7: Implement Navigation, Pages, Menu, and Revalidation
 
 **Files:**
+
 - Modify: `lib/medusa/index.ts`
 
 These are the remaining functions needed to complete the adapter API surface.
@@ -1048,6 +1075,7 @@ git commit -m "feat: add navigation, pages, menu, and revalidation for Medusa"
 ### Task 8: Update `lib/utils.ts`
 
 **Files:**
+
 - Modify: `lib/utils.ts`
 
 Update imports to use `lib/types` instead of `lib/shopify/types`. Rename transformer functions to remove "Shopify" prefix. Update `validateEnvironmentVariables()` for Medusa env vars.
@@ -1055,6 +1083,7 @@ Update imports to use `lib/types` instead of `lib/shopify/types`. Rename transfo
 **Step 1: Update imports**
 
 Change line 6:
+
 ```typescript
 // OLD:
 import type { Collection, Menu, Product } from "./shopify/types";
@@ -1065,6 +1094,7 @@ import type { Collection, Menu, Product } from "./types";
 **Step 2: Rename transformer functions**
 
 Find and replace (4 functions):
+
 - `transformShopifyProductToTailwind` → `transformProductToTailwind`
 - `transformShopifyCollectionToTailwind` → `transformCollectionToTailwind`
 - `transformShopifyProductToTailwindDetail` → `transformProductToTailwindDetail`
@@ -1113,6 +1143,7 @@ git commit -m "refactor: update lib/utils.ts for Medusa (rename transformers, up
 ### Task 9: Update `lib/constants.ts`
 
 **Files:**
+
 - Modify: `lib/constants.ts`
 
 Remove the Shopify-specific `SHOPIFY_GRAPHQL_API_ENDPOINT` constant. Keep everything else.
@@ -1135,6 +1166,7 @@ git commit -m "refactor: remove SHOPIFY_GRAPHQL_API_ENDPOINT from constants"
 ### Task 10: Update `components/cart/actions.ts`
 
 **Files:**
+
 - Modify: `components/cart/actions.ts`
 
 Change imports from `lib/shopify` to `lib/medusa`. Update `redirectToCheckout()` to redirect to `/cart` instead of Shopify's hosted checkout.
@@ -1142,6 +1174,7 @@ Change imports from `lib/shopify` to `lib/medusa`. Update `redirectToCheckout()`
 **Step 1: Update imports**
 
 Change line 4-9:
+
 ```typescript
 // OLD:
 import {
@@ -1165,6 +1198,7 @@ import {
 **Step 2: Update `redirectToCheckout()`**
 
 Change lines 101-104:
+
 ```typescript
 // OLD:
 export async function redirectToCheckout() {
@@ -1200,23 +1234,23 @@ All files that import from `lib/shopify/types` need to import from `lib/types` i
 
 For each of these files, change `from "lib/shopify/types"` (or `from "./shopify/types"`) to `from "lib/types"`:
 
-| File | Old import path | New import path |
-|---|---|---|
-| `components/cart/add-to-cart.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/cart/cart-context.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/cart/delete-item-button.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/cart/edit-item-quantity-button.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/layout/navbar/navbar-client.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/layout/product-grid.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/page/page-content.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/product/product-detail.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/product/product-page-content.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/product/product-wrapper.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/product/related-products.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/product/template-variant-selector.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/search-command/actions.ts` | `lib/shopify/types` | `lib/types` |
-| `components/search-command/product-result.tsx` | `lib/shopify/types` | `lib/types` |
-| `components/search-command/use-search.tsx` | `lib/shopify/types` | `lib/types` |
+| File                                               | Old import path     | New import path |
+| -------------------------------------------------- | ------------------- | --------------- |
+| `components/cart/add-to-cart.tsx`                  | `lib/shopify/types` | `lib/types`     |
+| `components/cart/cart-context.tsx`                 | `lib/shopify/types` | `lib/types`     |
+| `components/cart/delete-item-button.tsx`           | `lib/shopify/types` | `lib/types`     |
+| `components/cart/edit-item-quantity-button.tsx`    | `lib/shopify/types` | `lib/types`     |
+| `components/layout/navbar/navbar-client.tsx`       | `lib/shopify/types` | `lib/types`     |
+| `components/layout/product-grid.tsx`               | `lib/shopify/types` | `lib/types`     |
+| `components/page/page-content.tsx`                 | `lib/shopify/types` | `lib/types`     |
+| `components/product/product-detail.tsx`            | `lib/shopify/types` | `lib/types`     |
+| `components/product/product-page-content.tsx`      | `lib/shopify/types` | `lib/types`     |
+| `components/product/product-wrapper.tsx`           | `lib/shopify/types` | `lib/types`     |
+| `components/product/related-products.tsx`          | `lib/shopify/types` | `lib/types`     |
+| `components/product/template-variant-selector.tsx` | `lib/shopify/types` | `lib/types`     |
+| `components/search-command/actions.ts`             | `lib/shopify/types` | `lib/types`     |
+| `components/search-command/product-result.tsx`     | `lib/shopify/types` | `lib/types`     |
+| `components/search-command/use-search.tsx`         | `lib/shopify/types` | `lib/types`     |
 
 Also update `lib/utils.ts` if not already done in Task 8 (it was — `./shopify/types` → `./types`).
 
@@ -1240,28 +1274,29 @@ git commit -m "refactor: update all component type imports from lib/shopify/type
 
 All files that import data functions from `lib/shopify` need to import from `lib/medusa`.
 
-| File | Functions imported |
-|---|---|
-| `app/layout.tsx` | `getCart` |
-| `app/page.tsx` | `getProducts`, `getCollections` |
-| `app/sitemap.ts` | `getCollections`, `getProducts`, `getPages` |
-| `app/product/[handle]/page.tsx` | `getProduct`, `getProductRecommendations`, `getProducts` |
-| `app/[page]/page.tsx` | `getPage` |
-| `app/[page]/opengraph-image.tsx` | `getPage` |
-| `app/(store)/products/page.tsx` | `getProducts` |
-| `app/(store)/products/[collection]/page.tsx` | `getCollection`, `getCollectionProducts`, `getCollections` |
-| `app/(store)/search/page.tsx` | `getProducts` |
-| `app/(store)/search/[collection]/opengraph-image.tsx` | `getCollection` |
-| `app/api/revalidate/route.ts` | `revalidate` |
-| `components/layout/navbar/navbar-data.tsx` | `getNavigation` |
-| `components/layout/footer/footer-navigation.tsx` | `getCollections`, `getMenu` |
-| `components/layout/search/collections.tsx` | `getCollections` |
-| `components/layout/search/mobile-filters-wrapper.tsx` | `getCollections` |
-| `components/search-command/actions.ts` | `getProducts` |
+| File                                                  | Functions imported                                         |
+| ----------------------------------------------------- | ---------------------------------------------------------- |
+| `app/layout.tsx`                                      | `getCart`                                                  |
+| `app/page.tsx`                                        | `getProducts`, `getCollections`                            |
+| `app/sitemap.ts`                                      | `getCollections`, `getProducts`, `getPages`                |
+| `app/product/[handle]/page.tsx`                       | `getProduct`, `getProductRecommendations`, `getProducts`   |
+| `app/[page]/page.tsx`                                 | `getPage`                                                  |
+| `app/[page]/opengraph-image.tsx`                      | `getPage`                                                  |
+| `app/(store)/products/page.tsx`                       | `getProducts`                                              |
+| `app/(store)/products/[collection]/page.tsx`          | `getCollection`, `getCollectionProducts`, `getCollections` |
+| `app/(store)/search/page.tsx`                         | `getProducts`                                              |
+| `app/(store)/search/[collection]/opengraph-image.tsx` | `getCollection`                                            |
+| `app/api/revalidate/route.ts`                         | `revalidate`                                               |
+| `components/layout/navbar/navbar-data.tsx`            | `getNavigation`                                            |
+| `components/layout/footer/footer-navigation.tsx`      | `getCollections`, `getMenu`                                |
+| `components/layout/search/collections.tsx`            | `getCollections`                                           |
+| `components/layout/search/mobile-filters-wrapper.tsx` | `getCollections`                                           |
+| `components/search-command/actions.ts`                | `getProducts`                                              |
 
 **Step 1: Find-and-replace import paths**
 
 In every file above, change:
+
 ```typescript
 from "lib/shopify"    →    from "lib/medusa"
 ```
@@ -1269,6 +1304,7 @@ from "lib/shopify"    →    from "lib/medusa"
 **Step 2: Also update transformer function names where called**
 
 In any page/component files that call the renamed transformer functions:
+
 - `transformShopifyProductToTailwind` → `transformProductToTailwind`
 - `transformShopifyCollectionToTailwind` → `transformCollectionToTailwind`
 - `transformShopifyProductToTailwindDetail` → `transformProductToTailwindDetail`
@@ -1296,12 +1332,14 @@ git commit -m "refactor: update all page and component imports from lib/shopify 
 ### Task 13: Update Configuration Files
 
 **Files:**
+
 - Modify: `.env.example`
 - Modify: `next.config.ts`
 
 **Step 1: Update `.env.example`**
 
 Replace contents:
+
 ```
 COMPANY_NAME="Your Company"
 SITE_NAME="Your Store Name"
@@ -1313,6 +1351,7 @@ REVALIDATE_SECRET=""
 **Step 2: Update `next.config.ts`**
 
 Replace `cdn.shopify.com` pattern with Medusa-compatible patterns:
+
 ```typescript
 export default {
   cacheComponents: true,
@@ -1357,6 +1396,7 @@ git commit -m "chore: update env config and image patterns for Medusa"
 ### Task 14: Update `lib/type-guards.ts`
 
 **Files:**
+
 - Modify: `lib/type-guards.ts`
 
 Rename types and functions to be backend-agnostic since they're no longer Shopify-specific.
@@ -1402,6 +1442,7 @@ git commit -m "refactor: rename ShopifyErrorLike to ApiErrorLike in type-guards"
 ### Task 15: Update `lib/constants/navigation.ts`
 
 **Files:**
+
 - Modify: `lib/constants/navigation.ts`
 
 Remove the redundant `NavigationLink`, `NavigationCategory`, and `Navigation` type definitions since they now live in `lib/types.ts`. Import them instead.
@@ -1409,6 +1450,7 @@ Remove the redundant `NavigationLink`, `NavigationCategory`, and `Navigation` ty
 **Step 1: Update the file**
 
 Replace the type definitions with imports:
+
 ```typescript
 import type { Navigation, NavigationLink } from "lib/types";
 ```
@@ -1427,6 +1469,7 @@ git commit -m "refactor: use shared types in navigation constants"
 ### Task 16: Delete `lib/shopify/` Directory
 
 **Files:**
+
 - Delete: `lib/shopify/` (entire directory)
 
 **Step 1: Verify no remaining imports from lib/shopify**
@@ -1457,6 +1500,7 @@ Run: `pnpm exec tsc --noEmit --pretty`
 Expected: No errors
 
 If there are errors, fix them. Common issues:
+
 - Missing `import type` annotations
 - Property access on `HttpTypes.StoreProduct` that differs from expected shape
 - The `"use cache"` directive may need `// @ts-expect-error` in some contexts
@@ -1466,6 +1510,7 @@ If there are errors, fix them. Common issues:
 Run: `pnpm build`
 
 This will fail if env vars aren't set. Create a minimal `.env.local` for build testing:
+
 ```
 MEDUSA_BACKEND_URL=http://localhost:9000
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_test
@@ -1490,12 +1535,14 @@ git commit -m "fix: resolve build errors from Medusa integration"
 ### Task 18: Final Cleanup and Documentation
 
 **Files:**
+
 - Modify: `CLAUDE.md` — update references to Shopify with Medusa
 - Modify: `README.md` — if it references Shopify setup
 
 **Step 1: Update CLAUDE.md**
 
 Key changes:
+
 - Environment Setup section: replace Shopify env vars with Medusa vars
 - Data Layer Architecture section: update to describe `lib/medusa/`
 - Remove all Shopify-specific references (metaobjects, GraphQL, etc.)
