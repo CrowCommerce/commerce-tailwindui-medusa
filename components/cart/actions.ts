@@ -7,7 +7,7 @@ import {
   getCart,
   removeFromCart,
   updateCart,
-} from "lib/shopify";
+} from "lib/medusa";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -99,8 +99,8 @@ export async function updateItemQuantity(
 }
 
 export async function redirectToCheckout() {
-  let cart = await getCart();
-  redirect(cart!.checkoutUrl);
+  // Checkout not yet implemented with Medusa — redirect to cart
+  redirect("/cart");
 }
 
 export async function createCartAndSetCookie() {

@@ -6,24 +6,7 @@
  * Shopify navigation metaobjects are not configured.
  */
 
-export type NavigationLink = {
-  name: string;
-  href: string;
-  external?: boolean;
-};
-
-export type NavigationCategory = {
-  name: string;
-  featured: NavigationLink[];
-  categories: NavigationLink[];
-  collection: NavigationLink[];
-  brands: NavigationLink[];
-};
-
-export type Navigation = {
-  categories: NavigationCategory[];
-  pages: NavigationLink[];
-};
+import type { Navigation, NavigationLink } from "lib/types";
 
 /**
  * Default navigation structure

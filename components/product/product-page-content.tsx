@@ -3,7 +3,7 @@
 import { ProductProvider } from "components/product/product-context";
 import ProductWrapper from "components/product/product-wrapper";
 import { Product } from "lib/shopify/types";
-import { baseUrl, transformShopifyProductToTailwindDetail } from "lib/utils";
+import { baseUrl, transformProductToTailwindDetail } from "lib/utils";
 import { notFound } from "next/navigation";
 import { Suspense, use, type ReactNode } from "react";
 
@@ -55,7 +55,7 @@ export function ProductPageContent({
     ],
   };
 
-  const transformedProduct = transformShopifyProductToTailwindDetail(product);
+  const transformedProduct = transformProductToTailwindDetail(product);
 
   return (
     <div className="bg-white pb-24">

@@ -4,8 +4,8 @@ import Hero from "components/home/hero";
 import TrendingProducts from "components/home/trending-products";
 import { getCollections, getProducts } from "lib/shopify";
 import {
-  transformShopifyCollectionToTailwind,
-  transformShopifyProductToTailwind,
+  transformCollectionToTailwind,
+  transformProductToTailwind,
 } from "lib/utils";
 import { Metadata } from "next";
 
@@ -27,7 +27,7 @@ export default async function HomePage() {
   // Transform and limit to 4 products for trending section
   const trendingProducts = shopifyProducts
     .slice(0, 4)
-    .map(transformShopifyProductToTailwind);
+    .map(transformProductToTailwind);
 
   // Fetch collections from Shopify
   const shopifyCollections = await getCollections();
@@ -35,7 +35,7 @@ export default async function HomePage() {
   // Transform and limit to 3 collections (skip the "All" collection at index 0)
   const collections = shopifyCollections
     .slice(1, 4)
-    .map(transformShopifyCollectionToTailwind);
+    .map(transformCollectionToTailwind);
 
   return (
     <>

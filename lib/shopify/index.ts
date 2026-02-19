@@ -1,10 +1,11 @@
 import {
   HIDDEN_PRODUCT_TAG,
-  SHOPIFY_GRAPHQL_API_ENDPOINT,
   TAGS,
 } from "lib/constants";
 import { DEFAULT_NAVIGATION } from "lib/constants/navigation";
-import { isShopifyError } from "lib/type-guards";
+import { isApiError } from "lib/type-guards";
+
+const SHOPIFY_GRAPHQL_API_ENDPOINT = "/api/2023-01/graphql.json";
 import { ensureStartsWith } from "lib/utils";
 import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 import { cookies, headers } from "next/headers";
@@ -103,7 +104,7 @@ export async function shopifyFetch<T>({
       body,
     };
   } catch (e) {
-    if (isShopifyError(e)) {
+    if (isApiError(e)) {
       throw {
         cause: e.cause?.toString() || "unknown",
         status: e.status || 500,

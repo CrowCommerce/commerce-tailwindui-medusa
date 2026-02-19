@@ -12,7 +12,7 @@ import {
   getProducts,
 } from "lib/shopify";
 import type { Product } from "lib/shopify/types";
-import { transformShopifyProductsToRelatedProducts } from "lib/utils";
+import { transformProductsToRelatedProducts } from "lib/utils";
 import { Suspense } from "react";
 
 export async function generateMetadata(props: {
@@ -105,7 +105,7 @@ async function RelatedProducts({
 
   // Transform products for Tailwind component
   const transformedRelatedProducts =
-    transformShopifyProductsToRelatedProducts(relatedProducts);
+    transformProductsToRelatedProducts(relatedProducts);
 
   return (
     <RelatedProductsComponent

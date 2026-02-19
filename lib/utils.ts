@@ -3,7 +3,7 @@ import type {
   Product as TailwindProduct,
 } from "components/home/types";
 import { ReadonlyURLSearchParams } from "next/navigation";
-import type { Collection, Menu, Product } from "./shopify/types";
+import type { Collection, Menu, Product } from "./types";
 
 export const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -26,8 +26,8 @@ export const ensureStartsWith = (stringToCheck: string, startsWith: string) =>
 
 export const validateEnvironmentVariables = () => {
   const requiredEnvironmentVariables = [
-    "SHOPIFY_STORE_DOMAIN",
-    "SHOPIFY_STOREFRONT_ACCESS_TOKEN",
+    "MEDUSA_BACKEND_URL",
+    "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY",
   ];
   const missingEnvironmentVariables = [] as string[];
 
@@ -39,24 +39,15 @@ export const validateEnvironmentVariables = () => {
 
   if (missingEnvironmentVariables.length) {
     throw new Error(
-      `The following environment variables are missing. Your site will not work without them. Read more: https://vercel.com/docs/integrations/shopify#configure-environment-variables\n\n${missingEnvironmentVariables.join(
+      `The following environment variables are missing. Your site will not work without them.\n\n${missingEnvironmentVariables.join(
         "\n",
       )}\n`,
     );
   }
-
-  if (
-    process.env.SHOPIFY_STORE_DOMAIN?.includes("[") ||
-    process.env.SHOPIFY_STORE_DOMAIN?.includes("]")
-  ) {
-    throw new Error(
-      "Your `SHOPIFY_STORE_DOMAIN` environment variable includes brackets (ie. `[` and / or `]`). Your site will not work with them there. Please remove them.",
-    );
-  }
 };
 
-// Transform Shopify Product to Tailwind Product format
-export const transformShopifyProductToTailwind = (
+// Transform Product to Tailwind Product format
+export const transformProductToTailwind = (
   product: Product,
 ): TailwindProduct => {
   // Extract color variants from product variants where option name is "Color"
@@ -100,8 +91,8 @@ export const transformShopifyProductToTailwind = (
   };
 };
 
-// Transform Shopify Collection to Tailwind Collection format
-export const transformShopifyCollectionToTailwind = (
+// Transform Collection to Tailwind Collection format
+export const transformCollectionToTailwind = (
   collection: Collection,
 ): TailwindCollection => {
   return {
@@ -149,7 +140,7 @@ const getColorHex = (colorName: string): string => {
   return colorMap[normalizedColor] || "#9CA3AF"; // Default gray if color not found
 };
 
-// Transform Shopify Menu items to footer navigation format
+// Transform Menu items to footer navigation format
 export const transformMenuToFooterNav = (
   menu: Menu[],
 ): { name: string; href: string }[] => {
@@ -159,7 +150,7 @@ export const transformMenuToFooterNav = (
   }));
 };
 
-// Transform Shopify Collections to footer products format
+// Transform Collections to footer products format
 export const transformCollectionsToFooterProducts = (
   collections: Collection[],
 ): { name: string; href: string }[] => {
@@ -193,8 +184,8 @@ export type TailwindRelatedProduct = {
   variantId: string;
 };
 
-// Transform Shopify Product to Tailwind Product Detail format
-export const transformShopifyProductToTailwindDetail = (
+// Transform Product to Tailwind Product Detail format
+export const transformProductToTailwindDetail = (
   product: Product,
 ): TailwindProductDetail => {
   // Map images to Tailwind format
@@ -303,8 +294,8 @@ export const transformShopifyProductToTailwindDetail = (
   };
 };
 
-// Transform Shopify Products to Tailwind Related Products format
-export const transformShopifyProductsToRelatedProducts = (
+// Transform Products to Tailwind Related Products format
+export const transformProductsToRelatedProducts = (
   products: Product[],
 ): TailwindRelatedProduct[] => {
   return products.slice(0, 4).map((product, index) => {
