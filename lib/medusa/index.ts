@@ -26,7 +26,7 @@ const MEDUSA_BACKEND_URL =
 
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
-  debug: process.env.NODE_ENV === "development",
+  debug: false,
   publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
 });
 
@@ -45,9 +45,7 @@ async function getDefaultRegion(): Promise<HttpTypes.StoreRegion> {
   });
 
   if (!regions.length) {
-    throw new Error(
-      "No regions found in Medusa. Create at least one region.",
-    );
+    throw new Error("No regions found in Medusa. Create at least one region.");
   }
 
   cachedRegion = regions[0]!;
@@ -64,9 +62,7 @@ const CART_FIELDS =
 
 // --- Products ---
 
-export async function getProduct(
-  handle: string,
-): Promise<Product | undefined> {
+export async function getProduct(handle: string): Promise<Product | undefined> {
   "use cache";
   cacheTag(TAGS.products);
   cacheLife("days");
@@ -230,10 +226,7 @@ export async function getCollectionProducts({
     order = reverse
       ? "-variants.calculated_price.calculated_amount"
       : "variants.calculated_price.calculated_amount";
-  } else if (
-    sortKey === "CREATED_AT" ||
-    sortKey === "CREATED"
-  ) {
+  } else if (sortKey === "CREATED_AT" || sortKey === "CREATED") {
     order = reverse ? "-created_at" : "created_at";
   }
 
@@ -331,9 +324,7 @@ export async function addToCart(
   return transformCart(cart);
 }
 
-export async function removeFromCart(
-  lineIds: string[],
-): Promise<Cart> {
+export async function removeFromCart(lineIds: string[]): Promise<Cart> {
   const cartId = (await cookies()).get("cartId")?.value;
 
   if (!cartId) {
@@ -476,15 +467,10 @@ export async function getPages(): Promise<Page[]> {
 
 // --- Webhook Revalidation ---
 
-export async function revalidate(
-  req: NextRequest,
-): Promise<NextResponse> {
+export async function revalidate(req: NextRequest): Promise<NextResponse> {
   const secret = req.nextUrl.searchParams.get("secret");
 
-  if (
-    !secret ||
-    secret !== process.env.REVALIDATE_SECRET
-  ) {
+  if (!secret || secret !== process.env.REVALIDATE_SECRET) {
     console.error("Invalid revalidation secret.");
     return NextResponse.json({ status: 401 });
   }

@@ -11,25 +11,23 @@ import type {
 } from "lib/types";
 
 /**
- * Convert Medusa integer cents to Money string format.
- * Medusa stores amounts as integers (e.g., 2999 = $29.99).
- * Our internal types use string amounts (e.g., "29.99").
+ * Convert Medusa amount to Money string format.
+ * Medusa v2 calculated_price amounts are already in the main currency unit
+ * (e.g., 10 = $10.00), not in cents.
  */
 function toMoney(
   amount: number | undefined | null,
   currencyCode: string,
 ): Money {
   return {
-    amount: ((amount ?? 0) / 100).toFixed(2),
+    amount: (amount ?? 0).toFixed(2),
     currencyCode: currencyCode.toUpperCase(),
   };
 }
 
 function getCurrencyCode(product: HttpTypes.StoreProduct): string {
   const variant = product.variants?.[0];
-  return (
-    (variant as any)?.calculated_price?.currency_code || "USD"
-  );
+  return (variant as any)?.calculated_price?.currency_code || "USD";
 }
 
 function transformImage(
@@ -65,9 +63,7 @@ function transformVariant(
   };
 }
 
-function transformOption(
-  option: HttpTypes.StoreProductOption,
-): ProductOption {
+function transformOption(option: HttpTypes.StoreProductOption): ProductOption {
   return {
     id: option.id || "",
     name: option.title || "",
@@ -75,9 +71,7 @@ function transformOption(
   };
 }
 
-export function transformProduct(
-  product: HttpTypes.StoreProduct,
-): Product {
+export function transformProduct(product: HttpTypes.StoreProduct): Product {
   const currencyCode = getCurrencyCode(product);
   const variants = (product.variants || []).map((v) =>
     transformVariant(v, currencyCode),
@@ -117,15 +111,14 @@ export function transformProduct(
     descriptionHtml: product.description || "",
     options: (product.options || []).map(transformOption),
     priceRange: {
-      minVariantPrice: toMoney(minPrice * 100, currencyCode),
-      maxVariantPrice: toMoney(maxPrice * 100, currencyCode),
+      minVariantPrice: toMoney(minPrice, currencyCode),
+      maxVariantPrice: toMoney(maxPrice, currencyCode),
     },
     variants,
     featuredImage,
     images,
     seo: {
-      title:
-        (product.metadata?.seo_title as string) || product.title || "",
+      title: (product.metadata?.seo_title as string) || product.title || "",
       description:
         (product.metadata?.seo_description as string) ||
         product.description ||
@@ -142,13 +135,10 @@ export function transformCollection(
   return {
     handle: collection.handle || "",
     title: collection.title || "",
-    description:
-      (collection.metadata?.description as string) || "",
+    description: (collection.metadata?.description as string) || "",
     seo: {
       title:
-        (collection.metadata?.seo_title as string) ||
-        collection.title ||
-        "",
+        (collection.metadata?.seo_title as string) || collection.title || "",
       description:
         (collection.metadata?.seo_description as string) ||
         (collection.metadata?.description as string) ||
@@ -211,9 +201,6 @@ export function transformCart(cart: HttpTypes.StoreCart): Cart {
       totalTaxAmount: toMoney(cart.tax_total, currencyCode),
     },
     lines,
-    totalQuantity: lines.reduce(
-      (sum, line) => sum + line.quantity,
-      0,
-    ),
+    totalQuantity: lines.reduce((sum, line) => sum + line.quantity, 0),
   };
 }
