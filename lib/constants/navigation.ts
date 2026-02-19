@@ -3,14 +3,14 @@
  *
  * Single source of truth for all navigation items used across
  * desktop and mobile menus. These serve as fallback values when
- * Shopify navigation metaobjects are not configured.
+ * no Medusa collections are available.
  */
 
 import type { Navigation, NavigationLink } from "lib/types";
 
 /**
  * Default navigation structure
- * Used as fallback when Shopify metaobjects are not configured
+ * Used as fallback when no Medusa collections are available
  */
 export const DEFAULT_NAVIGATION: Navigation = {
   categories: [

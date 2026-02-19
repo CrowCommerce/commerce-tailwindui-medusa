@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js 16 ecommerce application built on Vercel's Commerce template, enhanced with premium Tailwind UI components. It integrates with Shopify via the Storefront API to provide a polished, production-ready shopping experience.
+This is a Next.js 16 ecommerce application built on Vercel's Commerce template, enhanced with premium Tailwind UI components. It integrates with Medusa.js via the Store API to provide a polished, production-ready shopping experience.
 
 **Tech Stack:**
 
@@ -13,7 +13,7 @@ This is a Next.js 16 ecommerce application built on Vercel's Commerce template, 
 - TypeScript (strict mode enabled)
 - Tailwind CSS 4.x + Tailwind UI components
 - Headless UI for accessible components
-- Shopify Storefront API
+- Medusa.js v2 (via @medusajs/js-sdk)
 
 ## Development Commands
 
@@ -36,14 +36,14 @@ pnpm test             # Runs prettier:check (no test suite currently)
 Required environment variables (see `.env.example`):
 
 ```
-SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
-SHOPIFY_STOREFRONT_ACCESS_TOKEN=your_token
+MEDUSA_BACKEND_URL=http://localhost:9000
+NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=your_publishable_key
 SITE_NAME=Your Store Name
 COMPANY_NAME=Your Company
-SHOPIFY_REVALIDATION_SECRET=your_webhook_secret
+REVALIDATE_SECRET=your_webhook_secret
 ```
 
-The app validates these on startup via `validateEnvironmentVariables()` in `lib/utils.ts`.
+The app validates `MEDUSA_BACKEND_URL` and `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` on startup via `validateEnvironmentVariables()` in `lib/utils.ts`.
 
 ## Architecture
 
@@ -62,7 +62,7 @@ app/
 │       ├── page.tsx       # Search results
 │       └── [collection]/  # Collection-specific search
 ├── product/[handle]/      # Individual product pages (static generation)
-├── [page]/                # Dynamic Shopify pages
+├── [page]/                # Dynamic pages
 ├── page.tsx               # Home page
 └── layout.tsx             # Root layout
 ```
@@ -71,35 +71,40 @@ app/
 
 - Product pages use `generateStaticParams` for static generation at build time
 - Collections are mapped to `/products/[collection]` paths
-- Shopify `/collections/*` URLs are rewritten to `/products/*`
+- `/collections/*` URLs are rewritten to `/products/*`
 
 ### Data Layer Architecture
 
-**Shopify Integration** (`lib/shopify/`):
+**Medusa Integration** (`lib/medusa/`):
 
-- `index.ts` - Core Shopify API client with `shopifyFetch()` helper
-- `queries/` - GraphQL queries for fetching data
-- `mutations/` - GraphQL mutations for cart operations
-- `fragments/` - Reusable GraphQL fragments
-- `types.ts` - TypeScript types for Shopify data
+- `index.ts` — Medusa SDK client + all data-fetching functions (REST via @medusajs/js-sdk)
+- `transforms.ts` — Functions to convert Medusa API types (`HttpTypes.StoreProduct`, etc.) to internal types
 
-**Data Transformation** (`lib/utils.ts`):
-The app transforms Shopify data into Tailwind UI component formats:
+**Types** (`lib/types.ts`):
+Backend-agnostic TypeScript types (`Product`, `Cart`, `Collection`, etc.) used throughout the app.
 
-- `transformShopifyProductToTailwind()` - Grid/catalog product format
-- `transformShopifyProductToTailwindDetail()` - Product detail page format
-- `transformShopifyProductsToRelatedProducts()` - Related products format
-- `transformShopifyCollectionToTailwind()` - Collection format
-- `getColorHex()` - Maps color names to hex codes for variant display
+**Data Transformation** (`lib/medusa/transforms.ts`):
+The app transforms Medusa data into internal types consumed by Tailwind UI components:
 
-**Why this matters:** When working with products, you'll need to use the appropriate transformer based on the UI context (grid vs detail page vs related products).
+- `transformProduct()` — Converts `HttpTypes.StoreProduct` to `Product`
+- `transformCollection()` — Converts `HttpTypes.StoreCollection` to `Collection`
+- `transformCart()` — Converts `HttpTypes.StoreCart` to `Cart`
+
+**UI Transformation** (`lib/utils.ts`):
+Additional helpers convert internal types to Tailwind UI component formats:
+
+- `transformProductToTailwind()` — Grid/catalog product format
+- `transformProductToTailwindDetail()` — Product detail page format
+- `transformProductsToRelatedProducts()` — Related products format
+- `transformCollectionToTailwind()` — Collection format
+- `getColorHex()` — Maps color names to hex codes for variant display
 
 ### Caching Strategy
 
 The app uses Next.js 16's experimental caching features:
 
 ```typescript
-// In lib/shopify/index.ts
+// In lib/medusa/index.ts
 export async function getProduct(handle: string) {
   "use cache";
   cacheTag(TAGS.products);
@@ -121,7 +126,7 @@ experimental: {
 **Cache invalidation:**
 
 - Cart actions call `revalidateTag(TAGS.cart, 'max')` and `revalidatePath('/', 'layout')`
-- Shopify webhooks trigger revalidation via `/api/revalidate`
+- Medusa webhooks trigger revalidation via `/api/revalidate`
 - Cache tags: `collections`, `products`, `cart` (defined in `lib/constants.ts`)
 
 ### Cart State Management
@@ -131,7 +136,7 @@ experimental: {
 In `components/cart/actions.ts`, all cart mutations follow this pattern:
 
 ```typescript
-await addToCart([{ merchandiseId, quantity }]);
+await addToCart([{ merchandiseId: selectedVariantId, quantity: 1 }]);
 revalidateTag(TAGS.cart, "max");
 revalidatePath("/", "layout"); // ← Essential for immediate UI updates
 ```
@@ -139,7 +144,7 @@ revalidatePath("/", "layout"); // ← Essential for immediate UI updates
 **Cart flow:**
 
 1. Cart ID stored in cookies (`cartId`)
-2. Server Actions (`addItem`, `removeItem`, `updateItemQuantity`) handle mutations
+2. Server Actions (`addItem`, `removeItem`, `updateItemQuantity`) handle mutations via Medusa SDK (`sdk.store.cart.*`)
 3. `useOptimistic` in cart components provides instant UI feedback
 4. `revalidatePath` ensures cart count/state updates globally
 
@@ -156,7 +161,7 @@ These exist because different UI contexts require different styling and formatti
 **Navigation** (`components/layout/`):
 
 - Desktop/mobile split navigation
-- Uses Shopify Navigation metaobjects or falls back to `DEFAULT_NAVIGATION` in `lib/shopify/index.ts`
+- Built from Medusa collections with fallback to `DEFAULT_NAVIGATION` in `lib/constants/navigation.ts`
 - Navigation structure includes categories, featured items, collections, brands, and pages
 
 **Cart** (`components/cart/`):
@@ -175,18 +180,11 @@ These exist because different UI contexts require different styling and formatti
 
 - **Strict mode enabled** - All strict checks on
 - **noUncheckedIndexedAccess: true** - Array/object access requires null checks
-- **baseUrl: "."** - Absolute imports from project root (e.g., `import { Cart } from 'lib/shopify/types'`)
+- **baseUrl: "."** - Absolute imports from project root (e.g., `import { Cart } from 'lib/types'`)
 
-### GraphQL Patterns
+### REST API via Medusa SDK
 
-All Shopify queries use GraphQL fragments for consistency:
-
-- `cartFragment` - Cart data structure
-- `imageFragment` - Image fields
-- `productFragment` - Product data structure
-- `seoFragment` - SEO metadata
-
-When adding new queries, reuse these fragments to maintain type consistency.
+The app uses the Medusa JS SDK (`@medusajs/js-sdk`) which communicates via REST endpoints (`/store/*`). There are no GraphQL queries. The SDK client is configured in `lib/medusa/index.ts`.
 
 ## Key Implementation Patterns
 
@@ -254,29 +252,31 @@ const [optimisticCart, addOptimisticItem] = useOptimistic(
 
 Remote image patterns configured in `next.config.ts`:
 
-- `cdn.shopify.com` - Shopify product images
+- `localhost` - Local Medusa backend images
+- `medusa-public-images.s3.eu-west-1.amazonaws.com` - Medusa hosted images
+- `medusa-server-testing.s3.amazonaws.com` - Medusa testing images
 - `via.placeholder.com` - Placeholder images
 - `tailwindcss.com` - Tailwind UI demo assets
 
 Formats: AVIF and WebP for optimal performance.
 
-## Navigation Metaobjects
+## Navigation
 
-The app supports custom navigation via Shopify metaobjects:
+Navigation is built dynamically from Medusa collections via `getNavigation()` in `lib/medusa/index.ts`:
 
-- Falls back to `DEFAULT_NAVIGATION` if metaobjects are empty
-- Navigation query in `lib/shopify/queries/navigation.ts`
-- Transformed in `getNavigation()` function
-
-When navigation appears broken, check if metaobjects are properly configured in Shopify admin.
+- If collections exist, they populate the navigation categories
+- Falls back to `DEFAULT_NAVIGATION` from `lib/constants/navigation.ts` when no collections are found
+- Footer menus are also derived from collections via `getMenu()`
 
 ## Common Gotchas
 
-1. **Cart not updating:** Ensure both `revalidateTag()` and `revalidatePath('/', 'layout')` are called
-2. **Products not showing:** Check for `HIDDEN_PRODUCT_TAG` ('nextjs-frontend-hidden') in product tags
-3. **Color variants not displaying:** Verify variants have a "Color" option and use `getColorHex()` mapping
-4. **Navigation empty:** Likely missing Shopify metaobjects, will use `DEFAULT_NAVIGATION` fallback
-5. **Build failures:** Missing environment variables - they're validated at startup
+1. **Cart not updating:** Ensure `revalidateTag(TAGS.cart, "max")` and `revalidatePath("/", "layout")` are both called
+2. **Products not showing:** Check if Medusa backend is running and at least one region is configured
+3. **Color variants not displaying:** Verify variants have a "Color" option
+4. **Navigation empty:** Falls back to `DEFAULT_NAVIGATION` from `lib/constants/navigation.ts`
+5. **Build failures:** Missing environment variables or Medusa backend not reachable
+6. **Prices showing $0.00:** Ensure products have `calculated_price` set (requires `region_id` in API calls)
+7. **Pages returning empty:** Medusa has no native CMS pages — `getPage()`/`getPages()` return stubs
 
 ## Performance Features
 
