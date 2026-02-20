@@ -9,7 +9,6 @@ import {
   updateCart,
 } from "lib/medusa";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function addItem(
@@ -17,7 +16,7 @@ export async function addItem(
   selectedVariantId: string | undefined,
 ) {
   if (!selectedVariantId) {
-    return "Error adding item to cart";
+    return "Please select a product variant";
   }
 
   try {
@@ -25,31 +24,25 @@ export async function addItem(
     revalidateTag(TAGS.cart, "max");
     revalidatePath("/", "layout");
   } catch (e) {
-    return "Error adding item to cart";
+    revalidateTag(TAGS.cart, "max");
+    revalidatePath("/", "layout");
+    return e instanceof Error ? e.message : "Error adding item to cart";
   }
 }
 
-export async function removeItem(prevState: any, merchandiseId: string) {
+export async function removeItem(prevState: any, lineItemId: string) {
+  if (!lineItemId) {
+    return "Missing item ID — please try again";
+  }
+
   try {
-    const cart = await getCart();
-
-    if (!cart) {
-      return "Error fetching cart";
-    }
-
-    const lineItem = cart.lines.find(
-      (line) => line.merchandise.id === merchandiseId,
-    );
-
-    if (lineItem && lineItem.id) {
-      await removeFromCart([lineItem.id]);
-      revalidateTag(TAGS.cart, "max");
-      revalidatePath("/", "layout");
-    } else {
-      return "Item not found in cart";
-    }
+    await removeFromCart([lineItemId]);
+    revalidateTag(TAGS.cart, "max");
+    revalidatePath("/", "layout");
   } catch (e) {
-    return "Error removing item from cart";
+    revalidateTag(TAGS.cart, "max");
+    revalidatePath("/", "layout");
+    return e instanceof Error ? e.message : "Error removing item from cart";
   }
 }
 
@@ -61,6 +54,13 @@ export async function updateItemQuantity(
   },
 ) {
   const { merchandiseId, quantity } = payload;
+
+  if (!merchandiseId) {
+    return "Missing product variant ID";
+  }
+  if (quantity < 0) {
+    return "Quantity cannot be negative";
+  }
 
   try {
     const cart = await getCart();
@@ -86,24 +86,22 @@ export async function updateItemQuantity(
         ]);
       }
     } else if (quantity > 0) {
-      // If the item doesn't exist in the cart and quantity > 0, add it
       await addToCart([{ merchandiseId, quantity }]);
     }
 
     revalidateTag(TAGS.cart, "max");
     revalidatePath("/", "layout");
   } catch (e) {
-    console.error(e);
-    return "Error updating item quantity";
+    revalidateTag(TAGS.cart, "max");
+    revalidatePath("/", "layout");
+    return e instanceof Error ? e.message : "Error updating item quantity";
   }
 }
 
 export async function redirectToCheckout() {
-  // Checkout not yet implemented with Medusa — redirect to cart
   redirect("/cart");
 }
 
 export async function createCartAndSetCookie() {
-  let cart = await createCart();
-  (await cookies()).set("cartId", cart.id!);
+  await createCart();
 }

@@ -35,7 +35,9 @@ export default function Cart() {
 
   useEffect(() => {
     if (!cart) {
-      createCartAndSetCookie();
+      createCartAndSetCookie().catch((e) => {
+        console.error("[Cart] Failed to create cart:", e);
+      });
     }
   }, [cart]);
 

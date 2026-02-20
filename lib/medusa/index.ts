@@ -11,8 +11,9 @@ import type {
   Product,
 } from "lib/types";
 import { cacheLife, cacheTag, revalidateTag } from "next/cache";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthHeaders, getCartId, removeCartId, setCartId } from "./cookies";
+import { medusaError } from "./error";
 import {
   transformCart,
   transformCollection,
@@ -58,7 +59,7 @@ const PRODUCT_FIELDS =
   "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags";
 
 const CART_FIELDS =
-  "*items,*items.product,*items.variant,*items.thumbnail,+items.total";
+  "*items,*items.product,*items.variant,*items.thumbnail,+items.total,*promotions,+shipping_methods.name";
 
 // --- Products ---
 
@@ -293,33 +294,71 @@ export async function getCollections(): Promise<Collection[]> {
 export async function createCart(): Promise<Cart> {
   const region = await getDefaultRegion();
 
-  const { cart } = await sdk.store.cart.create({
-    region_id: region.id,
-  });
+  const headers = {
+    ...(await getAuthHeaders()),
+  };
+
+  const { cart } = await sdk.store.cart.create(
+    { region_id: region.id },
+    {},
+    headers,
+  );
+
+  await setCartId(cart.id);
 
   return transformCart(cart);
+}
+
+export async function getOrSetCart(): Promise<Cart> {
+  const existingCartId = await getCartId();
+
+  if (existingCartId) {
+    const existing = await getCart();
+    if (existing) return existing;
+  }
+
+  return createCart();
 }
 
 export async function addToCart(
   lines: { merchandiseId: string; quantity: number }[],
 ): Promise<Cart> {
-  const cartId = (await cookies()).get("cartId")?.value;
+  const cartId = await getCartId();
 
   if (!cartId) {
-    throw new Error("No cart ID found in cookies");
+    throw new Error("No cart ID found. Please add an item to create a cart.");
   }
 
+  const headers = {
+    ...(await getAuthHeaders()),
+  };
+
   for (const line of lines) {
-    await sdk.store.cart.createLineItem(cartId, {
-      variant_id: line.merchandiseId,
-      quantity: line.quantity,
-    });
+    if (!line.merchandiseId) {
+      throw new Error("Missing variant ID when adding to cart");
+    }
+    if (line.quantity < 1) {
+      throw new Error("Quantity must be at least 1");
+    }
+
+    await sdk.store.cart
+      .createLineItem(
+        cartId,
+        {
+          variant_id: line.merchandiseId,
+          quantity: line.quantity,
+        },
+        {},
+        headers,
+      )
+      .catch(medusaError);
   }
 
   const { cart } = await sdk.client.fetch<{
     cart: HttpTypes.StoreCart;
   }>(`/store/carts/${cartId}`, {
     method: "GET",
+    headers,
     query: { fields: CART_FIELDS },
   });
 
@@ -327,20 +366,31 @@ export async function addToCart(
 }
 
 export async function removeFromCart(lineIds: string[]): Promise<Cart> {
-  const cartId = (await cookies()).get("cartId")?.value;
+  const cartId = await getCartId();
 
   if (!cartId) {
-    throw new Error("No cart ID found in cookies");
+    throw new Error("No cart ID found when removing item");
   }
 
+  const headers = {
+    ...(await getAuthHeaders()),
+  };
+
   for (const lineId of lineIds) {
-    await sdk.store.cart.deleteLineItem(cartId, lineId);
+    if (!lineId) {
+      throw new Error("Missing line item ID when removing from cart");
+    }
+
+    await sdk.store.cart
+      .deleteLineItem(cartId, lineId, {}, headers)
+      .catch(medusaError);
   }
 
   const { cart } = await sdk.client.fetch<{
     cart: HttpTypes.StoreCart;
   }>(`/store/carts/${cartId}`, {
     method: "GET",
+    headers,
     query: { fields: CART_FIELDS },
   });
 
@@ -354,22 +404,27 @@ export async function updateCart(
     quantity: number;
   }[],
 ): Promise<Cart> {
-  const cartId = (await cookies()).get("cartId")?.value;
+  const cartId = await getCartId();
 
   if (!cartId) {
-    throw new Error("No cart ID found in cookies");
+    throw new Error("No cart ID found when updating cart");
   }
 
+  const headers = {
+    ...(await getAuthHeaders()),
+  };
+
   for (const line of lines) {
-    await sdk.store.cart.updateLineItem(cartId, line.id, {
-      quantity: line.quantity,
-    });
+    await sdk.store.cart
+      .updateLineItem(cartId, line.id, { quantity: line.quantity }, {}, headers)
+      .catch(medusaError);
   }
 
   const { cart } = await sdk.client.fetch<{
     cart: HttpTypes.StoreCart;
   }>(`/store/carts/${cartId}`, {
     method: "GET",
+    headers,
     query: { fields: CART_FIELDS },
   });
 
@@ -377,24 +432,38 @@ export async function updateCart(
 }
 
 export async function getCart(): Promise<Cart | undefined> {
-  const cartId = (await cookies()).get("cartId")?.value;
+  const cartId = await getCartId();
 
   if (!cartId) {
     return undefined;
   }
+
+  const headers = {
+    ...(await getAuthHeaders()),
+  };
 
   try {
     const { cart } = await sdk.client.fetch<{
       cart: HttpTypes.StoreCart;
     }>(`/store/carts/${cartId}`, {
       method: "GET",
+      headers,
       query: { fields: CART_FIELDS },
     });
 
     if (!cart) return undefined;
 
     return transformCart(cart);
-  } catch {
+  } catch (error) {
+    console.error(
+      "[Cart] Failed to retrieve cart, clearing stale cookie:",
+      error,
+    );
+    try {
+      await removeCartId();
+    } catch {
+      // Cookie removal itself failed — not critical
+    }
     return undefined;
   }
 }
