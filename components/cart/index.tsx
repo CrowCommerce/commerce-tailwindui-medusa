@@ -45,13 +45,11 @@ export default function Cart() {
   useEffect(() => {
     if (
       cart?.totalQuantity &&
-      cart?.totalQuantity !== quantityRef.current &&
-      cart?.totalQuantity > 0
+      cart.totalQuantity !== quantityRef.current &&
+      cart.totalQuantity > 0
     ) {
-      if (!isOpen) {
-        setIsOpen(true);
-      }
-      quantityRef.current = cart?.totalQuantity;
+      setIsOpen(true);
+      quantityRef.current = cart.totalQuantity;
     }
   }, [isOpen, cart?.totalQuantity]);
 
@@ -234,30 +232,6 @@ export default function Cart() {
                         )}
                       </div>
                     </div>
-                    {/*
-                    <div className="py-4 text-sm text-neutral-500">
-                      <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1">
-                        <p>Taxes</p>
-                        <CartPrice
-                          className="text-right text-base text-black"
-                          amount={cart?.cost.totalTaxAmount.amount || '0'}
-                          currencyCode={cart?.cost.totalTaxAmount.currencyCode || cart?.cost.totalAmount.currencyCode || 'USD'}
-                        />
-                      </div>
-                      <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1">
-                        <p>Shipping</p>
-                        <p className="text-right">Calculated at checkout</p>
-                      </div>
-                      <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1">
-                        <p>Total</p>
-                        <CartPrice
-                          className="text-right text-base text-black"
-                          amount={cart?.cost.totalAmount.amount || '0'}
-                          currencyCode={cart?.cost.totalAmount.currencyCode || 'USD'}
-                        />
-                      </div>
-                    </div>
-                    */}
                     <p className="mt-0.5 text-sm text-gray-500">
                       Shipping and taxes calculated at checkout.
                     </p>

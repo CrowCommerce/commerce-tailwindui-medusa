@@ -291,12 +291,35 @@ export async function getCollections(): Promise<Collection[]> {
 
 // --- Cart ---
 
+/**
+ * Fetch the current cart by ID with full line item details.
+ * Shared by mutation functions that need to return the updated cart.
+ */
+async function fetchCart(cartId: string): Promise<Cart> {
+  const headers = await getAuthHeaders();
+
+  const { cart } = await sdk.client.fetch<{
+    cart: HttpTypes.StoreCart;
+  }>(`/store/carts/${cartId}`, {
+    method: "GET",
+    headers,
+    query: { fields: CART_FIELDS },
+  });
+
+  return transformCart(cart);
+}
+
+async function requireCartId(context: string): Promise<string> {
+  const cartId = await getCartId();
+  if (!cartId) {
+    throw new Error(`No cart ID found when ${context}`);
+  }
+  return cartId;
+}
+
 export async function createCart(): Promise<Cart> {
   const region = await getDefaultRegion();
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  };
+  const headers = await getAuthHeaders();
 
   const { cart } = await sdk.store.cart.create(
     { region_id: region.id },
@@ -305,7 +328,6 @@ export async function createCart(): Promise<Cart> {
   );
 
   await setCartId(cart.id);
-
   return transformCart(cart);
 }
 
@@ -323,15 +345,8 @@ export async function getOrSetCart(): Promise<Cart> {
 export async function addToCart(
   lines: { merchandiseId: string; quantity: number }[],
 ): Promise<Cart> {
-  const cartId = await getCartId();
-
-  if (!cartId) {
-    throw new Error("No cart ID found. Please add an item to create a cart.");
-  }
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  };
+  const cartId = await requireCartId("adding to cart");
+  const headers = await getAuthHeaders();
 
   for (const line of lines) {
     if (!line.merchandiseId) {
@@ -344,37 +359,19 @@ export async function addToCart(
     await sdk.store.cart
       .createLineItem(
         cartId,
-        {
-          variant_id: line.merchandiseId,
-          quantity: line.quantity,
-        },
+        { variant_id: line.merchandiseId, quantity: line.quantity },
         {},
         headers,
       )
       .catch(medusaError);
   }
 
-  const { cart } = await sdk.client.fetch<{
-    cart: HttpTypes.StoreCart;
-  }>(`/store/carts/${cartId}`, {
-    method: "GET",
-    headers,
-    query: { fields: CART_FIELDS },
-  });
-
-  return transformCart(cart);
+  return fetchCart(cartId);
 }
 
 export async function removeFromCart(lineIds: string[]): Promise<Cart> {
-  const cartId = await getCartId();
-
-  if (!cartId) {
-    throw new Error("No cart ID found when removing item");
-  }
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  };
+  const cartId = await requireCartId("removing item");
+  const headers = await getAuthHeaders();
 
   for (const lineId of lineIds) {
     if (!lineId) {
@@ -386,15 +383,7 @@ export async function removeFromCart(lineIds: string[]): Promise<Cart> {
       .catch(medusaError);
   }
 
-  const { cart } = await sdk.client.fetch<{
-    cart: HttpTypes.StoreCart;
-  }>(`/store/carts/${cartId}`, {
-    method: "GET",
-    headers,
-    query: { fields: CART_FIELDS },
-  });
-
-  return transformCart(cart);
+  return fetchCart(cartId);
 }
 
 export async function updateCart(
@@ -404,15 +393,8 @@ export async function updateCart(
     quantity: number;
   }[],
 ): Promise<Cart> {
-  const cartId = await getCartId();
-
-  if (!cartId) {
-    throw new Error("No cart ID found when updating cart");
-  }
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  };
+  const cartId = await requireCartId("updating cart");
+  const headers = await getAuthHeaders();
 
   for (const line of lines) {
     await sdk.store.cart
@@ -420,50 +402,21 @@ export async function updateCart(
       .catch(medusaError);
   }
 
-  const { cart } = await sdk.client.fetch<{
-    cart: HttpTypes.StoreCart;
-  }>(`/store/carts/${cartId}`, {
-    method: "GET",
-    headers,
-    query: { fields: CART_FIELDS },
-  });
-
-  return transformCart(cart);
+  return fetchCart(cartId);
 }
 
 export async function getCart(): Promise<Cart | undefined> {
   const cartId = await getCartId();
-
-  if (!cartId) {
-    return undefined;
-  }
-
-  const headers = {
-    ...(await getAuthHeaders()),
-  };
+  if (!cartId) return undefined;
 
   try {
-    const { cart } = await sdk.client.fetch<{
-      cart: HttpTypes.StoreCart;
-    }>(`/store/carts/${cartId}`, {
-      method: "GET",
-      headers,
-      query: { fields: CART_FIELDS },
-    });
-
-    if (!cart) return undefined;
-
-    return transformCart(cart);
+    return await fetchCart(cartId);
   } catch (error) {
     console.error(
       "[Cart] Failed to retrieve cart, clearing stale cookie:",
       error,
     );
-    try {
-      await removeCartId();
-    } catch {
-      // Cookie removal itself failed — not critical
-    }
+    await removeCartId().catch(() => {});
     return undefined;
   }
 }

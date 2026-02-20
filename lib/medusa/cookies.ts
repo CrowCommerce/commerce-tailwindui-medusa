@@ -54,13 +54,9 @@ export async function removeAuthToken(): Promise<void> {
 export async function getAuthHeaders(): Promise<
   { authorization: string } | Record<string, never>
 > {
-  try {
-    const token = await getAuthToken();
-    if (!token) return {};
-    return { authorization: `Bearer ${token}` };
-  } catch {
-    return {};
-  }
+  const token = await getAuthToken();
+  if (!token) return {};
+  return { authorization: `Bearer ${token}` };
 }
 
 // --- Cache Isolation (infrastructure for per-user caching) ---
@@ -81,10 +77,7 @@ export async function getCacheTag(tag: string): Promise<string> {
 export async function getCacheOptions(
   tag: string,
 ): Promise<{ tags: string[] } | Record<string, never>> {
-  if (typeof window !== "undefined") return {};
-
   const cacheTag = await getCacheTag(tag);
   if (!cacheTag) return {};
-
   return { tags: [cacheTag] };
 }

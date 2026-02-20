@@ -11,6 +11,11 @@ import {
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
+function revalidateCart(): void {
+  revalidateTag(TAGS.cart, "max");
+  revalidatePath("/", "layout");
+}
+
 export async function addItem(
   prevState: any,
   selectedVariantId: string | undefined,
@@ -21,12 +26,10 @@ export async function addItem(
 
   try {
     await addToCart([{ merchandiseId: selectedVariantId, quantity: 1 }]);
-    revalidateTag(TAGS.cart, "max");
-    revalidatePath("/", "layout");
   } catch (e) {
-    revalidateTag(TAGS.cart, "max");
-    revalidatePath("/", "layout");
     return e instanceof Error ? e.message : "Error adding item to cart";
+  } finally {
+    revalidateCart();
   }
 }
 
@@ -37,12 +40,10 @@ export async function removeItem(prevState: any, lineItemId: string) {
 
   try {
     await removeFromCart([lineItemId]);
-    revalidateTag(TAGS.cart, "max");
-    revalidatePath("/", "layout");
   } catch (e) {
-    revalidateTag(TAGS.cart, "max");
-    revalidatePath("/", "layout");
     return e instanceof Error ? e.message : "Error removing item from cart";
+  } finally {
+    revalidateCart();
   }
 }
 
@@ -77,24 +78,15 @@ export async function updateItemQuantity(
       if (quantity === 0) {
         await removeFromCart([lineItem.id]);
       } else {
-        await updateCart([
-          {
-            id: lineItem.id,
-            merchandiseId,
-            quantity,
-          },
-        ]);
+        await updateCart([{ id: lineItem.id, merchandiseId, quantity }]);
       }
     } else if (quantity > 0) {
       await addToCart([{ merchandiseId, quantity }]);
     }
-
-    revalidateTag(TAGS.cart, "max");
-    revalidatePath("/", "layout");
   } catch (e) {
-    revalidateTag(TAGS.cart, "max");
-    revalidatePath("/", "layout");
     return e instanceof Error ? e.message : "Error updating item quantity";
+  } finally {
+    revalidateCart();
   }
 }
 

@@ -4,31 +4,34 @@
  * The @medusajs/js-sdk throws FetchError with { message, status, statusText }
  * rather than axios-style errors (which the reference starter uses).
  */
-export function medusaError(error: unknown): never {
-  // FetchError from @medusajs/js-sdk
-  if (
-    error &&
+
+interface MedusaFetchError {
+  status?: number;
+  statusText?: string;
+  message: string;
+}
+
+function isFetchError(error: unknown): error is MedusaFetchError {
+  return (
+    error !== null &&
     typeof error === "object" &&
     "status" in error &&
     "message" in error
-  ) {
-    const fe = error as {
-      status?: number;
-      statusText?: string;
-      message: string;
-    };
+  );
+}
+
+export function medusaError(error: unknown): never {
+  if (isFetchError(error)) {
     console.error(
-      `[Medusa] ${fe.status ?? "unknown"} ${fe.statusText ?? ""}: ${fe.message}`,
+      `[Medusa] ${error.status ?? "unknown"} ${error.statusText ?? ""}: ${error.message}`,
     );
-    const msg = fe.message || "An error occurred with the Medusa request";
+    const msg = error.message || "An error occurred with the Medusa request";
     throw new Error(msg.charAt(0).toUpperCase() + msg.slice(1));
   }
 
-  // Standard Error
   if (error instanceof Error) {
     throw error;
   }
 
-  // Unknown shape
   throw new Error("An unknown error occurred with the Medusa request");
 }
