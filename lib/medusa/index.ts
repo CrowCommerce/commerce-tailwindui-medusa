@@ -141,6 +141,8 @@ export async function getProducts({
     .map(transformProduct);
 }
 
+// Placeholder: Medusa v2 has no recommendation engine. This returns the 4 most
+// recent products (excluding the current one) as a "you might also like" section.
 export async function getProductRecommendations(
   productId: string,
 ): Promise<Product[]> {
