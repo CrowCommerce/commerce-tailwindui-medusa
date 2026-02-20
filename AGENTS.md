@@ -52,6 +52,8 @@ components/
 lib/
 ├── medusa/
 │   ├── index.ts               # SDK client + all data-fetching functions
+│   ├── cookies.ts             # Secure cookie management + auth headers
+│   ├── error.ts               # Centralized Medusa SDK error formatting
 │   └── transforms.ts          # Medusa → internal type transformations
 ├── constants.ts               # Cache tags, sort options, hidden product tag
 ├── constants/navigation.ts    # DEFAULT_NAVIGATION fallback, UTILITY_NAV
@@ -126,7 +128,13 @@ const sdk = new Medusa({
 
 **Single-region mode:** `getDefaultRegion()` fetches the first region and caches it in memory. All product queries include `region_id` to get `calculated_price`.
 
-**Field expansion:** Products use `PRODUCT_FIELDS` to get calculated prices, inventory, and variant images. Carts use `CART_FIELDS` to get items with product/variant/thumbnail data.
+**Field expansion:** Products use `PRODUCT_FIELDS` to get calculated prices, inventory, and variant images. Carts use `CART_FIELDS` to get items with product/variant/thumbnail data, plus promotions and shipping methods.
+
+**Cookie management (`lib/medusa/cookies.ts`):** All cookie access goes through dedicated functions (`getCartId`, `setCartId`, `removeCartId`, `getAuthToken`, `setAuthToken`, `removeAuthToken`). Cart cookie is `_medusa_cart_id` with `httpOnly`, `sameSite: strict`, `secure` (in prod), 30-day expiry. Auth token cookie is `_medusa_jwt` (infrastructure — not populated until customer accounts are implemented).
+
+**Auth headers:** `getAuthHeaders()` returns `{ authorization: "Bearer ..." }` when a JWT exists, or `{}` otherwise. All cart mutations pass auth headers to the SDK. This is infrastructure for customer accounts — currently returns `{}`.
+
+**Error handling (`lib/medusa/error.ts`):** `medusaError()` formats `FetchError` from `@medusajs/js-sdk` (shape: `{ status, statusText, message }`) into user-readable `Error` objects with server-side logging.
 
 ## Exported Data Functions
 
@@ -141,6 +149,7 @@ const sdk = new Medusa({
 | `getNavigation()`                          | `"use cache"` | `collections`           | `days`   |
 | `getMenu(handle)`                          | `"use cache"` | `collections`           | `days`   |
 | `getCart()`                                | No cache      | —                       | —        |
+| `getOrSetCart()`                           | No cache      | —                       | —        |
 | `createCart()`                             | No cache      | —                       | —        |
 | `addToCart(lines)`                         | No cache      | —                       | —        |
 | `removeFromCart(lineIds)`                  | No cache      | —                       | —        |
@@ -183,19 +192,20 @@ export async function getProduct(handle: string) {
 
 ### Flow
 
-1. **Storage:** Cart ID stored in `cartId` cookie
-2. **Creation:** `createCartAndSetCookie()` creates cart and sets cookie
+1. **Storage:** Cart ID stored in `_medusa_cart_id` cookie (secure, httpOnly) via `lib/medusa/cookies.ts`
+2. **Creation:** `createCartAndSetCookie()` → `createCart()` (sets cookie internally)
 3. **Mutations:** Server Actions in `components/cart/actions.ts`:
    - `addItem(prevState, variantId)` — Add to cart
-   - `removeItem(prevState, merchandiseId)` — Remove from cart
+   - `removeItem(prevState, lineItemId)` — Remove from cart (uses line item ID directly)
    - `updateItemQuantity(prevState, {merchandiseId, quantity})` — Update quantity
    - `redirectToCheckout()` — Stub, redirects to `/cart`
 4. **Optimistic UI:** Cart components use `useOptimistic` for instant feedback
-5. **Revalidation pattern** (every mutation):
+5. **Revalidation pattern** (every mutation, in `finally` block):
    ```typescript
    revalidateTag(TAGS.cart, "max");
    revalidatePath("/", "layout"); // Essential for immediate UI updates
    ```
+6. **Error recovery:** Revalidation runs in `finally` blocks — ensures optimistic state re-syncs even on failure
 
 ### Cart UI
 
