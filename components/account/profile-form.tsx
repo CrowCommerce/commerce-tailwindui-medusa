@@ -1,0 +1,101 @@
+"use client";
+
+import { updateCustomer } from "lib/medusa/customer";
+import type { HttpTypes } from "@medusajs/types";
+import { useActionState } from "react";
+
+type ProfileFormProps = {
+  customer: HttpTypes.StoreCustomer;
+};
+
+export function ProfileForm({ customer }: ProfileFormProps) {
+  const [error, formAction, isPending] = useActionState(updateCustomer, null);
+
+  return (
+    <form action={formAction}>
+      <div className="space-y-8 sm:space-y-0 sm:divide-y sm:divide-gray-900/10 sm:border-t sm:border-t-gray-900/10">
+        <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+          <label
+            htmlFor="first_name"
+            className="block text-sm/6 font-medium text-gray-900 sm:pt-1.5"
+          >
+            First name
+          </label>
+          <div className="mt-2 sm:col-span-2 sm:mt-0">
+            <input
+              id="first_name"
+              type="text"
+              name="first_name"
+              defaultValue={customer.first_name || ""}
+              autoComplete="given-name"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:max-w-xs sm:text-sm/6"
+            />
+          </div>
+        </div>
+
+        <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+          <label
+            htmlFor="last_name"
+            className="block text-sm/6 font-medium text-gray-900 sm:pt-1.5"
+          >
+            Last name
+          </label>
+          <div className="mt-2 sm:col-span-2 sm:mt-0">
+            <input
+              id="last_name"
+              type="text"
+              name="last_name"
+              defaultValue={customer.last_name || ""}
+              autoComplete="family-name"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:max-w-xs sm:text-sm/6"
+            />
+          </div>
+        </div>
+
+        <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+          <label className="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">
+            Email address
+          </label>
+          <div className="mt-2 sm:col-span-2 sm:mt-0">
+            <p className="py-1.5 text-sm/6 text-gray-500">{customer.email}</p>
+          </div>
+        </div>
+
+        <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+          <label
+            htmlFor="phone"
+            className="block text-sm/6 font-medium text-gray-900 sm:pt-1.5"
+          >
+            Phone
+          </label>
+          <div className="mt-2 sm:col-span-2 sm:mt-0">
+            <input
+              id="phone"
+              type="tel"
+              name="phone"
+              defaultValue={customer.phone || ""}
+              autoComplete="tel"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:max-w-xs sm:text-sm/6"
+            />
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mt-4 rounded-md bg-red-50 p-4">
+          <p className="text-sm text-red-800">{error}</p>
+        </div>
+      )}
+
+      <div className="mt-6 flex items-center justify-end gap-x-6">
+        <button
+          type="submit"
+          disabled={isPending}
+          className="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isPending ? "Saving..." : "Save"}
+        </button>
+      </div>
+    </form>
+  );
+}
