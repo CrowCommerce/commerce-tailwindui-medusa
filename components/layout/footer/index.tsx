@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Suspense } from "react";
 import FooterCopyright from "./footer-copyright";
 import FooterNavigation from "./footer-navigation";
@@ -56,9 +57,11 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-flow-col md:auto-rows-min md:grid-cols-12 md:gap-x-8 md:gap-y-16">
             {/* Image section */}
             <div className="col-span-1 md:col-span-2 lg:col-start-1 lg:row-start-1">
-              <img
+              <Image
                 alt=""
                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+                width={32}
+                height={32}
                 className="h-8 w-auto"
               />
             </div>

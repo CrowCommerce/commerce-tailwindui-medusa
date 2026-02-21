@@ -1,12 +1,16 @@
 import { GeistSans } from "geist/font/sans";
 import { baseUrl } from "lib/utils";
 import { Metadata } from "next";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import "./globals.css";
 
 import { CartProvider } from "components/cart/cart-context";
 import Footer from "components/layout/footer";
 import Navbar from "components/layout/navbar";
+import {
+  NotificationContainer,
+  NotificationProvider,
+} from "components/notifications";
 import { SearchDialog, SearchProvider } from "components/search-command";
 import { getCart } from "lib/medusa";
 
@@ -24,24 +28,31 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+async function AppProviders({ children }: { children: ReactNode }) {
   const cartPromise = getCart();
 
   return (
+    <CartProvider cartPromise={cartPromise}>
+      <NotificationProvider>
+        <SearchProvider>
+          <NotificationContainer />
+          <SearchDialog />
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </SearchProvider>
+      </NotificationProvider>
+    </CartProvider>
+  );
+}
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
     <html lang="en" className={GeistSans.variable}>
       <body className="bg-neutral-50 ">
-        <CartProvider cartPromise={cartPromise}>
-          <SearchProvider>
-            <SearchDialog />
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-          </SearchProvider>
-        </CartProvider>
+        <Suspense>
+          <AppProviders>{children}</AppProviders>
+        </Suspense>
       </body>
     </html>
   );

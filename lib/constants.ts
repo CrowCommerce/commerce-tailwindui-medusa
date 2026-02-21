@@ -44,7 +44,9 @@ export const TAGS = {
   collections: "collections",
   products: "products",
   cart: "cart",
+  customers: "customers",
 };
 
+export const DEFAULT_LOCALE = "en-US";
 export const HIDDEN_PRODUCT_TAG = "nextjs-frontend-hidden";
 export const DEFAULT_OPTION = "Default Title";

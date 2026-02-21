@@ -421,6 +421,27 @@ export async function getCart(): Promise<Cart | undefined> {
   }
 }
 
+// --- Orders ---
+
+export async function getOrders(): Promise<HttpTypes.StoreOrder[]> {
+  const headers = await getAuthHeaders();
+  if (!headers.authorization) return [];
+
+  try {
+    const { orders } = await sdk.client.fetch<{
+      orders: HttpTypes.StoreOrder[];
+    }>("/store/orders", {
+      method: "GET",
+      headers,
+      query: { limit: 50, order: "-created_at" },
+    });
+    return orders;
+  } catch (error) {
+    console.error("[Orders] Failed to retrieve orders:", error);
+    return [];
+  }
+}
+
 // --- Navigation ---
 
 export async function getNavigation(): Promise<Navigation> {
