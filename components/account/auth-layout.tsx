@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 type AuthLayoutProps = {
@@ -37,7 +36,6 @@ export function AuthLayout({ heading, subtext, children }: AuthLayoutProps) {
           fill
           sizes="50vw"
           className="object-cover"
-          priority
         />
       </div>
     </div>

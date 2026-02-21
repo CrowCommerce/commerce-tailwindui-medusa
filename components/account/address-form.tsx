@@ -19,6 +19,8 @@ export function AddressForm({ address, onClose }: AddressFormProps) {
   const action = isEditing ? updateCustomerAddress : addCustomerAddress;
   const submitLabel = isEditing ? "Update address" : "Add address";
   const { showNotification } = useNotification();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const [result, formAction, isPending] = useActionState<
     ActionResult,
@@ -34,11 +36,11 @@ export function AddressForm({ address, onClose }: AddressFormProps) {
           "success",
           isEditing ? "Address updated" : "Address added",
         );
-        onClose();
+        onCloseRef.current();
       }
       prevResultRef.current = result;
     }
-  }, [result, showNotification, isEditing, onClose]);
+  }, [result, showNotification, isEditing]);
 
   return (
     <form action={formAction} className="space-y-6">

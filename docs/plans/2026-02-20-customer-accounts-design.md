@@ -90,7 +90,7 @@ app/
 
 ### Login Page (`(auth)/account/login/page.tsx`)
 
-Split screen layout. Form on left, hero image on right (hidden on mobile).
+Split-screen layout. Form on left, hero image on right (hidden on mobile).
 
 - Fields: Email, Password
 - Links: "Forgot password?" (stub), "Don't have an account? Create one" > `/account/register`

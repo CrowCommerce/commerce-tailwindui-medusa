@@ -4,6 +4,8 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -15,6 +17,7 @@ export type Notification = {
   type: NotificationType;
   title: string;
   message?: string;
+  visible: boolean;
 };
 
 type NotificationContextValue = {
@@ -25,6 +28,7 @@ type NotificationContextValue = {
     message?: string,
   ) => void;
   dismissNotification: (id: string) => void;
+  removeNotification: (id: string) => void;
 };
 
 const NotificationContext = createContext<NotificationContextValue | null>(
@@ -35,26 +39,58 @@ let nextId = 0;
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
+
+  const removeNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
 
   const dismissNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, visible: false } : n)),
+    );
   }, []);
 
   const showNotification = useCallback(
     (type: NotificationType, title: string, message?: string) => {
       const id = String(++nextId);
-      setNotifications((prev) => [...prev, { id, type, title, message }]);
+      setNotifications((prev) => [
+        ...prev,
+        { id, type, title, message, visible: true },
+      ]);
 
-      setTimeout(() => {
+      const timer = setTimeout(() => {
+        timersRef.current.delete(id);
         dismissNotification(id);
       }, 5000);
+      timersRef.current.set(id, timer);
     },
     [dismissNotification],
   );
 
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+      timers.clear();
+    };
+  }, []);
+
   return (
     <NotificationContext.Provider
-      value={{ notifications, showNotification, dismissNotification }}
+      value={{
+        notifications,
+        showNotification,
+        dismissNotification,
+        removeNotification,
+      }}
     >
       {children}
     </NotificationContext.Provider>

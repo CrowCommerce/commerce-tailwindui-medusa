@@ -6,7 +6,8 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useNotification } from "./notification-context";
 
 export function NotificationContainer() {
-  const { notifications, dismissNotification } = useNotification();
+  const { notifications, dismissNotification, removeNotification } =
+    useNotification();
 
   return (
     <div
@@ -17,8 +18,9 @@ export function NotificationContainer() {
         {notifications.map((notification) => (
           <Transition
             key={notification.id}
-            show
+            show={notification.visible}
             appear
+            afterLeave={() => removeNotification(notification.id)}
             enter="transition duration-300 ease-out"
             enterFrom="translate-x-full opacity-0"
             enterTo="translate-x-0 opacity-100"
