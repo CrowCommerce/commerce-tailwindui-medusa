@@ -17,6 +17,7 @@
 ## Task 1: Add `customers` cache tag
 
 **Files:**
+
 - Modify: `lib/constants.ts:43-47`
 
 **Step 1: Add the tag**
@@ -49,9 +50,11 @@ git commit -m "feat: add customers cache tag to constants"
 ## Task 2: Create `lib/medusa/customer.ts` — auth functions
 
 **Files:**
+
 - Create: `lib/medusa/customer.ts`
 
 **Context:**
+
 - Follow the pattern in `components/cart/actions.ts` (Server Actions with try/catch/finally, return error strings)
 - Follow the auth flow from `references/nextjs-starter-medusa/src/lib/data/customer.ts`
 - Use `sdk` from `lib/medusa/index.ts` (exported as `sdk`)
@@ -359,10 +362,12 @@ git commit -m "feat: add customer auth data layer and orders fetching"
 ## Task 3: Create login page
 
 **Files:**
+
 - Create: `app/(auth)/account/login/page.tsx`
 - Create: `components/account/login-form.tsx`
 
 **Context:**
+
 - TailwindUI split screen layout (form left, image right)
 - Replace `indigo-600` with `primary-600` to match the project's theme tokens in `globals.css`
 - Use `useActionState` from React 19 (not `react-dom`)
@@ -519,6 +524,7 @@ git commit -m "feat: add login page with split screen layout"
 ## Task 4: Create register page
 
 **Files:**
+
 - Create: `app/(auth)/account/register/page.tsx`
 - Create: `components/account/register-form.tsx`
 
@@ -729,6 +735,7 @@ git commit -m "feat: add register page with split screen layout"
 ## Task 5: Create account layout with auth guard and tabs
 
 **Files:**
+
 - Create: `app/account/layout.tsx`
 - Create: `components/account/account-tabs.tsx`
 
@@ -826,6 +833,7 @@ git commit -m "feat: add account layout with auth guard and top tabs"
 ## Task 6: Create profile page
 
 **Files:**
+
 - Create: `app/account/page.tsx`
 - Create: `components/account/profile-form.tsx`
 
@@ -985,10 +993,12 @@ git commit -m "feat: add profile page with labels-on-left form layout"
 ## Task 7: Create orders page
 
 **Files:**
+
 - Create: `app/account/orders/page.tsx`
 - Create: `components/account/order-card.tsx`
 
 **Context:**
+
 - Uses TailwindUI "Invoice panels" layout from `tailwindplus-components.json`
 - Fetches orders via `getOrders()` from `lib/medusa/index.ts`
 - Medusa v2 order type: `HttpTypes.StoreOrder` with `id`, `display_id`, `created_at`, `total`, `status`, `items`
@@ -1152,11 +1162,13 @@ git commit -m "feat: add order history page with invoice panel cards"
 ## Task 8: Create addresses page
 
 **Files:**
+
 - Create: `app/account/addresses/page.tsx`
 - Create: `components/account/address-card.tsx`
 - Create: `components/account/address-form.tsx`
 
 **Context:**
+
 - Customer addresses come from `retrieveCustomer()` with `*addresses` field expansion
 - Address type: `HttpTypes.StoreCustomerAddress`
 - TailwindUI "Stacked" form layout for the address form
@@ -1507,9 +1519,11 @@ git commit -m "feat: add addresses page with address CRUD"
 ## Task 9: Create account dropdown for navbar
 
 **Files:**
+
 - Create: `components/account/account-dropdown.tsx`
 
 **Context:**
+
 - Uses Headless UI `Menu` component (already a dependency — used for mobile nav)
 - Based on TailwindUI "Dropdowns > With icons" pattern
 - Sign out triggers `signout()` Server Action via `<form action={signout}>`
@@ -1608,10 +1622,12 @@ git commit -m "feat: add account dropdown menu component"
 ## Task 10: Update navbar with auth-aware display
 
 **Files:**
+
 - Modify: `components/layout/navbar/navbar-data.tsx`
 - Modify: `components/layout/navbar/navbar-client.tsx`
 
 **Context:**
+
 - `navbar-data.tsx` is a server component that fetches navigation data. Add `retrieveCustomer()` call here.
 - `navbar-client.tsx` receives props and renders the full navbar. Add `customer` prop and conditional auth display.
 - The commented-out account link is at lines 298-302 of `navbar-client.tsx`.
@@ -1668,7 +1684,9 @@ export default function NavbarClient({
 Replace the commented-out account section (around line 296-302) with:
 
 ```tsx
-{/* Account */}
+{
+  /* Account */
+}
 <div className="lg:ml-4">
   {customer ? (
     <AccountDropdown
@@ -1683,7 +1701,7 @@ Replace the commented-out account section (around line 296-302) with:
       Sign in
     </Link>
   )}
-</div>
+</div>;
 ```
 
 Add to mobile menu (after the `navigation.pages` section, around line 246):
@@ -1693,18 +1711,27 @@ Add to mobile menu (after the `navigation.pages` section, around line 246):
   {customer ? (
     <>
       <div className="flow-root">
-        <Link href="/account" className="-m-2 block p-2 font-medium text-gray-900">
+        <Link
+          href="/account"
+          className="-m-2 block p-2 font-medium text-gray-900"
+        >
           My Account
         </Link>
       </div>
       <div className="flow-root">
-        <Link href="/account/orders" className="-m-2 block p-2 font-medium text-gray-900">
+        <Link
+          href="/account/orders"
+          className="-m-2 block p-2 font-medium text-gray-900"
+        >
           Order History
         </Link>
       </div>
       <div className="flow-root">
         <form action={signout}>
-          <button type="submit" className="-m-2 block p-2 font-medium text-gray-900">
+          <button
+            type="submit"
+            className="-m-2 block p-2 font-medium text-gray-900"
+          >
             Sign out
           </button>
         </form>
@@ -1713,12 +1740,18 @@ Add to mobile menu (after the `navigation.pages` section, around line 246):
   ) : (
     <>
       <div className="flow-root">
-        <Link href="/account/login" className="-m-2 block p-2 font-medium text-gray-900">
+        <Link
+          href="/account/login"
+          className="-m-2 block p-2 font-medium text-gray-900"
+        >
           Sign in
         </Link>
       </div>
       <div className="flow-root">
-        <Link href="/account/register" className="-m-2 block p-2 font-medium text-gray-900">
+        <Link
+          href="/account/register"
+          className="-m-2 block p-2 font-medium text-gray-900"
+        >
           Create account
         </Link>
       </div>
@@ -1811,6 +1844,7 @@ bun dev
 ## Task 12: Update TODO.md and commit
 
 **Files:**
+
 - Modify: `TODO.md`
 
 **Step 1: Mark completed phases**

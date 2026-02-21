@@ -17,17 +17,17 @@ Full customer authentication and account management for the commerce-tailwindui-
 
 All UI sourced from `tailwindplus-components.json` (657 components). Prioritize ecommerce section; fall back to application-ui when no ecommerce equivalent exists.
 
-| Page/Component | TailwindUI Source |
-|---|---|
-| Login / Register pages | **Sign-in and Registration > Split screen** |
-| Profile edit form | **Form Layouts > Labels on left** |
-| Address edit form | **Form Layouts > Stacked** |
-| Order history | **Order History > Invoice panels** |
-| Account dropdown (nav) | **Dropdowns > With icons** |
-| User avatar (nav) | **Avatars > Circular with placeholder initials** |
-| Form inputs | **Input Groups** (various, already extracted) |
-| Buttons | **Buttons > Primary buttons** (already extracted) |
-| Status badges (orders) | **Badges** (already extracted) |
+| Page/Component         | TailwindUI Source                                 |
+| ---------------------- | ------------------------------------------------- |
+| Login / Register pages | **Sign-in and Registration > Split screen**       |
+| Profile edit form      | **Form Layouts > Labels on left**                 |
+| Address edit form      | **Form Layouts > Stacked**                        |
+| Order history          | **Order History > Invoice panels**                |
+| Account dropdown (nav) | **Dropdowns > With icons**                        |
+| User avatar (nav)      | **Avatars > Circular with placeholder initials**  |
+| Form inputs            | **Input Groups** (various, already extracted)     |
+| Buttons                | **Buttons > Primary buttons** (already extracted) |
+| Status badges (orders) | **Badges** (already extracted)                    |
 
 ## Data Layer
 
@@ -82,6 +82,7 @@ app/
 **Why route groups:** The `(auth)` group prevents login/register from inheriting the `account/layout.tsx` auth guard, which would cause an infinite redirect loop (unauthenticated user hits guard > redirect to login > login inherits same guard > redirect to login > ...).
 
 **Redirect logic:**
+
 - `(auth)/account/login` and `register`: Call `retrieveCustomer()`. If logged in, redirect to `/account`.
 - `account/layout.tsx`: Call `retrieveCustomer()`. If `null`, redirect to `/(auth)/account/login`.
 
@@ -154,15 +155,16 @@ Same split screen layout.
 
 Client component using Headless UI `Menu`.
 
-| Item | Icon | Action |
-|---|---|---|
-| My Account | `UserIcon` | Link to `/account` |
-| Order History | `ClipboardDocumentListIcon` | Link to `/account/orders` |
-| Sign out | `ArrowRightStartOnRectangleIcon` | `signout()` Server Action via `<form>` |
+| Item          | Icon                             | Action                                 |
+| ------------- | -------------------------------- | -------------------------------------- |
+| My Account    | `UserIcon`                       | Link to `/account`                     |
+| Order History | `ClipboardDocumentListIcon`      | Link to `/account/orders`              |
+| Sign out      | `ArrowRightStartOnRectangleIcon` | `signout()` Server Action via `<form>` |
 
 ### Mobile Menu
 
 Add conditional auth section to mobile slide-out:
+
 - Logged out: "Sign in" and "Create account" links
 - Logged in: Account, Orders, Sign out links
 
@@ -183,22 +185,26 @@ components/account/
 ## Implementation Phases
 
 ### Phase 1: Auth data layer
+
 - Create `lib/medusa/customer.ts` with all Server Actions
 - Add `customers` cache tag to `lib/constants.ts`
 - Add `getOrders()` function to `lib/medusa/index.ts`
 
 ### Phase 2: Auth UI (login/register)
+
 - Create `(auth)` route group with login and register pages
 - Build `LoginForm` and `RegisterForm` client components
 - Extract split screen layout from `tailwindplus-components.json`
 
 ### Phase 3: Account pages
+
 - Create guarded `account/layout.tsx` with top tabs
 - Build profile page with `ProfileForm`
 - Build orders page with `OrderCard` (invoice panels)
 - Build addresses page with `AddressForm` and `AddressCard`
 
 ### Phase 4: Auth-aware navigation
+
 - Update `navbar-data.tsx` to fetch customer
 - Update `navbar-client.tsx` with conditional auth display
 - Build `AccountDropdown` component
@@ -210,7 +216,7 @@ components/account/
 - Login flow: login > cart transferred > redirected to /account
 - Signout flow: sign out > cookies cleared > caches invalidated > redirected to /
 - Back button after signout: cache invalidated by signout, no stale customer data
-- Auth guard: unauthenticated user visiting /account/* redirected to login
+- Auth guard: unauthenticated user visiting /account/\* redirected to login
 - Inverse guard: authenticated user visiting /account/login redirected to /account
 - Profile update: form submission > customer data updated > cache revalidated
 - Address CRUD: add, edit, delete addresses with inline error display
