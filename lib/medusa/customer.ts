@@ -103,16 +103,40 @@ export async function signup(
 
   let tokenSet = false;
   try {
-    const registerToken = await sdk.auth.register("customer", "emailpass", {
-      email,
-      password,
-    });
-    await setAuthToken(registerToken as string);
+    // Step 1: Register auth identity, or login if identity already exists
+    // (e.g. an admin user registering as a customer with the same email)
+    let token: string;
+    try {
+      token = (await sdk.auth.register("customer", "emailpass", {
+        email,
+        password,
+      })) as string;
+    } catch (regError: unknown) {
+      const isExistingIdentity =
+        regError instanceof Error &&
+        regError.message === "Identity with email already exists";
+
+      if (!isExistingIdentity) throw regError;
+
+      const loginResult = await sdk.auth.login("customer", "emailpass", {
+        email,
+        password,
+      });
+
+      if (typeof loginResult !== "string") {
+        return "Authentication requires additional steps not supported by this flow";
+      }
+      token = loginResult;
+    }
+
+    await setAuthToken(token);
     tokenSet = true;
 
+    // Step 2: Create the customer record
     const headers = await getAuthHeaders();
     await sdk.store.customer.create(customerForm, {}, headers);
 
+    // Step 3: Login to get a fresh token bound to the customer
     const loginToken = await sdk.auth.login("customer", "emailpass", {
       email,
       password,
