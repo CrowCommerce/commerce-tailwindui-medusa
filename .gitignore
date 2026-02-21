@@ -2,20 +2,12 @@
 
 # dependencies
 /node_modules
-/.pnp
 .pnp.js
 
 # testing
 /coverage
 .playwright
 .playwright-mcp
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
 
 # misc
 .DS_Store
@@ -30,6 +22,8 @@ yarn-error.log*
 # local env files
 .env*
 !.env.example
+!.env.template
+!.env.test
 
 # vercel
 .vercel
@@ -37,4 +31,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.env*.local
+
+# storefront
+storefront/node_modules/
+storefront/.next/
+storefront/.env.local
+storefront/.pnp
+storefront/out/
+storefront/build/
+storefront/coverage/
+
+# backend
+backend/node_modules/
+backend/.medusa/
+backend/.env
+backend/.cache/
+backend/dist/

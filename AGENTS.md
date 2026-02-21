@@ -25,40 +25,54 @@ Next.js 16 ecommerce storefront built on Vercel's Commerce template, enhanced wi
 ## Directory Structure
 
 ```
-app/
-├── (store)/                   # Route group — shares store layout
-│   ├── layout.tsx             # Store-specific layout (nav + footer)
-│   ├── products/
-│   │   ├── page.tsx           # All products grid
-│   │   └── [collection]/      # Collection-filtered products
-│   └── search/
-│       ├── page.tsx           # Search results
-│       └── [collection]/      # Collection-specific search
-├── product/[handle]/          # Product detail pages (static generation)
-├── [page]/                    # Dynamic CMS pages (stub)
-├── api/revalidate/            # Webhook endpoint for cache invalidation
-├── page.tsx                   # Home page
-├── layout.tsx                 # Root layout
-└── globals.css                # Tailwind v4 theme tokens
+storefront/                        # Next.js 16 frontend
+├── app/
+│   ├── (store)/                   # Route group — shares store layout
+│   │   ├── layout.tsx             # Store-specific layout (nav + footer)
+│   │   ├── products/
+│   │   │   ├── page.tsx           # All products grid
+│   │   │   └── [collection]/      # Collection-filtered products
+│   │   └── search/
+│   │       ├── page.tsx           # Search results
+│   │       └── [collection]/      # Collection-specific search
+│   ├── product/[handle]/          # Product detail pages (static generation)
+│   ├── [page]/                    # Dynamic CMS pages (stub)
+│   ├── api/revalidate/            # Webhook endpoint for cache invalidation
+│   ├── page.tsx                   # Home page
+│   ├── layout.tsx                 # Root layout
+│   └── globals.css                # Tailwind v4 theme tokens
+├── components/
+│   ├── cart/                      # Cart drawer, actions (Server Actions), optimistic UI
+│   ├── home/                      # Home page sections, Tailwind UI product/collection types
+│   ├── layout/                    # Desktop/mobile navigation, footer
+│   ├── price/                     # Context-specific price components (grid, detail, cart)
+│   ├── product/                   # Product detail components
+│   └── search-command/            # Command palette (Cmd+K) with debounced search
+├── lib/
+│   ├── medusa/
+│   │   ├── index.ts               # SDK client + all data-fetching functions
+│   │   ├── cookies.ts             # Secure cookie management + auth headers
+│   │   ├── customer.ts            # Customer auth: login, signup, signout, profile
+│   │   ├── error.ts               # Centralized Medusa SDK error formatting
+│   │   └── transforms.ts          # Medusa → internal type transformations
+│   ├── constants.ts               # Cache tags, sort options, hidden product tag
+│   ├── constants/navigation.ts    # DEFAULT_NAVIGATION fallback, UTILITY_NAV
+│   ├── types.ts                   # Backend-agnostic internal types
+│   └── utils.ts                   # URL helpers, env validation, Tailwind UI transforms
+├── package.json
+└── next.config.ts
 
-components/
-├── cart/                      # Cart drawer, actions (Server Actions), optimistic UI
-├── home/                      # Home page sections, Tailwind UI product/collection types
-├── layout/                    # Desktop/mobile navigation, footer
-├── price/                     # Context-specific price components (grid, detail, cart)
-├── product/                   # Product detail components
-└── search-command/            # Command palette (Cmd+K) with debounced search
-
-lib/
-├── medusa/
-│   ├── index.ts               # SDK client + all data-fetching functions
-│   ├── cookies.ts             # Secure cookie management + auth headers
-│   ├── error.ts               # Centralized Medusa SDK error formatting
-│   └── transforms.ts          # Medusa → internal type transformations
-├── constants.ts               # Cache tags, sort options, hidden product tag
-├── constants/navigation.ts    # DEFAULT_NAVIGATION fallback, UTILITY_NAV
-├── types.ts                   # Backend-agnostic internal types
-└── utils.ts                   # URL helpers, env validation, Tailwind UI transforms
+backend/                           # Medusa v2 backend
+├── src/
+│   ├── modules/                   # Custom modules (data models, services)
+│   ├── api/                       # Custom REST API routes
+│   ├── workflows/                 # Custom workflows and steps
+│   ├── links/                     # Module link definitions
+│   ├── admin/                     # Admin UI extensions (React/Vite)
+│   ├── subscribers/               # Event subscribers
+│   └── scripts/                   # CLI scripts (seed, etc.)
+├── medusa-config.ts
+└── package.json
 ```
 
 ## Route Structure
@@ -289,14 +303,14 @@ Validated on startup by `validateEnvironmentVariables()` in `lib/utils.ts`. Only
 
 ## Medusa Backend
 
-Lives at `../medusa-backend` (sibling directory). Uses PostgreSQL 17 with `medusa_db` database.
+Lives at `backend/` within this monorepo. Uses PostgreSQL 17 with `medusa_db` database. Uses `npm` (not bun).
 
 ### Starting
 
 ```bash
 brew services start postgresql@17          # 1. Start PostgreSQL
-cd ../medusa-backend && npm run dev        # 2. Start Medusa (port 9000)
-bun dev                                     # 3. Start storefront (port 3000)
+cd backend && npm run dev                  # 2. Start Medusa (port 9000)
+cd storefront && bun dev                   # 3. Start storefront (port 3000)
 ```
 
 ### Stopping
@@ -314,9 +328,10 @@ Dashboard at `http://localhost:9000/app`. Manages products, collections, orders,
 ### Useful Commands
 
 ```bash
-cd ../medusa-backend
+cd backend
 npm run dev                                                  # Start dev server
 npx medusa db:migrate                                        # Run pending migrations
+npx medusa db:generate <module-name>                         # Generate migration for custom module
 npx medusa user -e admin@example.com -p password             # Create admin user
 ```
 
