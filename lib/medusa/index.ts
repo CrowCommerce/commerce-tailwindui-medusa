@@ -436,7 +436,8 @@ export async function getOrders(): Promise<HttpTypes.StoreOrder[]> {
       query: { limit: 50, order: "-created_at" },
     });
     return orders;
-  } catch {
+  } catch (error) {
+    console.error("[Orders] Failed to retrieve orders:", error);
     return [];
   }
 }

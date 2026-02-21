@@ -9,6 +9,29 @@
 - [ ] Wishlist / saved items
 - [ ] CMS pages (`getPage`/`getPages` return stubs)
 
+## Build Reviews
+
+- [ ] Product reviews & ratings (star ratings, written reviews, moderation)
+- [ ] Review submission form with order verification
+- [ ] Aggregate ratings on product pages and collection grids
+- [ ] Admin review moderation workflow
+
+## Wishlist
+
+- [ ] Wishlist / saved items (heart icon on product cards and detail pages)
+- [ ] Persistent wishlist for authenticated customers (Medusa custom endpoint or metadata)
+- [ ] Guest wishlist via localStorage with merge on login
+- [ ] Wishlist page under `/account/wishlist`
+- [ ] "Move to cart" action from wishlist
+
+## Agentic Commerce
+
+- [ ] AI-powered product recommendations (conversational shopping assistant)
+- [ ] Natural language search and product discovery
+- [ ] Automated cart building from customer intent ("I need an outfit for a summer wedding")
+- [ ] Personalized re-order suggestions based on purchase history
+- [ ] AI-assisted customer support (order status, returns, FAQ)
+
 ## Completed
 
 - [x] Harden cart infrastructure — secure cookies, auth headers, error handling, input validation

@@ -7,6 +7,10 @@ import "./globals.css";
 import { CartProvider } from "components/cart/cart-context";
 import Footer from "components/layout/footer";
 import Navbar from "components/layout/navbar";
+import {
+  NotificationContainer,
+  NotificationProvider,
+} from "components/notifications";
 import { SearchDialog, SearchProvider } from "components/search-command";
 import { getCart } from "lib/medusa";
 
@@ -29,12 +33,15 @@ async function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <CartProvider cartPromise={cartPromise}>
-      <SearchProvider>
-        <SearchDialog />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-      </SearchProvider>
+      <NotificationProvider>
+        <SearchProvider>
+          <NotificationContainer />
+          <SearchDialog />
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </SearchProvider>
+      </NotificationProvider>
     </CartProvider>
   );
 }

@@ -35,7 +35,7 @@ All UI sourced from `tailwindplus-components.json` (657 components). Prioritize 
 
 `"use server"` directive. All functions are Server Actions.
 
-```
+```ts
 retrieveCustomer()          → StoreCustomer | null
 signup(state, formData)     → Server Action (useActionState)
 login(state, formData)      → Server Action (useActionState)
@@ -67,11 +67,11 @@ Same pattern as cart: `medusaError()` for SDK errors, Server Actions return erro
 
 ## Route Structure
 
-```
+```text
 app/
 ├── (auth)/account/                 # Unguarded route group
-│   ├── login/page.tsx              # Login (split screen)
-│   └── register/page.tsx           # Register (split screen)
+│   ├── login/page.tsx              # Login (split-screen)
+│   └── register/page.tsx           # Register (split-screen)
 ├── account/                        # Guarded by layout auth check
 │   ├── layout.tsx                  # Auth guard + top tab navigation
 │   ├── page.tsx                    # Profile (default tab)
@@ -100,7 +100,7 @@ Split screen layout. Form on left, hero image on right (hidden on mobile).
 
 ### Register Page (`(auth)/account/register/page.tsx`)
 
-Same split screen layout.
+Same split-screen layout.
 
 - Fields: First name, Last name, Email, Phone (optional, `type="tel"`), Password
 - Phone: raw text input, no format validation (Medusa stores `string | null`, no server-side format enforcement)
@@ -170,7 +170,7 @@ Add conditional auth section to mobile slide-out:
 
 ## Component Structure
 
-```
+```text
 components/account/
 ├── login-form.tsx              # useActionState + login Server Action
 ├── register-form.tsx           # useActionState + signup Server Action
@@ -194,7 +194,7 @@ components/account/
 
 - Create `(auth)` route group with login and register pages
 - Build `LoginForm` and `RegisterForm` client components
-- Extract split screen layout from `tailwindplus-components.json`
+- Extract split-screen layout from `tailwindplus-components.json`
 
 ### Phase 3: Account pages
 

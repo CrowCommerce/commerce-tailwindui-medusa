@@ -2,6 +2,7 @@
 
 import { deleteCustomerAddress } from "lib/medusa/customer";
 import type { HttpTypes } from "@medusajs/types";
+import { useNotification } from "components/notifications";
 
 type AddressCardProps = {
   address: HttpTypes.StoreCustomerAddress;
@@ -9,10 +10,16 @@ type AddressCardProps = {
 };
 
 export function AddressCard({ address, onEdit }: AddressCardProps) {
+  const { showNotification } = useNotification();
+
   async function handleDelete() {
     if (!confirm("Are you sure you want to delete this address?")) return;
     const error = await deleteCustomerAddress(address.id);
-    if (error) alert(error);
+    if (error) {
+      showNotification("error", "Failed to delete address", error);
+    } else {
+      showNotification("success", "Address deleted");
+    }
   }
 
   return (

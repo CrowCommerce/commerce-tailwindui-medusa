@@ -14,6 +14,8 @@ import {
   setAuthToken,
 } from "lib/medusa/cookies";
 
+export type ActionResult = { error?: string; success?: boolean } | null;
+
 function revalidateCustomer(): void {
   revalidateTag(TAGS.customers, "max");
   revalidatePath("/", "layout");
@@ -52,8 +54,11 @@ export async function login(
   prevState: string | null,
   formData: FormData,
 ): Promise<string | null> {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.trim();
   const password = formData.get("password") as string;
+
+  if (!email) return "Email is required";
+  if (!password) return "Password is required";
 
   try {
     const token = await sdk.auth.login("customer", "emailpass", {
@@ -79,13 +84,21 @@ export async function signup(
   prevState: string | null,
   formData: FormData,
 ): Promise<string | null> {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.trim();
   const password = formData.get("password") as string;
+  const firstName = (formData.get("first_name") as string)?.trim();
+  const lastName = (formData.get("last_name") as string)?.trim();
+
+  if (!email) return "Email is required";
+  if (!password) return "Password is required";
+  if (!firstName) return "First name is required";
+  if (!lastName) return "Last name is required";
+
   const customerForm = {
     email,
-    first_name: formData.get("first_name") as string,
-    last_name: formData.get("last_name") as string,
-    phone: (formData.get("phone") as string) || undefined,
+    first_name: firstName,
+    last_name: lastName,
+    phone: (formData.get("phone") as string)?.trim() || undefined,
   };
 
   let tokenSet = false;
@@ -138,9 +151,9 @@ export async function signout(): Promise<void> {
 }
 
 export async function updateCustomer(
-  prevState: string | null,
+  prevState: ActionResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<ActionResult> {
   const body: HttpTypes.StoreUpdateCustomer = {
     first_name: formData.get("first_name") as string,
     last_name: formData.get("last_name") as string,
@@ -152,12 +165,14 @@ export async function updateCustomer(
   try {
     await sdk.store.customer.update(body, {}, headers);
   } catch (e) {
-    return e instanceof Error ? e.message : "Error updating profile";
+    return {
+      error: e instanceof Error ? e.message : "Error updating profile",
+    };
   } finally {
     revalidateCustomer();
   }
 
-  return null;
+  return { success: true };
 }
 
 function parseAddressFields(
@@ -178,9 +193,9 @@ function parseAddressFields(
 }
 
 export async function addCustomerAddress(
-  prevState: string | null,
+  prevState: ActionResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<ActionResult> {
   const headers = await getAuthHeaders();
 
   try {
@@ -190,20 +205,22 @@ export async function addCustomerAddress(
       headers,
     );
   } catch (e) {
-    return e instanceof Error ? e.message : "Error adding address";
+    return {
+      error: e instanceof Error ? e.message : "Error adding address",
+    };
   } finally {
     revalidateCustomer();
   }
 
-  return null;
+  return { success: true };
 }
 
 export async function updateCustomerAddress(
-  prevState: string | null,
+  prevState: ActionResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<ActionResult> {
   const addressId = formData.get("address_id") as string;
-  if (!addressId) return "Address ID is required";
+  if (!addressId) return { error: "Address ID is required" };
 
   const headers = await getAuthHeaders();
 
@@ -215,12 +232,14 @@ export async function updateCustomerAddress(
       headers,
     );
   } catch (e) {
-    return e instanceof Error ? e.message : "Error updating address";
+    return {
+      error: e instanceof Error ? e.message : "Error updating address",
+    };
   } finally {
     revalidateCustomer();
   }
 
-  return null;
+  return { success: true };
 }
 
 export async function deleteCustomerAddress(

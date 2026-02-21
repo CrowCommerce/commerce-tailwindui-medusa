@@ -1,15 +1,30 @@
 "use client";
 
-import { updateCustomer } from "lib/medusa/customer";
+import { updateCustomer, type ActionResult } from "lib/medusa/customer";
 import type { HttpTypes } from "@medusajs/types";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { useNotification } from "components/notifications";
 
 type ProfileFormProps = {
   customer: HttpTypes.StoreCustomer;
 };
 
 export function ProfileForm({ customer }: ProfileFormProps) {
-  const [error, formAction, isPending] = useActionState(updateCustomer, null);
+  const [result, formAction, isPending] = useActionState<
+    ActionResult,
+    FormData
+  >(updateCustomer, null);
+  const { showNotification } = useNotification();
+  const prevResultRef = useRef(result);
+
+  useEffect(() => {
+    if (result !== prevResultRef.current) {
+      if (result?.success) {
+        showNotification("success", "Profile updated");
+      }
+      prevResultRef.current = result;
+    }
+  }, [result, showNotification]);
 
   return (
     <form action={formAction}>
@@ -81,9 +96,9 @@ export function ProfileForm({ customer }: ProfileFormProps) {
         </div>
       </div>
 
-      {error && (
+      {result?.error && (
         <div className="mt-4 rounded-md bg-red-50 p-4">
-          <p className="text-sm text-red-800">{error}</p>
+          <p className="text-sm text-red-800">{result.error}</p>
         </div>
       )}
 

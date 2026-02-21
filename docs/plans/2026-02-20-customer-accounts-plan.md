@@ -368,7 +368,7 @@ git commit -m "feat: add customer auth data layer and orders fetching"
 
 **Context:**
 
-- TailwindUI split screen layout (form left, image right)
+- TailwindUI split-screen layout (form left, image right)
 - Replace `indigo-600` with `primary-600` to match the project's theme tokens in `globals.css`
 - Use `useActionState` from React 19 (not `react-dom`)
 - The `login` Server Action is in `lib/medusa/customer.ts`
@@ -516,7 +516,7 @@ Expected: Split screen layout with login form on left, image on right
 
 ```bash
 git add app/\(auth\)/account/login/page.tsx components/account/login-form.tsx
-git commit -m "feat: add login page with split screen layout"
+git commit -m "feat: add login page with split-screen layout"
 ```
 
 ---
@@ -727,7 +727,7 @@ Expected: Split screen with registration form (first name, last name, email, pho
 
 ```bash
 git add app/\(auth\)/account/register/page.tsx components/account/register-form.tsx
-git commit -m "feat: add register page with split screen layout"
+git commit -m "feat: add register page with split-screen layout"
 ```
 
 ---
