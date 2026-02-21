@@ -11,19 +11,31 @@ import {
   TabPanels,
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { AccountDropdown } from "components/account/account-dropdown";
 import Cart from "components/cart";
 import { SearchButton } from "components/search-command";
+import { signout } from "lib/medusa/customer";
 import { Navigation } from "lib/types";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import NavbarDesktop from "./navbar-desktop";
 
+type CustomerData = {
+  firstName: string | null;
+  lastName: string | null;
+};
+
+type NavbarClientProps = {
+  navigation: Navigation;
+  customer: CustomerData | null;
+};
+
 export default function NavbarClient({
   navigation,
-}: {
-  navigation: Navigation;
-}) {
+  customer,
+}: NavbarClientProps) {
   const [open, setOpen] = useState(false);
   const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
@@ -36,37 +48,31 @@ export default function NavbarClient({
 
   // Auto-close menu on resize to desktop
   useEffect(() => {
-    const onResize = () => {
-      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+    function onResize() {
+      if (window.innerWidth >= 1024) {
         setOpen(false);
       }
-    };
+    }
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  // Handle menu close and return focus
-  const handleClose = (value: boolean) => {
+  function handleClose(value: boolean) {
     setOpen(value);
     if (!value) {
-      // Return focus to hamburger button after menu closes
       setTimeout(() => {
         hamburgerButtonRef.current?.focus();
       }, 100);
     }
-  };
+  }
 
   return (
     <div className="bg-white">
@@ -245,6 +251,58 @@ export default function NavbarClient({
                 </div>
               ))}
             </div>
+
+            <div className="space-y-6 border-t border-gray-200 px-4 py-6">
+              {customer ? (
+                <>
+                  <div className="flow-root">
+                    <Link
+                      href="/account"
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      My Account
+                    </Link>
+                  </div>
+                  <div className="flow-root">
+                    <Link
+                      href="/account/orders"
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Order History
+                    </Link>
+                  </div>
+                  <div className="flow-root">
+                    <form action={signout}>
+                      <button
+                        type="submit"
+                        className="-m-2 block p-2 font-medium text-gray-900"
+                      >
+                        Sign out
+                      </button>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flow-root">
+                    <Link
+                      href="/account/login"
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Sign in
+                    </Link>
+                  </div>
+                  <div className="flow-root">
+                    <Link
+                      href="/account/register"
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Create account
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
           </DialogPanel>
         </div>
       </Dialog>
@@ -284,9 +342,11 @@ export default function NavbarClient({
               {/* Logo */}
               <Link prefetch={true} href="/" className="flex">
                 <span className="sr-only">Your Company</span>
-                <img
+                <Image
                   alt=""
                   src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+                  width={32}
+                  height={32}
                   className="h-8 w-auto"
                 />
               </Link>
@@ -296,10 +356,21 @@ export default function NavbarClient({
                 <SearchButton className="hidden rounded-md p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2 lg:block" />
 
                 {/* Account */}
-                {/* <Link href="#" className="p-2 text-gray-400 hover:text-gray-500 lg:ml-4">
-                <span className="sr-only">Account</span>
-                <UserIcon aria-hidden="true" className="size-6" />
-              </Link> */}
+                <div className="lg:ml-4">
+                  {customer ? (
+                    <AccountDropdown
+                      firstName={customer.firstName}
+                      lastName={customer.lastName}
+                    />
+                  ) : (
+                    <Link
+                      href="/account/login"
+                      className="p-2 text-sm font-medium text-gray-700 hover:text-gray-800"
+                    >
+                      Sign in
+                    </Link>
+                  )}
+                </div>
 
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
