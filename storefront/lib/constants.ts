@@ -45,6 +45,7 @@ export const TAGS = {
   products: "products",
   cart: "cart",
   customers: "customers",
+  reviews: "reviews",
 };
 
 export const DEFAULT_LOCALE = "en-US";

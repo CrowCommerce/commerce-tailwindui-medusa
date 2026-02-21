@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { ProductPageContent } from "components/product/product-page-content";
 import RelatedProductsComponent from "components/product/related-products";
+import { ProductReviewsSection } from "components/reviews/ProductReviewsSection";
 import { HIDDEN_PRODUCT_TAG } from "lib/constants";
 import { getProduct, getProductRecommendations, getProducts } from "lib/medusa";
 import type { Product } from "lib/types";
@@ -68,6 +69,17 @@ export default async function ProductPage(props: {
   return (
     <ProductPageContent
       productPromise={productPromise}
+      reviewsSlot={
+        <Suspense
+          fallback={
+            <div className="mx-auto max-w-7xl px-4 py-8">
+              <div className="h-32 animate-pulse rounded bg-gray-200" />
+            </div>
+          }
+        >
+          <ProductReviewsSection productPromise={productPromise} />
+        </Suspense>
+      }
       relatedProductsSlot={
         <Suspense
           fallback={

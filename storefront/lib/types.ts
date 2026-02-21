@@ -131,3 +131,22 @@ export type Navigation = {
   categories: NavigationCategory[];
   pages: NavigationLink[];
 };
+
+// --- Reviews ---
+
+export type Review = {
+  id: string;
+  title: string;
+  content: string;
+  rating: number;
+  first_name: string;
+  last_name: string;
+  created_at: string;
+};
+
+export type ProductReviews = {
+  reviews: Review[];
+  averageRating: number;
+  count: number;
+  ratingDistribution: { rating: number; count: number }[];
+};

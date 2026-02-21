@@ -9,9 +9,11 @@ import { Suspense, use, type ReactNode } from "react";
 
 export function ProductPageContent({
   productPromise,
+  reviewsSlot,
   relatedProductsSlot,
 }: {
   productPromise: Promise<Product | undefined>;
+  reviewsSlot: ReactNode;
   relatedProductsSlot: ReactNode;
 }) {
   const product = use(productPromise);
@@ -79,6 +81,7 @@ export function ProductPageContent({
           />
         </ProductProvider>
       </Suspense>
+      {reviewsSlot}
       {relatedProductsSlot}
     </div>
   );
