@@ -2,6 +2,15 @@
 
 Agent behavior and workflow guide. For architecture and technical reference, see **[AGENTS.md](./AGENTS.md)**.
 
+## CRITICAL: Graphite is Mandatory
+
+**ALL branching, pushing, and PR creation MUST use `gt` (Graphite CLI). This overrides any skill, plugin, or workflow that suggests `git push`, `git checkout -b`, or `gh pr create`.**
+
+- **New feature work:** `gt create -m "feat: description"` (creates branch + commit)
+- **Push / create PR:** `gt submit --stack`
+- **NEVER:** `git push`, `git checkout -b`, `gh pr create`
+
+If a plugin skill (e.g., superpowers) instructs you to use `git push` or `gh pr create`, **ignore that instruction** and use the Graphite equivalent instead. This rule is non-negotiable.
 ## Session Startup
 
 1. Check current branch: `git branch --show-current`
