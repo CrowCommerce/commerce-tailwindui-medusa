@@ -187,6 +187,7 @@ export type TailwindRelatedProduct = {
 // Transform Product to Tailwind Product Detail format
 export const transformProductToTailwindDetail = (
   product: Product,
+  averageRating?: number,
 ): TailwindProductDetail => {
   // Map images to Tailwind format
   const images = product.images.map((image, index) => ({
@@ -276,7 +277,7 @@ export const transformProductToTailwindDetail = (
     price,
     priceAmount,
     priceCurrency,
-    rating: 4, // Default placeholder rating
+    rating: averageRating ?? 0,
     images:
       images.length > 0
         ? images

@@ -8,6 +8,7 @@ import RelatedProductsComponent from "components/product/related-products";
 import { ProductReviewsSection } from "components/reviews/ProductReviewsSection";
 import { HIDDEN_PRODUCT_TAG } from "lib/constants";
 import { getProduct, getProductRecommendations, getProducts } from "lib/medusa";
+import { getProductReviews } from "lib/medusa/reviews";
 import type { Product } from "lib/types";
 import { transformProductsToRelatedProducts } from "lib/utils";
 import { Suspense } from "react";
@@ -66,9 +67,14 @@ export default async function ProductPage(props: {
 
   if (!productPromise) return notFound();
 
+  const reviewsPromise = productPromise.then((product) =>
+    product ? getProductReviews(product.id) : null,
+  );
+
   return (
     <ProductPageContent
       productPromise={productPromise}
+      reviewsPromise={reviewsPromise}
       reviewsSlot={
         <Suspense
           fallback={

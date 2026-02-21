@@ -2,21 +2,24 @@
 
 import { ProductProvider } from "components/product/product-context";
 import ProductWrapper from "components/product/product-wrapper";
-import { Product } from "lib/types";
+import { Product, ProductReviews } from "lib/types";
 import { baseUrl, transformProductToTailwindDetail } from "lib/utils";
 import { notFound } from "next/navigation";
 import { Suspense, use, type ReactNode } from "react";
 
 export function ProductPageContent({
   productPromise,
+  reviewsPromise,
   reviewsSlot,
   relatedProductsSlot,
 }: {
   productPromise: Promise<Product | undefined>;
+  reviewsPromise: Promise<ProductReviews | null>;
   reviewsSlot: ReactNode;
   relatedProductsSlot: ReactNode;
 }) {
   const product = use(productPromise);
+  const reviewsData = use(reviewsPromise);
 
   if (!product) return notFound();
 
@@ -57,7 +60,10 @@ export function ProductPageContent({
     ],
   };
 
-  const transformedProduct = transformProductToTailwindDetail(product);
+  const transformedProduct = transformProductToTailwindDetail(
+    product,
+    reviewsData?.averageRating,
+  );
 
   return (
     <div className="bg-white pb-24">
