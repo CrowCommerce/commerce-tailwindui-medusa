@@ -16,6 +16,7 @@ import Cart from "components/cart";
 import { SearchButton } from "components/search-command";
 import { signout } from "lib/medusa/customer";
 import { Navigation } from "lib/types";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -341,9 +342,11 @@ export default function NavbarClient({
               {/* Logo */}
               <Link prefetch={true} href="/" className="flex">
                 <span className="sr-only">Your Company</span>
-                <img
+                <Image
                   alt=""
                   src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+                  width={32}
+                  height={32}
                   className="h-8 w-auto"
                 />
               </Link>

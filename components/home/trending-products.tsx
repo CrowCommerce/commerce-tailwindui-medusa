@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "./types";
 
@@ -39,11 +40,15 @@ export default function TrendingProducts({ products }: TrendingProductsProps) {
                   className="inline-flex w-64 flex-col text-center lg:w-auto"
                 >
                   <div className="group relative">
-                    <img
-                      alt={product.imageAlt}
-                      src={product.imageSrc}
-                      className="aspect-square w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75"
-                    />
+                    <div className="relative aspect-square w-full overflow-hidden rounded-md bg-gray-200">
+                      <Image
+                        alt={product.imageAlt}
+                        src={product.imageSrc}
+                        fill
+                        sizes="(min-width: 1024px) 25vw, 256px"
+                        className="object-cover group-hover:opacity-75"
+                      />
+                    </div>
                     <div className="mt-6">
                       <h3 className="mt-1 font-semibold text-gray-900">
                         <Link href={product.href}>

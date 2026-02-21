@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { Collection } from "./types";
 
 interface CollectionsProps {
@@ -21,11 +22,15 @@ export default function Collections({ collections }: CollectionsProps) {
           <div className="mt-6 space-y-12 lg:grid lg:grid-cols-3 lg:space-y-0 lg:gap-x-6">
             {collections.map((collection) => (
               <div key={collection.name} className="group relative">
-                <img
-                  alt={collection.imageAlt}
-                  src={collection.imageSrc}
-                  className="w-full rounded-lg bg-white object-cover group-hover:opacity-75 max-sm:h-80 sm:aspect-2/1 lg:aspect-square"
-                />
+                <div className="relative w-full overflow-hidden rounded-lg bg-white max-sm:h-80 sm:aspect-2/1 lg:aspect-square">
+                  <Image
+                    alt={collection.imageAlt}
+                    src={collection.imageSrc}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="object-cover group-hover:opacity-75"
+                  />
+                </div>
                 <h3 className="mt-6 text-sm text-gray-500">
                   <a href={collection.href}>
                     <span className="absolute inset-0" />

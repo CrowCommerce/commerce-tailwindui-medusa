@@ -88,12 +88,14 @@ export async function signup(
     phone: (formData.get("phone") as string) || undefined,
   };
 
+  let tokenSet = false;
   try {
     const registerToken = await sdk.auth.register("customer", "emailpass", {
       email,
       password,
     });
     await setAuthToken(registerToken as string);
+    tokenSet = true;
 
     const headers = await getAuthHeaders();
     await sdk.store.customer.create(customerForm, {}, headers);
@@ -104,6 +106,7 @@ export async function signup(
     });
     await setAuthToken(loginToken as string);
   } catch (e) {
+    if (tokenSet) await removeAuthToken();
     return e instanceof Error ? e.message : "Error creating account";
   }
 

@@ -1,8 +1,10 @@
 import type { HttpTypes } from "@medusajs/types";
+import { DEFAULT_LOCALE } from "lib/constants";
+import Image from "next/image";
 import Link from "next/link";
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
+  return new Date(dateString).toLocaleDateString(DEFAULT_LOCALE, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -10,7 +12,7 @@ function formatDate(dateString: string): string {
 }
 
 function formatMoney(amount: number, currencyCode: string): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: "currency",
     currency: currencyCode,
   }).format(amount);
@@ -49,12 +51,14 @@ export function OrderCard({ order }: { order: HttpTypes.StoreOrder }) {
         {order.items?.map((item) => (
           <li key={item.id} className="p-4 sm:p-6">
             <div className="flex items-center sm:items-start">
-              <div className="size-20 shrink-0 overflow-hidden rounded-lg bg-gray-200 sm:size-40">
+              <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-gray-200 sm:size-40">
                 {item.thumbnail ? (
-                  <img
+                  <Image
                     src={item.thumbnail}
                     alt={item.title}
-                    className="size-full object-cover"
+                    fill
+                    sizes="(min-width: 640px) 160px, 80px"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="flex size-full items-center justify-center text-gray-400">

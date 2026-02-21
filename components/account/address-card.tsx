@@ -11,7 +11,8 @@ type AddressCardProps = {
 export function AddressCard({ address, onEdit }: AddressCardProps) {
   async function handleDelete() {
     if (!confirm("Are you sure you want to delete this address?")) return;
-    await deleteCustomerAddress(address.id);
+    const error = await deleteCustomerAddress(address.id);
+    if (error) alert(error);
   }
 
   return (

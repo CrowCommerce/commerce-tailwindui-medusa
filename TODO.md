@@ -29,7 +29,7 @@
 
 ## Infrastructure
 
-- [ ] Convert `<img>` tags to Next.js `<Image>` components
+- [x] Convert `<img>` tags to Next.js `<Image>` components
 - [ ] Set up CI/CD (GitHub Actions)
 - [ ] Configure Medusa webhooks for cache revalidation
 - [ ] Update `DEFAULT_NAVIGATION` with real store categories

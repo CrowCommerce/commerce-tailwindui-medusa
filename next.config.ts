@@ -24,6 +24,10 @@ export default {
         hostname: "tailwindcss.com",
         pathname: "/plus-assets/**",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
 };
