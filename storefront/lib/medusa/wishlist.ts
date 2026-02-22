@@ -130,6 +130,20 @@ export async function getWishlistItemCount(): Promise<number> {
   return wishlists.reduce((sum, wl) => sum + (wl.items?.length ?? 0), 0);
 }
 
+export async function getProductWishlistCount(
+  productId: string,
+): Promise<number> {
+  try {
+    const result = await sdk.client.fetch<{ count: number }>(
+      `/store/products/${productId}/wishlist-count`,
+      { method: "GET" },
+    );
+    return result.count;
+  } catch {
+    return 0;
+  }
+}
+
 export type VariantWishlistState = {
   isInWishlist: boolean;
   wishlistId?: string;

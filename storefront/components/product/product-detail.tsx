@@ -17,6 +17,7 @@ import Breadcrumbs from "components/layout/breadcrumbs";
 import ProductDetailPrice from "components/price/product-detail-price";
 import { useProduct, useUpdateURL } from "components/product/product-context";
 import { WishlistButton } from "components/wishlist/wishlist-button";
+import { WishlistCount } from "components/wishlist/wishlist-count";
 import type { Product, ProductOption, ProductVariant } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
 import Image from "next/image";
@@ -231,6 +232,9 @@ export function ProductDetail({
                 <p className="sr-only">{product.rating} out of 5 stars</p>
               </div>
             </div>
+
+            {/* Social proof */}
+            <WishlistCount productId={sourceProduct.id} />
 
             <div className="mt-6">
               <h3 className="sr-only">Description</h3>
