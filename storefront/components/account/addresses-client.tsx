@@ -22,7 +22,7 @@ export function AddressesClient({ addresses }: AddressesClientProps) {
             setShowAddForm(true);
             setEditingId(null);
           }}
-          className="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+          className="bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           Add new address
         </button>
@@ -38,7 +38,7 @@ export function AddressesClient({ addresses }: AddressesClientProps) {
       )}
 
       {addresses.length === 0 && !showAddForm ? (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-sm text-gray-500">
             You don&apos;t have any saved addresses yet.
           </p>

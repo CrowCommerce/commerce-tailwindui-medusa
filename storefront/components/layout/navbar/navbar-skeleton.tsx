@@ -25,7 +25,7 @@ export default function NavbarSkeleton() {
                     e.preventDefault();
                     setIsOpen(true);
                   }}
-                  className="relative z-10 -ml-2 min-h-[44px] min-w-[44px] touch-manipulation cursor-pointer rounded-md bg-white p-2 text-gray-400 active:bg-gray-100"
+                  className="relative z-10 -ml-2 min-h-[44px] min-w-[44px] cursor-pointer touch-manipulation rounded-md bg-white p-2 text-gray-400 active:bg-gray-100"
                   aria-label="Open main menu"
                   style={{ WebkitTapHighlightColor: "transparent" }}
                 >

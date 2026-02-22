@@ -17,7 +17,7 @@ export default async function OrdersPage() {
 
       <div className="mt-10">
         {orders.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <p className="text-sm text-gray-500">
               You haven&apos;t placed any orders yet.
             </p>

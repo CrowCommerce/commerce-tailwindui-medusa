@@ -21,7 +21,7 @@ export default function TrendingProducts({ products }: TrendingProductsProps) {
           </h2>
           <Link
             href="/products"
-            className="hidden text-sm font-semibold text-primary-600 hover:text-primary-500 sm:block"
+            className="text-primary-600 hover:text-primary-500 hidden text-sm font-semibold sm:block"
           >
             See everything
             <span aria-hidden="true"> &rarr;</span>
@@ -84,7 +84,7 @@ export default function TrendingProducts({ products }: TrendingProductsProps) {
         <div className="mt-12 px-4 sm:hidden">
           <Link
             href="/products"
-            className="text-sm font-semibold text-primary-600 hover:text-primary-500"
+            className="text-primary-600 hover:text-primary-500 text-sm font-semibold"
           >
             See everything
             <span aria-hidden="true"> &rarr;</span>

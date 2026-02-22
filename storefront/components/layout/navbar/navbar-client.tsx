@@ -96,7 +96,7 @@ export default function NavbarClient({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary-600"
+                className="focus-visible:outline-primary-600 relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 focus-visible:outline-2"
                 aria-label="Close menu"
                 data-testid="close-mobile-menu"
               >
@@ -113,7 +113,7 @@ export default function NavbarClient({
                   {navigation.categories.map((category) => (
                     <Tab
                       key={category.name}
-                      className="flex-1 border-b-2 border-transparent px-1 py-4 text-base font-medium whitespace-nowrap text-gray-900 data-selected:border-primary-600 data-selected:text-primary-600"
+                      className="data-selected:border-primary-600 data-selected:text-primary-600 flex-1 border-b-2 border-transparent px-1 py-4 text-base font-medium whitespace-nowrap text-gray-900"
                     >
                       {category.name}
                     </Tab>
@@ -319,7 +319,7 @@ export default function NavbarClient({
                   ref={hamburgerButtonRef}
                   type="button"
                   onClick={() => setOpen(true)}
-                  className="relative z-10 -ml-2 min-h-[44px] min-w-[44px] touch-manipulation cursor-pointer rounded-md bg-white p-2 text-gray-400 hover:text-gray-500 active:bg-gray-100 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2"
+                  className="focus-visible:outline-primary-600 relative z-10 -ml-2 min-h-[44px] min-w-[44px] cursor-pointer touch-manipulation rounded-md bg-white p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-gray-100"
                   aria-expanded={open}
                   aria-controls="mobile-menu"
                   aria-label="Open main menu"
@@ -333,7 +333,7 @@ export default function NavbarClient({
                   <Bars3Icon aria-hidden="true" className="size-6" />
                 </button>
 
-                <SearchButton className="ml-2 rounded-md p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2" />
+                <SearchButton className="focus-visible:outline-primary-600 ml-2 rounded-md p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2" />
               </div>
 
               {/* Flyout menus */}
@@ -353,7 +353,7 @@ export default function NavbarClient({
 
               <div className="flex flex-1 items-center justify-end">
                 {/* Search */}
-                <SearchButton className="hidden rounded-md p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2 lg:block" />
+                <SearchButton className="focus-visible:outline-primary-600 hidden rounded-md p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 lg:block" />
 
                 {/* Account */}
                 <div className="lg:ml-4">

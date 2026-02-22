@@ -59,7 +59,7 @@ export default function SortFilterMenu() {
                   option.current
                     ? "font-medium text-gray-900"
                     : "text-gray-500",
-                  "block px-4 py-2 text-sm data-focus:bg-primary-50 data-focus:outline-hidden",
+                  "data-focus:bg-primary-50 block px-4 py-2 text-sm data-focus:outline-hidden",
                 )}
               >
                 {option.name}

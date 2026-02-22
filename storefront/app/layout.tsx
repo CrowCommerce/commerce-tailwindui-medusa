@@ -49,7 +49,7 @@ async function AppProviders({ children }: { children: ReactNode }) {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={GeistSans.variable}>
-      <body className="bg-neutral-50 ">
+      <body className="bg-neutral-50">
         <Suspense>
           <AppProviders>{children}</AppProviders>
         </Suspense>

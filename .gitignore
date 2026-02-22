@@ -2,7 +2,7 @@
 
 # dependencies
 /node_modules
-.pnp.js
+**/node_modules
 
 # testing
 /coverage
@@ -32,18 +32,21 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# turbo
+.turbo/
+
+# bun
+bun.lock
+bun.lockb
+
 # storefront
-storefront/node_modules/
 storefront/.next/
-storefront/.env.local
 storefront/.pnp
 storefront/out/
 storefront/build/
 storefront/coverage/
 
 # backend
-backend/node_modules/
 backend/.medusa/
-backend/.env
 backend/.cache/
 backend/dist/

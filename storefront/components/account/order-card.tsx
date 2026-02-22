@@ -22,7 +22,7 @@ export function OrderCard({ order }: { order: HttpTypes.StoreOrder }) {
   const currencyCode = order.currency_code || "usd";
 
   return (
-    <div className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border">
+    <div className="border-t border-b border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border">
       <div className="flex items-center border-b border-gray-200 p-4 sm:grid sm:grid-cols-4 sm:gap-x-6 sm:p-6">
         <dl className="grid flex-1 grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-3 lg:col-span-2">
           <div>
