@@ -6,18 +6,27 @@ import {
   PlusIcon,
   XMarkIcon,
   ShoppingBagIcon,
+  EllipsisVerticalIcon,
+  PencilIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import {
   Dialog,
   DialogBackdrop,
   DialogPanel,
   DialogTitle,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
 } from "@headlessui/react";
 import { useActionState, useState, useTransition } from "react";
 import { addItem } from "components/cart/actions";
 import {
   createWishlist,
+  deleteWishlist,
   removeFromWishlist,
+  renameWishlist,
   shareWishlist,
   type WishlistActionResult,
 } from "lib/medusa/wishlist";
@@ -77,6 +86,10 @@ export function WishlistPageClient({ wishlists }: { wishlists: Wishlist[] }) {
           {activeWishlist?.name || "My Wishlist"}
         </h2>
         <div className="flex items-center gap-3">
+          <WishlistActionsMenu
+            wishlist={activeWishlist!}
+            onDeleted={() => setActiveTab(0)}
+          />
           <ShareButton wishlistId={activeWishlist!.id} />
           <NewWishlistButton />
         </div>
@@ -408,5 +421,245 @@ function NewWishlistButton() {
         </div>
       </Dialog>
     </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// WishlistActionsMenu
+// ---------------------------------------------------------------------------
+
+function WishlistActionsMenu({
+  wishlist,
+  onDeleted,
+}: {
+  wishlist: Wishlist;
+  onDeleted: () => void;
+}) {
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  return (
+    <>
+      <Menu as="div" className="relative">
+        <MenuButton className="inline-flex items-center rounded-md bg-white p-2 text-gray-400 ring-1 shadow-sm ring-gray-300 ring-inset hover:bg-gray-50 hover:text-gray-500">
+          <span className="sr-only">Wishlist options</span>
+          <EllipsisVerticalIcon className="size-5" />
+        </MenuButton>
+
+        <MenuItems
+          transition
+          className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 transition focus:outline-none data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
+        >
+          <MenuItem>
+            <button
+              type="button"
+              onClick={() => setRenameOpen(true)}
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900"
+            >
+              <PencilIcon className="size-4" />
+              Rename
+            </button>
+          </MenuItem>
+          <MenuItem>
+            <button
+              type="button"
+              onClick={() => setDeleteOpen(true)}
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 data-focus:bg-red-50 data-focus:text-red-700"
+            >
+              <TrashIcon className="size-4" />
+              Delete
+            </button>
+          </MenuItem>
+        </MenuItems>
+      </Menu>
+
+      <RenameWishlistDialog
+        key={wishlist.id + (wishlist.name ?? "")}
+        wishlist={wishlist}
+        open={renameOpen}
+        onClose={() => setRenameOpen(false)}
+      />
+      <DeleteWishlistDialog
+        wishlist={wishlist}
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onDeleted={onDeleted}
+      />
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// RenameWishlistDialog
+// ---------------------------------------------------------------------------
+
+function RenameWishlistDialog({
+  wishlist,
+  open,
+  onClose,
+}: {
+  wishlist: Wishlist;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const { showNotification } = useNotification();
+  const [state, formAction, isPending] = useActionState<
+    WishlistActionResult,
+    FormData
+  >(async (prev, formData) => {
+    formData.set("wishlist_id", wishlist.id);
+    const result = await renameWishlist(prev, formData);
+    if (result?.success) {
+      onClose();
+      showNotification("success", "Wishlist renamed");
+    } else if (result?.error) {
+      showNotification("error", "Could not rename wishlist", result.error);
+    }
+    return result;
+  }, null);
+
+  return (
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+      />
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel
+            transition
+            className="relative w-full transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:max-w-sm sm:p-6 data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+          >
+            <DialogTitle
+              as="h3"
+              className="text-base font-semibold text-gray-900"
+            >
+              Rename Wishlist
+            </DialogTitle>
+            <form action={formAction} className="mt-4">
+              <label
+                htmlFor="rename-wishlist"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name
+              </label>
+              <input
+                id="rename-wishlist"
+                name="name"
+                type="text"
+                required
+                defaultValue={wishlist.name || ""}
+                className="mt-1 block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 ring-1 shadow-sm ring-gray-300 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-primary-600 focus:outline-none"
+              />
+              {state?.error && (
+                <p className="mt-2 text-sm text-red-600">{state.error}</p>
+              )}
+              <div className="mt-5 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-sm ring-gray-300 ring-inset hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className={clsx(
+                    "rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600",
+                    isPending && "cursor-not-allowed opacity-50",
+                  )}
+                >
+                  {isPending ? "Renaming..." : "Rename"}
+                </button>
+              </div>
+            </form>
+          </DialogPanel>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DeleteWishlistDialog
+// ---------------------------------------------------------------------------
+
+function DeleteWishlistDialog({
+  wishlist,
+  open,
+  onClose,
+  onDeleted,
+}: {
+  wishlist: Wishlist;
+  open: boolean;
+  onClose: () => void;
+  onDeleted: () => void;
+}) {
+  const { showNotification } = useNotification();
+  const [isPending, startTransition] = useTransition();
+
+  function handleDelete() {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("wishlist_id", wishlist.id);
+      const result = await deleteWishlist(null, formData);
+      if (result?.error) {
+        showNotification("error", "Could not delete wishlist", result.error);
+      } else {
+        showNotification("success", "Wishlist deleted");
+        onClose();
+        onDeleted();
+      }
+    });
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+      />
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel
+            transition
+            className="relative w-full transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:max-w-sm sm:p-6 data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+          >
+            <DialogTitle
+              as="h3"
+              className="text-base font-semibold text-gray-900"
+            >
+              Delete Wishlist
+            </DialogTitle>
+            <p className="mt-2 text-sm text-gray-500">
+              Are you sure you want to delete &ldquo;
+              {wishlist.name || "this wishlist"}&rdquo;? This action cannot be
+              undone.
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-sm ring-gray-300 ring-inset hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isPending}
+                className={clsx(
+                  "rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600",
+                  isPending && "cursor-not-allowed opacity-50",
+                )}
+              >
+                {isPending ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+    </Dialog>
   );
 }
