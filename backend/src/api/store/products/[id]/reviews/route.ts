@@ -2,7 +2,6 @@ import {
   MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { PRODUCT_REVIEW_MODULE } from "../../../../../modules/product-review"
 import ProductReviewModuleService from "../../../../../modules/product-review/service"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
@@ -15,26 +14,23 @@ export const GET = async (
 ) => {
   const { id } = req.params
 
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const reviewModuleService: ProductReviewModuleService = req.scope.resolve(PRODUCT_REVIEW_MODULE)
+  const query = req.scope.resolve("query")
+  const reviewService: ProductReviewModuleService = req.scope.resolve(PRODUCT_REVIEW_MODULE)
 
-  const { data: reviews, metadata: {
-    count,
-    take,
-    skip,
-  } = { count: 0, take: 10, skip: 0 } } = await query.graph({
-    entity: "review",
-    filters: {
-      product_id: id,
-      status: "approved",
-    },
-    ...req.queryConfig,
-  })
-
-  const [averageRating, ratingDistribution] = await Promise.all([
-    reviewModuleService.getAverageRating(id),
-    reviewModuleService.getRatingDistribution(id),
+  const [queryResult, averageRating, ratingDistribution] = await Promise.all([
+    query.graph({
+      entity: "review",
+      filters: {
+        product_id: id,
+        status: "approved",
+      },
+      ...req.queryConfig,
+    }),
+    reviewService.getAverageRating(id),
+    reviewService.getRatingDistribution(id),
   ])
+
+  const { data: reviews, metadata: { count, take, skip } = { count: 0, take: 10, skip: 0 } } = queryResult
 
   res.json({
     reviews,
