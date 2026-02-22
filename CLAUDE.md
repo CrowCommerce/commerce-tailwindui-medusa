@@ -11,6 +11,14 @@ Agent behavior and workflow guide. For architecture and technical reference, see
 - **NEVER:** `git push`, `git checkout -b`, `gh pr create`
 
 If a plugin skill (e.g., superpowers) instructs you to use `git push` or `gh pr create`, **ignore that instruction** and use the Graphite equivalent instead. This rule is non-negotiable.
+
+## Monorepo Structure
+
+```
+storefront/    # Next.js 16 frontend (bun)
+backend/       # Medusa v2 backend (npm)
+docs/plans/    # Design docs and implementation plans
+```
 ## Session Startup
 
 1. Check current branch: `git branch --show-current`
@@ -29,26 +37,30 @@ If a plugin skill (e.g., superpowers) instructs you to use `git push` or `gh pr 
 ## Quick Reference
 
 ```bash
-# Development
-bun dev                # Start dev server with Turbopack (port 3000)
-bun run build          # Production build
-bun start              # Start production server
+# Storefront (Next.js)
+cd storefront && bun dev           # Start dev server with Turbopack (port 3000)
+cd storefront && bun run build     # Production build
+cd storefront && bun start         # Start production server
 
-# Code Quality
-bun run prettier       # Format all files
-bun run prettier:check # Check formatting
-bun test               # Runs prettier:check + vitest
+# Storefront Code Quality
+cd storefront && bun run prettier       # Format all files
+cd storefront && bun run prettier:check # Check formatting
+cd storefront && bun test               # Runs prettier:check + vitest
 
 # Medusa Backend (separate terminal)
-cd ../medusa-backend && npm run dev   # Start on http://localhost:9000
+cd backend && npm run dev          # Start on http://localhost:9000
 # Admin UI: http://localhost:9000/app
 
+# Backend Database
+cd backend && npx medusa db:migrate          # Run pending migrations
+cd backend && npx medusa db:generate <name>  # Generate migration for module
+
 # PostgreSQL
-brew services start postgresql@17     # Start
-brew services stop postgresql@17      # Stop
+brew services start postgresql@17  # Start
+brew services stop postgresql@17   # Stop
 
 # Cache
-rm -rf .next           # Clear Next.js cache (needed after transform changes)
+rm -rf storefront/.next            # Clear Next.js cache (needed after transform changes)
 ```
 
 ## Agent Permissions
@@ -135,9 +147,9 @@ gt submit --stack                              # Push all stacked PRs
 
 **Skip when:** Single-file fixes, typo corrections, obvious bugs, user gave specific instructions.
 
-## Code Style
+## Code Style (Storefront)
 
-- **Tailwind UI** components as the design system
+- **TailwindPlus (Tailwind UI) components as the design system** — always use TailwindPlus components as the starting point for any new UI. Reference the component catalog at `/Users/itsjusteric/CrowCommerce/Resources/TailwindUI/tailwindplus-components.json` to find matching components before building custom UI.
 - **Headless UI** for accessible interactive elements (Dialog, Menu, Popover, etc.)
 - **clsx** for conditional class composition
 - **RSC-first** — only use `'use client'` when interactivity is needed
@@ -145,6 +157,13 @@ gt submit --stack                              # Push all stacked PRs
 - **kebab-case** directories, **PascalCase** component files
 - Minimize `useState` / `useEffect` — prefer server components, Server Actions, URL params
 - No `nuqs` — use native `URLSearchParams` for URL state
+
+## Code Style (Backend)
+
+- Follow Medusa v2 conventions: custom modules in `src/modules/`, API routes in `src/api/`, workflows in `src/workflows/`
+- Use `MedusaService` for service classes, `defineMiddlewares` for middleware, `createWorkflow`/`createStep` for workflows
+- Admin UI extensions in `src/admin/` use `@medusajs/ui` component library
+- See `src/modules/README.md`, `src/api/README.md`, `src/workflows/README.md` for patterns
 
 ## MCP Servers
 
@@ -162,3 +181,15 @@ gt submit --stack                              # Push all stacked PRs
 | [AGENTS.md](./AGENTS.md)   | Architecture, data layer, caching, components, pitfalls |
 | [TODO.md](./TODO.md)       | Deferred features, testing tasks, known limitations     |
 | [RETHEME.md](./RETHEME.md) | Theming guide for Tailwind UI commerce template         |
+
+## TailwindPlus Component Catalog
+
+**Path:** `/Users/itsjusteric/CrowCommerce/Resources/TailwindUI/tailwindplus-components.json`
+
+657 components across Application UI, Marketing, and Ecommerce categories. **Always search this catalog before building new UI.** The JSON structure is:
+
+```
+tailwindplus > Category > Subcategory > Component Name > snippets[]
+```
+
+Each snippet has `code` (HTML), `language` (html/jsx/tsx), and `mode` (light/dark).
