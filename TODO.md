@@ -57,6 +57,7 @@
 - [ ] Rename/delete wishlist UI — server actions exist but no buttons in the wishlist page
 - [ ] Store product wishlist count route — `GET /store/products/:id/wishlist` for social proof ("X people saved this")
 - [x] Guest route hardening — `GET /store/wishlists/:id` now filters by `customer_id: null`; guest item routes also verify guest ownership
+- [x] Fix `cookies()` inside `"use cache"` crash — `getWishlists()` and `getWishlist()` used `cookies()` inside `"use cache"` scope, crashing product pages after adding to wishlist. Removed incompatible cache directives.
 
 ## Agentic Commerce
 
@@ -80,9 +81,10 @@
 ## Testing
 
 - [ ] Create `vitest.config.ts`
-- [ ] Create `playwright.config.ts`
+- [x] Create `playwright.config.ts`
 - [ ] Unit tests for `lib/medusa/transforms.ts`
 - [ ] E2E test: browse products → add to cart flow
+- [x] Wishlist E2E test suite (25 tests across 6 spec files — guest, authenticated, heart-button, sharing, import, transfer)
 
 ## Infrastructure
 

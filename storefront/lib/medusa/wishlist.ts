@@ -4,7 +4,6 @@ import { sdk } from "lib/medusa";
 import { TAGS } from "lib/constants";
 import type { Wishlist } from "lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { cacheLife, cacheTag } from "next/cache";
 import {
   getAuthHeaders,
   getAuthToken,
@@ -26,10 +25,6 @@ function revalidateWishlists(): void {
 // --- Read Operations ---
 
 export async function getWishlists(): Promise<Wishlist[]> {
-  "use cache";
-  cacheTag(TAGS.wishlists);
-  cacheLife("days");
-
   const token = await getAuthToken();
   const headers = await getAuthHeaders();
 
@@ -98,10 +93,6 @@ export async function getWishlistsDynamic(): Promise<Wishlist[]> {
 }
 
 export async function getWishlist(wishlistId: string): Promise<Wishlist | null> {
-  "use cache";
-  cacheTag(TAGS.wishlists);
-  cacheLife("days");
-
   const headers = await getAuthHeaders();
 
   try {
