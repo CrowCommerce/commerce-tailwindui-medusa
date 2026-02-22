@@ -20,6 +20,21 @@ export async function POST(
     )
   }
 
+  // Verify wishlist belongs to the authenticated customer
+  const query = req.scope.resolve("query")
+  const { data } = await query.graph({
+    entity: "wishlist",
+    fields: ["id"],
+    filters: {
+      id: req.params.id,
+      customer_id: req.auth_context.actor_id,
+    },
+  })
+
+  if (!data.length) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, "Wishlist not found")
+  }
+
   const { result } = await createWishlistItemWorkflow(req.scope).run({
     input: {
       variant_id: req.validatedBody.variant_id,
