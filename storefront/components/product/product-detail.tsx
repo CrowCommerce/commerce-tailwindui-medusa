@@ -39,7 +39,7 @@ interface ProductDetailProps {
   variants: ProductVariant[];
 }
 
-export default function ProductDetail({
+export function ProductDetail({
   product,
   sourceProduct,
   options,
@@ -151,7 +151,7 @@ export default function ProductDetail({
                 {product.images.map((image) => (
                   <Tab
                     key={image.id}
-                    className="group relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium text-gray-900 uppercase hover:bg-gray-50 focus-visible:ring-3 focus-visible:ring-primary-500/50 focus-visible:ring-offset-4 focus:outline-hidden"
+                    className="group focus-visible:ring-primary-500/50 relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium text-gray-900 uppercase hover:bg-gray-50 focus:outline-hidden focus-visible:ring-3 focus-visible:ring-offset-4"
                   >
                     <span className="sr-only">{image.name}</span>
                     <span className="absolute inset-0 overflow-hidden rounded-md">
@@ -165,7 +165,7 @@ export default function ProductDetail({
                     </span>
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-transparent ring-offset-2 group-data-selected:ring-primary-500"
+                      className="group-data-selected:ring-primary-500 pointer-events-none absolute inset-0 rounded-md ring-2 ring-transparent ring-offset-2"
                     />
                   </Tab>
                 ))}
@@ -253,7 +253,7 @@ export default function ProductDetail({
                           className={classNames(
                             "flex cursor-pointer items-center",
                             !isOptionAvailable
-                              ? "opacity-40 cursor-not-allowed"
+                              ? "cursor-not-allowed opacity-40"
                               : "",
                           )}
                         >
@@ -307,7 +307,7 @@ export default function ProductDetail({
                         <label
                           key={value}
                           aria-label={value}
-                          className="group relative flex items-center justify-center rounded-md border border-gray-300 bg-white p-3 has-checked:border-primary-600 has-checked:bg-primary-600 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-600 has-disabled:border-gray-400 has-disabled:bg-gray-200 has-disabled:opacity-25"
+                          className="group has-checked:border-primary-600 has-checked:bg-primary-600 has-focus-visible:outline-primary-600 relative flex items-center justify-center rounded-md border border-gray-300 bg-white p-3 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-disabled:border-gray-400 has-disabled:bg-gray-200 has-disabled:opacity-25"
                         >
                           <input
                             value={value}
@@ -334,7 +334,7 @@ export default function ProductDetail({
             <div className="mt-10">
               <AddToCart
                 product={sourceProduct}
-                className="cursor-pointer mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-8 py-3 text-base font-medium text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:outline-hidden"
+                className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 mt-8 flex w-full cursor-pointer items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
               />
             </div>
 
@@ -348,7 +348,7 @@ export default function ProductDetail({
                   <Disclosure key={detail.name} as="div">
                     <h3>
                       <DisclosureButton className="group relative flex w-full items-center justify-between py-6 text-left">
-                        <span className="text-sm font-medium text-gray-900 group-data-open:text-primary-600">
+                        <span className="group-data-open:text-primary-600 text-sm font-medium text-gray-900">
                           {detail.name}
                         </span>
                         <span className="ml-6 flex items-center">
@@ -358,7 +358,7 @@ export default function ProductDetail({
                           />
                           <MinusIcon
                             aria-hidden="true"
-                            className="hidden size-6 text-primary-400 group-hover:text-primary-500 group-data-open:block"
+                            className="text-primary-400 group-hover:text-primary-500 hidden size-6 group-data-open:block"
                           />
                         </span>
                       </DisclosureButton>

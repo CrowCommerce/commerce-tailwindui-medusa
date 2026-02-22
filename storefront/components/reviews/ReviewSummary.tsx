@@ -76,7 +76,7 @@ export function ReviewSummary({
                   </div>
                 </div>
               </dt>
-              <dd className="ml-3 w-10 text-right text-sm tabular-nums text-gray-900">
+              <dd className="ml-3 w-10 text-right text-sm text-gray-900 tabular-nums">
                 {reviews.count > 0
                   ? Math.round((item.count / reviews.count) * 100)
                   : 0}

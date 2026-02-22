@@ -48,7 +48,7 @@ export function ReviewForm({
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-6 rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-500"
+                className="bg-primary-600 hover:bg-primary-500 mt-6 rounded-md px-4 py-2 text-sm font-semibold text-white"
               >
                 Done
               </button>
@@ -66,7 +66,7 @@ export function ReviewForm({
       <div className="fixed inset-0 z-10 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
           <DialogPanel className="relative w-full max-w-lg rounded-lg bg-white px-6 py-8 shadow-xl">
-            <div className="absolute right-4 top-4">
+            <div className="absolute top-4 right-4">
               <button
                 type="button"
                 onClick={onClose}
@@ -123,7 +123,7 @@ export function ReviewForm({
                   type="text"
                   id="review-title"
                   name="title"
-                  className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  className="focus:border-primary-500 focus:ring-primary-500 mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-1 focus:outline-none"
                   placeholder="Summarize your experience"
                 />
               </div>
@@ -140,7 +140,7 @@ export function ReviewForm({
                   name="content"
                   rows={4}
                   required
-                  className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  className="focus:border-primary-500 focus:ring-primary-500 mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-1 focus:outline-none"
                   placeholder="What did you like or dislike about this product?"
                 />
               </div>
@@ -156,7 +156,7 @@ export function ReviewForm({
                   "w-full rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm",
                   isDisabled
                     ? "cursor-not-allowed bg-gray-300"
-                    : "bg-primary-600 hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600",
+                    : "bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2",
                 )}
               >
                 {isPending ? "Submitting..." : "Submit review"}

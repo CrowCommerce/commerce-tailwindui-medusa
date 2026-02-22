@@ -13,22 +13,22 @@ interface RelatedProductsProps {
   fullProducts: Product[];
 }
 
-export default function RelatedProducts({
+export function RelatedProducts({
   products,
   fullProducts,
 }: RelatedProductsProps) {
   if (!products || products.length === 0) return null;
   const { addCartItem } = useCart();
-  const [message, formAction] = useActionState(addItem, null);
+  const [, formAction] = useActionState(addItem, null);
 
   return (
     <section
       aria-labelledby="related-heading"
-      className="mx-auto max-w-7xl mt-10 border-t border-gray-200 px-4 py-16"
+      className="mx-auto mt-10 max-w-7xl border-t border-gray-200 px-4 py-16"
     >
       <h2
         id="related-heading"
-        className="px-4 sm:px-6 text-xl font-bold text-gray-900"
+        className="px-4 text-xl font-bold text-gray-900 sm:px-6"
       >
         Customers also bought
       </h2>
@@ -42,7 +42,7 @@ export default function RelatedProducts({
 
           return (
             <div key={product.id} className="flex h-full flex-col">
-              <Link href={product.href} className="block group">
+              <Link href={product.href} className="group block">
                 <div className="relative h-72 w-full overflow-hidden rounded-lg">
                   <Image
                     alt={product.imageAlt}
@@ -77,14 +77,15 @@ export default function RelatedProducts({
                   action={async () => {
                     const variant = fullProduct.variants.find(
                       (v) => v.id === product.variantId,
-                    )!;
+                    );
+                    if (!variant) return;
                     addCartItem(variant, fullProduct);
                     addItemAction();
                   }}
                 >
                   <button
                     type="submit"
-                    className="cursor-pointer relative flex w-full items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
+                    className="relative flex w-full cursor-pointer items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
                   >
                     Add to bag<span className="sr-only">, {product.name}</span>
                   </button>

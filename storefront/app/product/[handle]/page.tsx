@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ProductPageContent } from "components/product/product-page-content";
-import RelatedProductsComponent from "components/product/related-products";
+import { RelatedProducts as RelatedProductsComponent } from "components/product/related-products";
 import { ProductReviewsSection } from "components/reviews/ProductReviewsSection";
 import { HIDDEN_PRODUCT_TAG } from "lib/constants";
 import { getProduct, getProductRecommendations, getProducts } from "lib/medusa";

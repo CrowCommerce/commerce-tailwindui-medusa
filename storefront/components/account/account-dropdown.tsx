@@ -26,7 +26,7 @@ type AccountDropdownProps = {
 export function AccountDropdown({ firstName, lastName }: AccountDropdownProps) {
   return (
     <Menu as="div" className="relative">
-      <MenuButton className="flex items-center rounded-full bg-primary-100 text-sm font-medium text-primary-700 hover:bg-primary-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+      <MenuButton className="bg-primary-100 text-primary-700 hover:bg-primary-200 focus-visible:outline-primary-600 flex items-center rounded-full text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
         <span className="sr-only">Open user menu</span>
         <span className="inline-flex size-8 items-center justify-center rounded-full">
           {getInitials(firstName, lastName)}
@@ -35,7 +35,7 @@ export function AccountDropdown({ firstName, lastName }: AccountDropdownProps) {
 
       <MenuItems
         transition
-        className="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-leave:duration-75 data-enter:ease-out data-leave:ease-in"
+        className="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
       >
         <div className="py-1">
           <MenuItem>

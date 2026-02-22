@@ -1,0 +1,30 @@
+{
+  "name": "commerce-tailwindui-medusa",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": ["storefront", "backend", "tooling/*"],
+  "scripts": {
+    "dev": "turbo dev --parallel",
+    "dev:storefront": "turbo dev --filter=@repo/storefront",
+    "dev:backend": "turbo dev --filter=@repo/backend",
+    "build": "turbo build",
+    "build:storefront": "turbo build --filter=@repo/storefront",
+    "build:backend": "turbo build --filter=@repo/backend",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean",
+    "clean:workspaces": "git clean -xdf node_modules"
+  },
+  "packageManager": "bun@1.1.18",
+  "overrides": {
+    "@types/react": "19.0.12",
+    "@types/react-dom": "19.0.4"
+  },
+  "devDependencies": {
+    "@repo/typescript": "workspace:*",
+    "prettier": "3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "turbo": "^2.7.4",
+    "typescript": "5.8.2"
+  }
+}

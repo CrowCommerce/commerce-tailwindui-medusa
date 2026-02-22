@@ -6,7 +6,7 @@ import "./globals.css";
 
 import { CartProvider } from "components/cart/cart-context";
 import Footer from "components/layout/footer";
-import Navbar from "components/layout/navbar";
+import { Navbar } from "components/layout/navbar";
 import {
   NotificationContainer,
   NotificationProvider,
@@ -49,7 +49,7 @@ async function AppProviders({ children }: { children: ReactNode }) {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={GeistSans.variable}>
-      <body className="bg-neutral-50 ">
+      <body className="bg-neutral-50">
         <Suspense>
           <AppProviders>{children}</AppProviders>
         </Suspense>

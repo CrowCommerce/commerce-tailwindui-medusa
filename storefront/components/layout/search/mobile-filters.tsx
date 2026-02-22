@@ -48,7 +48,7 @@ export default function MobileFilters({
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(false)}
-                className="relative -mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-hidden"
+                className="focus-visible:ring-primary-500 relative -mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-hidden focus-visible:ring-2"
               >
                 <span className="absolute -inset-0.5" />
                 <span className="sr-only">Close menu</span>

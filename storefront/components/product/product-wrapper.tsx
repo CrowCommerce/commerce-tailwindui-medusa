@@ -2,7 +2,7 @@
 
 import type { Product } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
-import ProductDetail from "./product-detail";
+import { ProductDetail } from "./product-detail";
 
 interface ProductWrapperProps {
   product: Product;

@@ -1,8 +1,8 @@
 import { getNavigation } from "lib/medusa";
 import { retrieveCustomer } from "lib/medusa/customer";
-import NavbarClient from "./navbar-client";
+import { NavbarClient } from "./navbar-client";
 
-export default async function NavbarData() {
+export async function NavbarData() {
   const [navigation, customer] = await Promise.all([
     getNavigation(),
     retrieveCustomer(),

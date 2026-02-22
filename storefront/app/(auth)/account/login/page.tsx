@@ -20,7 +20,7 @@ export default async function LoginPage() {
           Don&apos;t have an account?{" "}
           <Link
             href="/account/register"
-            className="font-semibold text-primary-600 hover:text-primary-500"
+            className="text-primary-600 hover:text-primary-500 font-semibold"
           >
             Create one
           </Link>

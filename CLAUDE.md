@@ -14,10 +14,13 @@ If a plugin skill (e.g., superpowers) instructs you to use `git push` or `gh pr 
 
 ## Monorepo Structure
 
-```
-storefront/    # Next.js 16 frontend (bun)
-backend/       # Medusa v2 backend (npm)
-docs/plans/    # Design docs and implementation plans
+Turborepo monorepo with bun workspaces. Single `bun install` at root, `turbo` for task orchestration.
+
+```text
+storefront/           # @repo/storefront — Next.js 16 frontend
+backend/              # @repo/backend — Medusa v2 backend
+tooling/typescript/   # @repo/typescript — shared tsconfig
+docs/plans/           # Design docs and implementation plans
 ```
 ## Session Startup
 
@@ -37,23 +40,31 @@ docs/plans/    # Design docs and implementation plans
 ## Quick Reference
 
 ```bash
-# Storefront (Next.js)
+# Root (Turbo)
+bun run dev              # Start both storefront + backend in parallel
+bun run dev:storefront   # Storefront only (port 3000)
+bun run dev:backend      # Backend only (port 9000)
+bun run build            # Build all workspaces
+bun run test             # Test all workspaces
+bun run typecheck        # Typecheck all workspaces
+bun run clean            # Clean build artifacts
+
+# Storefront (direct — bypasses turbo)
 cd storefront && bun dev           # Start dev server with Turbopack (port 3000)
 cd storefront && bun run build     # Production build
 cd storefront && bun start         # Start production server
+cd storefront && bun run prettier  # Format all files
 
-# Storefront Code Quality
-cd storefront && bun run prettier       # Format all files
-cd storefront && bun run prettier:check # Check formatting
-cd storefront && bun test               # Runs prettier:check + vitest
-
-# Medusa Backend (separate terminal)
-cd backend && npm run dev          # Start on http://localhost:9000
+# Backend (direct — bypasses turbo)
+cd backend && bun run dev          # Start on http://localhost:9000
 # Admin UI: http://localhost:9000/app
 
 # Backend Database
-cd backend && npx medusa db:migrate          # Run pending migrations
-cd backend && npx medusa db:generate <name>  # Generate migration for module
+cd backend && bunx medusa db:migrate          # Run pending migrations
+cd backend && bunx medusa db:generate <name>  # Generate migration for module
+
+# Dependencies
+bun install              # Install all workspaces from root
 
 # PostgreSQL
 brew services start postgresql@17  # Start

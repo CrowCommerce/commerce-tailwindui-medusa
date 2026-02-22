@@ -26,7 +26,7 @@ function CartCount() {
   return <>{cart?.totalQuantity ?? 0}</>;
 }
 
-export default function Cart() {
+export function Cart() {
   const { cart, updateCartItem } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const quantityRef = useRef(cart?.totalQuantity);
@@ -58,7 +58,7 @@ export default function Cart() {
       {/* Cart Button */}
       <button
         onClick={openCart}
-        className="group -m-2 flex items-center rounded-md p-2 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2"
+        className="group focus-visible:outline-primary-600 -m-2 flex items-center rounded-md p-2 focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         <ShoppingBagIcon
           aria-hidden="true"
@@ -96,7 +96,7 @@ export default function Cart() {
                         <button
                           type="button"
                           onClick={closeCart}
-                          className="relative -m-2 rounded-md p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2"
+                          className="focus-visible:outline-primary-600 relative -m-2 rounded-md p-2 text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           <span className="absolute -inset-0.5" />
                           <span className="sr-only">Close panel</span>
@@ -108,7 +108,7 @@ export default function Cart() {
                     <div className="mt-8">
                       <div className="flow-root">
                         {!cart || cart.lines.length === 0 ? (
-                          <div className="text-center py-12">
+                          <div className="py-12 text-center">
                             <p className="text-gray-500">Your cart is empty</p>
                           </div>
                         ) : (
@@ -190,7 +190,7 @@ export default function Cart() {
                                             optimisticUpdate={updateCartItem}
                                             size="xs"
                                           />
-                                          <span className="relative z-10 mx-1 w-8 px-0.5 text-center text-sm font-semibold leading-none text-primary-500 tabular-nums select-none">
+                                          <span className="text-primary-500 relative z-10 mx-1 w-8 px-0.5 text-center text-sm leading-none font-semibold tabular-nums select-none">
                                             {item.quantity}
                                           </span>
                                           <EditItemQuantityButton
@@ -246,7 +246,7 @@ export default function Cart() {
                         <button
                           type="button"
                           onClick={closeCart}
-                          className="rounded font-medium text-primary-600 hover:text-primary-500 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2"
+                          className="text-primary-600 hover:text-primary-500 focus-visible:outline-primary-600 rounded font-medium focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           Continue Shopping
                           <span aria-hidden="true"> &rarr;</span>
@@ -269,7 +269,7 @@ function CheckoutButton() {
 
   return (
     <button
-      className="flex w-full items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-base font-medium text-white shadow-xs hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus:outline-hidden"
+      className="bg-primary-600 hover:bg-primary-700 focus-visible:ring-primary-500 flex w-full items-center justify-center rounded-md px-6 py-3 text-base font-medium text-white shadow-xs focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
       type="submit"
       disabled={pending}
     >

@@ -9,22 +9,18 @@ import {
 import { Navigation } from "lib/types";
 import Link from "next/link";
 
-export default function NavbarDesktop({
-  navigation,
-}: {
-  navigation: Navigation;
-}) {
+export function NavbarDesktop({ navigation }: { navigation: Navigation }) {
   return (
-    <PopoverGroup className="hidden lg:block lg:flex-1 lg:self-stretch max-lg:pointer-events-none">
+    <PopoverGroup className="hidden max-lg:pointer-events-none lg:block lg:flex-1 lg:self-stretch">
       <div className="flex h-full space-x-8">
         {navigation.categories.map((category, categoryIdx) => (
           <Popover key={category.name} className="flex">
             <div className="relative flex">
-              <PopoverButton className="group relative flex items-center justify-center text-sm font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800 focus-visible:outline-2 focus-visible:outline-primary-600 data-open:text-primary-600">
+              <PopoverButton className="group focus-visible:outline-primary-600 data-open:text-primary-600 relative flex items-center justify-center text-sm font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800 focus-visible:outline-2">
                 {category.name}
                 <span
                   aria-hidden="true"
-                  className="absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out group-data-open:bg-primary-600"
+                  className="group-data-open:bg-primary-600 absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out"
                 />
               </PopoverButton>
             </div>

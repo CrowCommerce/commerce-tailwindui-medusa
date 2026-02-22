@@ -31,7 +31,7 @@ export const ProductResult = forwardRef<
     if (typeof ref === "function") {
       ref(node);
     } else if (ref) {
-      (ref as any).current = node;
+      (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
     }
   };
 
@@ -39,7 +39,7 @@ export const ProductResult = forwardRef<
     <div
       ref={setRef}
       {...props}
-      className={`flex cursor-pointer select-none items-center rounded-lg px-3 py-2 ${
+      className={`flex cursor-pointer items-center rounded-lg px-3 py-2 select-none ${
         active
           ? "bg-primary-600 text-white"
           : "bg-gray-50 text-gray-900 hover:bg-gray-100"
@@ -67,7 +67,7 @@ export const ProductResult = forwardRef<
             >
               <span
                 className={
-                  active ? "text-primary-100 text-xs" : "text-gray-400 text-xs"
+                  active ? "text-primary-100 text-xs" : "text-xs text-gray-400"
                 }
               >
                 No image

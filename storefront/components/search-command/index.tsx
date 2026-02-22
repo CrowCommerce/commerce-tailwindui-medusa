@@ -79,8 +79,8 @@ const SeeAllResultsOption = forwardRef<
     query: string;
     totalCount: number;
     active: boolean;
-  } & React.HTMLAttributes<HTMLDivElement>
->(({ query, totalCount, active, ...props }, ref) => {
+  }
+>(({ query, totalCount, active }, ref) => {
   const itemRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll active item into view
@@ -99,15 +99,14 @@ const SeeAllResultsOption = forwardRef<
     if (typeof ref === "function") {
       ref(node);
     } else if (ref) {
-      (ref as any).current = node;
+      (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
     }
   };
 
   return (
     <div
       ref={setRef}
-      {...props}
-      className={`flex cursor-pointer select-none items-center rounded-lg px-3 py-2 ${
+      className={`flex cursor-pointer items-center rounded-lg px-3 py-2 select-none ${
         active
           ? "bg-primary-600 text-white"
           : "bg-gray-50 text-gray-900 hover:bg-gray-100"
@@ -196,10 +195,10 @@ export function SearchDialog() {
           <Combobox onChange={handleSelect}>
             {/* Search input */}
             <div className="relative">
-              <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+              <MagnifyingGlassIcon className="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400" />
               <ComboboxInput
                 autoFocus
-                className="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm outline-hidden"
+                className="h-12 w-full border-0 bg-transparent pr-4 pl-11 text-gray-900 outline-hidden placeholder:text-gray-400 focus:ring-0 sm:text-sm"
                 placeholder="Search products..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -212,7 +211,7 @@ export function SearchDialog() {
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="absolute right-4 top-3.5 rounded text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-primary-600 focus-visible:outline-offset-2"
+                  className="focus-visible:outline-primary-600 absolute top-3.5 right-4 rounded text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2"
                   type="button"
                 >
                   <XMarkIcon className="h-5 w-5" />
@@ -271,7 +270,7 @@ export function SearchDialog() {
             {/* Footer hint */}
             {query && results.length > 0 && (
               <div className="flex flex-wrap items-center bg-gray-50 px-4 py-2.5 text-xs text-gray-700">
-                <kbd className="mx-1 flex h-5 w-5 items-center justify-center rounded border border-primary-300 bg-primary-50 font-semibold text-primary-700 sm:mx-2">
+                <kbd className="border-primary-300 bg-primary-50 text-primary-700 mx-1 flex h-5 w-5 items-center justify-center rounded border font-semibold sm:mx-2">
                   ↵
                 </kbd>
                 <span className="sm:hidden">to select</span>

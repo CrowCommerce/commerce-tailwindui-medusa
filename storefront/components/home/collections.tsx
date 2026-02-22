@@ -7,7 +7,7 @@ interface CollectionsProps {
   collections: Collection[];
 }
 
-export default function Collections({ collections }: CollectionsProps) {
+export function Collections({ collections }: CollectionsProps) {
   return (
     <section aria-labelledby="collections-heading" className="bg-gray-100">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
