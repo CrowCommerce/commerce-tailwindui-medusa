@@ -6,7 +6,7 @@ import "./globals.css";
 
 import { CartProvider } from "components/cart/cart-context";
 import Footer from "components/layout/footer";
-import Navbar from "components/layout/navbar";
+import { Navbar } from "components/layout/navbar";
 import {
   NotificationContainer,
   NotificationProvider,

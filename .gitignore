@@ -35,10 +35,6 @@ next-env.d.ts
 # turbo
 .turbo/
 
-# bun
-bun.lock
-bun.lockb
-
 # storefront
 storefront/.next/
 storefront/.pnp

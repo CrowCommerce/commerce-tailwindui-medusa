@@ -26,7 +26,6 @@ export default async function Page(props: {
   params: Promise<{ page: string }>;
 }) {
   const params = await props.params;
-  // Don't await the fetch, pass the Promise to the client component
   const pagePromise = getPage(params.page);
 
   return <PageContent pagePromise={pagePromise} />;

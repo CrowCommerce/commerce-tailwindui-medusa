@@ -1,6 +1,6 @@
 "use cache";
-import Collections from "components/home/collections";
-import Hero from "components/home/hero";
+import { Collections } from "components/home/collections";
+import { Hero } from "components/home/hero";
 import { TrendingProducts } from "components/home/trending-products";
 import { getCollections, getProducts } from "lib/medusa";
 import {

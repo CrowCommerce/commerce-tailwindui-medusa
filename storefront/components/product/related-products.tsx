@@ -13,13 +13,13 @@ interface RelatedProductsProps {
   fullProducts: Product[];
 }
 
-export default function RelatedProducts({
+export function RelatedProducts({
   products,
   fullProducts,
 }: RelatedProductsProps) {
   if (!products || products.length === 0) return null;
   const { addCartItem } = useCart();
-  const [message, formAction] = useActionState(addItem, null);
+  const [, formAction] = useActionState(addItem, null);
 
   return (
     <section
@@ -77,7 +77,8 @@ export default function RelatedProducts({
                   action={async () => {
                     const variant = fullProduct.variants.find(
                       (v) => v.id === product.variantId,
-                    )!;
+                    );
+                    if (!variant) return;
                     addCartItem(variant, fullProduct);
                     addItemAction();
                   }}

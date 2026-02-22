@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { SortFilterMenu } from "./sort-filter-menu";
 
-export default function SortFilter() {
+export function SortFilter() {
   return (
     <Suspense fallback={null}>
       <SortFilterMenu />

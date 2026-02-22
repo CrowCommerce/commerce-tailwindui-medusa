@@ -1,7 +1,7 @@
 import { Squares2X2Icon } from "@heroicons/react/20/solid";
 import Collections from "components/layout/search/collections";
 import MobileFiltersWrapper from "components/layout/search/mobile-filters-wrapper";
-import SortFilter from "components/layout/search/sort-filter";
+import { SortFilter } from "components/layout/search/sort-filter";
 import { Suspense } from "react";
 import ChildrenWrapper from "./shared/children-wrapper";
 import SearchHeader from "./shared/search-header";
