@@ -36,6 +36,6 @@ export const createReviewStep = createStep(
       PRODUCT_REVIEW_MODULE
     )
 
-    await reviewModuleService.deleteReviews(reviewId)
+    await reviewModuleService.softDeleteReviews(reviewId)
   }
 )

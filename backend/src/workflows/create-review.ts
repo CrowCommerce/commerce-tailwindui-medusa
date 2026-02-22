@@ -5,7 +5,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { createReviewStep, type CreateReviewStepInput } from "./steps/create-review"
 import { refreshReviewStatsStep } from "./steps/refresh-review-stats"
-import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 
 export const createReviewWorkflow = createWorkflow(
   "create-review",
@@ -28,6 +28,16 @@ export const createReviewWorkflow = createWorkflow(
     }))
 
     refreshReviewStatsStep(statsInput)
+
+    const eventData = transform({ review, input }, (data) => ({
+      eventName: "product_review.created" as const,
+      data: {
+        id: data.review.id,
+        product_id: data.input.product_id,
+      },
+    }))
+
+    emitEventStep(eventData)
 
     return new WorkflowResponse({
       review,

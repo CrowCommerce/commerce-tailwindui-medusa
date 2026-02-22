@@ -30,6 +30,7 @@ export function ReviewForm({
   >(addProductReview, null);
 
   const displayRating = hoverRating || rating;
+  const isDisabled = isPending || rating === 0;
 
   if (state?.success) {
     return (
@@ -84,7 +85,6 @@ export function ReviewForm({
               <input type="hidden" name="product_id" value={productId} />
               <input type="hidden" name="rating" value={rating} />
 
-              {/* Star Rating Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Rating
@@ -112,7 +112,6 @@ export function ReviewForm({
                 </div>
               </div>
 
-              {/* Title */}
               <div>
                 <label
                   htmlFor="review-title"
@@ -129,7 +128,6 @@ export function ReviewForm({
                 />
               </div>
 
-              {/* Content */}
               <div>
                 <label
                   htmlFor="review-content"
@@ -147,18 +145,16 @@ export function ReviewForm({
                 />
               </div>
 
-              {/* Error */}
               {state?.error && (
                 <p className="text-sm text-red-600">{state.error}</p>
               )}
 
-              {/* Submit */}
               <button
                 type="submit"
-                disabled={isPending || rating === 0}
+                disabled={isDisabled}
                 className={clsx(
                   "w-full rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm",
-                  isPending || rating === 0
+                  isDisabled
                     ? "cursor-not-allowed bg-gray-300"
                     : "bg-primary-600 hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600",
                 )}
