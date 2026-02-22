@@ -13,6 +13,10 @@ import {
   PutUpdateWishlistSchema,
   PostCreateWishlistItemSchema,
 } from "./store/customers/me/wishlists/validators"
+import {
+  PostGuestCreateWishlistItemSchema,
+  PostImportWishlistSchema,
+} from "./store/wishlists/validators"
 
 export default defineMiddlewares({
   routes: [
@@ -124,6 +128,23 @@ export default defineMiddlewares({
       matcher: "/store/customers/me/wishlists/:id/transfer",
       middlewares: [
         authenticate("customer", ["session", "bearer"]),
+      ],
+    },
+    // Guest wishlist routes — no auth required
+    {
+      matcher: "/store/wishlists/:id/items",
+      method: ["POST"],
+      middlewares: [
+        validateAndTransformBody(PostGuestCreateWishlistItemSchema),
+      ],
+    },
+    // Import route — requires auth
+    {
+      matcher: "/store/wishlists/import",
+      method: ["POST"],
+      middlewares: [
+        authenticate("customer", ["session", "bearer"]),
+        validateAndTransformBody(PostImportWishlistSchema),
       ],
     },
   ],
