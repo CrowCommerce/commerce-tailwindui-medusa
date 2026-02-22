@@ -346,3 +346,22 @@ export async function shareWishlist(wishlistId: string): Promise<string | null> 
     return null;
   }
 }
+
+export async function importWishlist(
+  shareToken: string,
+): Promise<WishlistActionResult> {
+  const headers = await getAuthHeaders();
+
+  try {
+    await sdk.client.fetch<WishlistResponse>(
+      "/store/wishlists/import",
+      { method: "POST", headers, body: { share_token: shareToken } }
+    );
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Error importing wishlist" };
+  } finally {
+    revalidateWishlists();
+  }
+
+  return { success: true };
+}
