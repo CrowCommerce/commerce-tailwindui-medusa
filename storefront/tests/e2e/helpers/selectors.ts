@@ -37,6 +37,23 @@ export const SIGN_IN_LINK = 'main a:has-text("Sign In")';
 export const WISHLIST_NOT_AVAILABLE =
   'h1:has-text("Wishlist Not Available")';
 
+// Wishlist actions menu (rename/delete)
+export const ACTIONS_MENU_BUTTON =
+  'button:has(span:has-text("Wishlist options"))';
+export const RENAME_MENU_ITEM = '[role="menuitem"]:has-text("Rename")';
+export const DELETE_MENU_ITEM = '[role="menuitem"]:has-text("Delete")';
+export const RENAME_DIALOG_TITLE = 'h3:has-text("Rename Wishlist")';
+export const RENAME_INPUT = "#rename-wishlist";
+export const RENAME_SUBMIT = 'button[type="submit"]:has-text("Rename")';
+export const DELETE_DIALOG_TITLE = 'h3:has-text("Delete Wishlist")';
+export const DELETE_CONFIRM = 'button:has-text("Delete"):not([class*="text-red-600"])';
+
+// Nav wishlist badge
+export const NAV_WISHLIST_LINK = 'header a[href="/account/wishlist"]';
+
+// Social proof
+export const SOCIAL_PROOF_TEXT = 'p:has-text("saved this")';
+
 // Auth forms
 export const LOGIN_EMAIL = 'input[name="email"]';
 export const LOGIN_PASSWORD = 'input[name="password"]';
