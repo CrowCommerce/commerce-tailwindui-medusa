@@ -61,6 +61,42 @@ export async function getWishlists(): Promise<Wishlist[]> {
   }
 }
 
+/**
+ * Non-cached version of getWishlists for use in dynamic pages
+ * (e.g. the account layout which already calls cookies()).
+ * The cached getWishlists cannot be called from pages that are
+ * statically prerendered because it uses cookies() inside "use cache".
+ */
+export async function getWishlistsDynamic(): Promise<Wishlist[]> {
+  const token = await getAuthToken();
+  const headers = await getAuthHeaders();
+
+  if (token) {
+    try {
+      const result = await sdk.client.fetch<WishlistsResponse>(
+        "/store/customers/me/wishlists",
+        { method: "GET", headers }
+      );
+      return result.wishlists;
+    } catch {
+      return [];
+    }
+  }
+
+  const wishlistId = await getWishlistId();
+  if (!wishlistId) return [];
+
+  try {
+    const result = await sdk.client.fetch<WishlistResponse>(
+      `/store/wishlists/${wishlistId}`,
+      { method: "GET" }
+    );
+    return [result.wishlist];
+  } catch {
+    return [];
+  }
+}
+
 export async function getWishlist(wishlistId: string): Promise<Wishlist | null> {
   "use cache";
   cacheTag(TAGS.wishlists);
