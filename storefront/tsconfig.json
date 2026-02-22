@@ -4,9 +4,7 @@
     "baseUrl": ".",
     "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "moduleResolution": "node",
-    "target": "es2015"
+    "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": [
     "next-env.d.ts",

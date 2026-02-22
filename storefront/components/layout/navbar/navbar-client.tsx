@@ -12,7 +12,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { AccountDropdown } from "components/account/account-dropdown";
-import Cart from "components/cart";
+import { Cart } from "components/cart";
 import { SearchButton } from "components/search-command";
 import { signout } from "lib/medusa/customer";
 import { Navigation } from "lib/types";
@@ -20,7 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import NavbarDesktop from "./navbar-desktop";
+import { NavbarDesktop } from "./navbar-desktop";
 
 type CustomerData = {
   firstName: string | null;
@@ -32,10 +32,7 @@ type NavbarClientProps = {
   customer: CustomerData | null;
 };
 
-export default function NavbarClient({
-  navigation,
-  customer,
-}: NavbarClientProps) {
+export function NavbarClient({ navigation, customer }: NavbarClientProps) {
   const [open, setOpen] = useState(false);
   const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();

@@ -1,6 +1,6 @@
 "use client";
 
-import Prose from "components/template-prose";
+import { Prose } from "components/template-prose";
 import { Page } from "lib/types";
 import { notFound } from "next/navigation";
 import { use } from "react";

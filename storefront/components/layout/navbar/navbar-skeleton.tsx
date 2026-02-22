@@ -3,7 +3,7 @@
 import { Bars3Icon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
-export default function NavbarSkeleton() {
+export function NavbarSkeleton() {
   // Even in skeleton, we can have a functional hamburger button
   const [, setIsOpen] = useState(false);
 

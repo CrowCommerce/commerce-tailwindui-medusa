@@ -39,7 +39,7 @@ interface ProductDetailProps {
   variants: ProductVariant[];
 }
 
-export default function ProductDetail({
+export function ProductDetail({
   product,
   sourceProduct,
   options,

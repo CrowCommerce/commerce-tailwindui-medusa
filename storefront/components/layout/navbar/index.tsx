@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import NavbarData from "./navbar-data";
-import NavbarSkeleton from "./navbar-skeleton";
+import { NavbarSkeleton } from "./navbar-skeleton";
 
 export default async function Navbar() {
   return (

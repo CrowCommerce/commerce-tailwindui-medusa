@@ -26,7 +26,7 @@ function CartCount() {
   return <>{cart?.totalQuantity ?? 0}</>;
 }
 
-export default function Cart() {
+export function Cart() {
   const { cart, updateCartItem } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const quantityRef = useRef(cart?.totalQuantity);

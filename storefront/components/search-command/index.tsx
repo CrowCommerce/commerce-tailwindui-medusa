@@ -99,7 +99,7 @@ const SeeAllResultsOption = forwardRef<
     if (typeof ref === "function") {
       ref(node);
     } else if (ref) {
-      (ref as any).current = node;
+      (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
     }
   };
 

@@ -2,16 +2,13 @@
 
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import clsx from "clsx";
 import { sorting } from "lib/constants";
 import { createUrl } from "lib/utils";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
-export default function SortFilterMenu() {
+export function SortFilterMenu() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -55,7 +52,7 @@ export default function SortFilterMenu() {
             <MenuItem key={option.name}>
               <Link
                 href={option.href}
-                className={classNames(
+                className={clsx(
                   option.current
                     ? "font-medium text-gray-900"
                     : "text-gray-500",

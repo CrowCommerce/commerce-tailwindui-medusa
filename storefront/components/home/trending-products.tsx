@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "./types";
@@ -8,7 +6,7 @@ interface TrendingProductsProps {
   products: Product[];
 }
 
-export default function TrendingProducts({ products }: TrendingProductsProps) {
+export function TrendingProducts({ products }: TrendingProductsProps) {
   return (
     <section aria-labelledby="trending-heading" className="bg-neutral-200">
       <div className="py-16 sm:py-24 lg:mx-auto lg:max-w-7xl lg:px-8 lg:py-32">

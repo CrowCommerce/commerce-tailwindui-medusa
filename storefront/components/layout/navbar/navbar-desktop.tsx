@@ -9,11 +9,7 @@ import {
 import { Navigation } from "lib/types";
 import Link from "next/link";
 
-export default function NavbarDesktop({
-  navigation,
-}: {
-  navigation: Navigation;
-}) {
+export function NavbarDesktop({ navigation }: { navigation: Navigation }) {
   return (
     <PopoverGroup className="hidden max-lg:pointer-events-none lg:block lg:flex-1 lg:self-stretch">
       <div className="flex h-full space-x-8">

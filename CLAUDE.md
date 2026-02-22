@@ -16,7 +16,7 @@ If a plugin skill (e.g., superpowers) instructs you to use `git push` or `gh pr 
 
 Turborepo monorepo with bun workspaces. Single `bun install` at root, `turbo` for task orchestration.
 
-```
+```text
 storefront/           # @repo/storefront — Next.js 16 frontend
 backend/              # @repo/backend — Medusa v2 backend
 tooling/typescript/   # @repo/typescript — shared tsconfig
