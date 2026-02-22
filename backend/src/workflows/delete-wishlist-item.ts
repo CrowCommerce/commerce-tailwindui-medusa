@@ -25,7 +25,7 @@ export const deleteWishlistItemWorkflow = createWorkflow(
     validateWishlistExistsStep({ wishlists })
 
     const validateInput = transform({ wishlists, input }, (data) => ({
-      wishlist_items: (data.wishlists[0].items ?? []) as { id: string }[],
+      wishlist_items: (data.wishlists[0]!.items ?? []) as { id: string }[],
       wishlist_item_id: data.input.wishlist_item_id,
     }))
 
@@ -41,7 +41,7 @@ export const deleteWishlistItemWorkflow = createWorkflow(
 
     return new WorkflowResponse(
       transform({ updatedWishlists }, (data) => ({
-        wishlist: data.updatedWishlists[0],
+        wishlist: data.updatedWishlists[0]!,
       }))
     )
   }

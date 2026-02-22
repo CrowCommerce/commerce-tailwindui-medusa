@@ -26,7 +26,7 @@ export const transferWishlistWorkflow = createWorkflow(
     validateWishlistExistsStep({ wishlists })
 
     const salesChannelInput = transform({ wishlists, input }, (data) => ({
-      wishlist_sales_channel_id: data.wishlists[0].sales_channel_id,
+      wishlist_sales_channel_id: data.wishlists[0]!.sales_channel_id,
       sales_channel_id: data.input.sales_channel_id,
     }))
 

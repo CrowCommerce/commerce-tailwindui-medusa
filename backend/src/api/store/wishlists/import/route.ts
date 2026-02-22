@@ -15,7 +15,8 @@ export async function POST(
   req: AuthenticatedMedusaRequest<PostReq>,
   res: MedusaResponse
 ) {
-  if (!req.publishable_key_context?.sales_channel_ids.length) {
+  const [salesChannelId] = req.publishable_key_context?.sales_channel_ids ?? []
+  if (!salesChannelId) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
       "At least one sales channel ID is required"
@@ -24,9 +25,9 @@ export async function POST(
 
   const { http } = req.scope.resolve("configModule").projectConfig
 
-  let decoded: { wishlist_id: string }
+  let decoded: unknown
   try {
-    decoded = jwt.verify(req.validatedBody.share_token, http.jwtSecret!) as { wishlist_id: string }
+    decoded = jwt.verify(req.validatedBody.share_token, http.jwtSecret!)
   } catch (e) {
     if (e instanceof TokenExpiredError) {
       throw new MedusaError(
@@ -37,6 +38,17 @@ export async function POST(
     throw new MedusaError(MedusaError.Types.INVALID_DATA, "Invalid share token")
   }
 
+  if (
+    typeof decoded !== "object" ||
+    decoded === null ||
+    !("wishlist_id" in decoded) ||
+    typeof (decoded as Record<string, unknown>).wishlist_id !== "string"
+  ) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Invalid share token")
+  }
+
+  const { wishlist_id } = decoded as { wishlist_id: string }
+
   const query = req.scope.resolve("query")
   const wishlistService: WishlistModuleService = req.scope.resolve(WISHLIST_MODULE)
 
@@ -44,7 +56,7 @@ export async function POST(
   const { data } = await query.graph({
     entity: "wishlist",
     fields: ["*", "items.*"],
-    filters: { id: decoded.wishlist_id },
+    filters: { id: wishlist_id },
   })
 
   if (!data.length) {
@@ -56,7 +68,7 @@ export async function POST(
   // Clone: create new wishlist for this customer
   const newWishlist = await wishlistService.createWishlists({
     customer_id: req.auth_context.actor_id,
-    sales_channel_id: req.publishable_key_context.sales_channel_ids[0],
+    sales_channel_id: salesChannelId,
     name: source.name ? `${source.name} (imported)` : "Imported Wishlist",
   })
 
@@ -69,8 +81,12 @@ export async function POST(
           wishlist_id: newWishlist.id,
           product_variant_id: item.product_variant_id,
         })
-      } catch {
-        // Skip duplicates or invalid variants
+      } catch (err) {
+        // Skip duplicate-key violations; log anything else
+        const message = err instanceof Error ? err.message : String(err)
+        if (!message.includes("unique") && !message.includes("duplicate")) {
+          console.warn(`[wishlist-import] Failed to clone item ${item.product_variant_id}:`, message)
+        }
       }
     }
   }

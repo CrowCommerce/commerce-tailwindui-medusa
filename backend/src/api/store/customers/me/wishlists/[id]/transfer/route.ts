@@ -9,7 +9,8 @@ export async function POST(
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) {
-  if (!req.publishable_key_context?.sales_channel_ids.length) {
+  const [salesChannelId] = req.publishable_key_context?.sales_channel_ids ?? []
+  if (!salesChannelId) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
       "At least one sales channel ID is required"
@@ -20,7 +21,7 @@ export async function POST(
     input: {
       wishlist_id: req.params.id,
       customer_id: req.auth_context.actor_id,
-      sales_channel_id: req.publishable_key_context.sales_channel_ids[0],
+      sales_channel_id: salesChannelId,
     },
   })
 

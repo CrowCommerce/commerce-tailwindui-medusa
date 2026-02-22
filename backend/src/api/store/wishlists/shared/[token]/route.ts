@@ -5,9 +5,9 @@ import jwt, { TokenExpiredError } from "jsonwebtoken"
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const { http } = req.scope.resolve("configModule").projectConfig
 
-  let decoded: { wishlist_id: string }
+  let decoded: unknown
   try {
-    decoded = jwt.verify(req.params.token, http.jwtSecret!) as { wishlist_id: string }
+    decoded = jwt.verify(req.params.token, http.jwtSecret!)
   } catch (e) {
     if (e instanceof TokenExpiredError) {
       throw new MedusaError(
@@ -18,12 +18,23 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     throw new MedusaError(MedusaError.Types.INVALID_DATA, "Invalid share link")
   }
 
+  if (
+    typeof decoded !== "object" ||
+    decoded === null ||
+    !("wishlist_id" in decoded) ||
+    typeof (decoded as Record<string, unknown>).wishlist_id !== "string"
+  ) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Invalid share link")
+  }
+
+  const { wishlist_id } = decoded as { wishlist_id: string }
+
   const query = req.scope.resolve("query")
 
   const { data } = await query.graph({
     entity: "wishlist",
     fields: ["*", "items.*", "items.product_variant.*"],
-    filters: { id: decoded.wishlist_id },
+    filters: { id: wishlist_id },
   })
 
   if (!data.length) {

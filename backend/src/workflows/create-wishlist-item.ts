@@ -27,7 +27,7 @@ export const createWishlistItemWorkflow = createWorkflow(
     validateWishlistExistsStep({ wishlists })
 
     const salesChannelInput = transform({ wishlists, input }, (data) => ({
-      wishlist_sales_channel_id: data.wishlists[0].sales_channel_id,
+      wishlist_sales_channel_id: data.wishlists[0]!.sales_channel_id,
       sales_channel_id: data.input.sales_channel_id,
     }))
 
@@ -36,14 +36,14 @@ export const createWishlistItemWorkflow = createWorkflow(
     const variantInput = transform({ wishlists, input }, (data) => ({
       variant_id: data.input.variant_id,
       sales_channel_id: data.input.sales_channel_id,
-      wishlist_items: (data.wishlists[0].items ?? []) as { product_variant_id: string }[],
+      wishlist_items: (data.wishlists[0]!.items ?? []) as { product_variant_id: string }[],
     }))
 
     validateVariantWishlistStep(variantInput)
 
     const itemInput = transform({ wishlists, input }, (data) => ({
       product_variant_id: data.input.variant_id,
-      wishlist_id: data.wishlists[0].id,
+      wishlist_id: data.wishlists[0]!.id,
     }))
 
     createWishlistItemStep(itemInput)
@@ -56,7 +56,7 @@ export const createWishlistItemWorkflow = createWorkflow(
 
     return new WorkflowResponse(
       transform({ updatedWishlists }, (data) => ({
-        wishlist: data.updatedWishlists[0],
+        wishlist: data.updatedWishlists[0]!,
       }))
     )
   }

@@ -56,7 +56,7 @@
 - [ ] Heart button server state — product cards/PDP hearts don't reflect current wishlist state (always show outline)
 - [ ] Rename/delete wishlist UI — server actions exist but no buttons in the wishlist page
 - [ ] Store product wishlist count route — `GET /store/products/:id/wishlist` for social proof ("X people saved this")
-- [ ] Guest route hardening — `GET /store/wishlists/:id` should filter by `customer_id: null` to prevent reading customer wishlists via guest endpoint
+- [x] Guest route hardening — `GET /store/wishlists/:id` now filters by `customer_id: null`; guest item routes also verify guest ownership
 
 ## Agentic Commerce
 

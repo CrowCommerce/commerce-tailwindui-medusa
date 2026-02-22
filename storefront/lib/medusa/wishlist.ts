@@ -325,10 +325,11 @@ export async function transferWishlist(): Promise<void> {
       `/store/customers/me/wishlists/${guestWishlistId}/transfer`,
       { method: "POST", headers }
     );
-  } catch {
-    // Transfer is best-effort
-  } finally {
+    // Only remove cookie on successful transfer
     await removeWishlistId();
+  } catch {
+    // Transfer is best-effort — keep cookie so guest data isn't lost
+  } finally {
     revalidateWishlists();
   }
 }

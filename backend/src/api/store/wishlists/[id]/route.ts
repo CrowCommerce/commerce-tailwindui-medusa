@@ -6,7 +6,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const { data } = await query.graph({
     entity: "wishlist",
     fields: ["*", "items.*", "items.product_variant.*"],
-    filters: { id: req.params.id },
+    filters: { id: req.params.id, customer_id: null },
   })
 
   if (!data.length) {
