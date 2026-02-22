@@ -11,8 +11,10 @@ import {
   getCartId,
   removeAuthToken,
   removeCartId,
+  removeWishlistId,
   setAuthToken,
 } from "lib/medusa/cookies";
+import { transferWishlist } from "lib/medusa/wishlist";
 
 export type ActionResult = { error?: string; success?: boolean } | null;
 
@@ -74,6 +76,12 @@ export async function login(
     await transferCart();
   } catch {
     // Cart transfer is best-effort — don't block login
+  }
+
+  try {
+    await transferWishlist();
+  } catch {
+    // Wishlist transfer is best-effort — don't block login
   }
 
   revalidateCustomer();
@@ -153,6 +161,12 @@ export async function signup(
     // Cart transfer is best-effort
   }
 
+  try {
+    await transferWishlist();
+  } catch {
+    // Wishlist transfer is best-effort
+  }
+
   revalidateCustomer();
   redirect("/account");
 }
@@ -166,9 +180,11 @@ export async function signout(): Promise<void> {
 
   await removeAuthToken();
   await removeCartId();
+  await removeWishlistId();
 
   revalidateTag(TAGS.customers, "max");
   revalidateTag(TAGS.cart, "max");
+  revalidateTag(TAGS.wishlists, "max");
   revalidatePath("/", "layout");
 
   redirect("/");
