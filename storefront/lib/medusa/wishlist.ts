@@ -130,6 +130,58 @@ export async function getWishlistItemCount(): Promise<number> {
   return wishlists.reduce((sum, wl) => sum + (wl.items?.length ?? 0), 0);
 }
 
+export type VariantWishlistState = {
+  isInWishlist: boolean;
+  wishlistId?: string;
+  wishlistItemId?: string;
+};
+
+export async function getVariantWishlistState(
+  variantId: string,
+): Promise<VariantWishlistState> {
+  const wishlists = await getWishlists();
+  for (const wl of wishlists) {
+    const item = wl.items?.find(
+      (item) => item.product_variant_id === variantId,
+    );
+    if (item) {
+      return {
+        isInWishlist: true,
+        wishlistId: wl.id,
+        wishlistItemId: item.id,
+      };
+    }
+  }
+  return { isInWishlist: false };
+}
+
+export async function getVariantsWishlistStates(
+  variantIds: string[],
+): Promise<Map<string, VariantWishlistState>> {
+  const wishlists = await getWishlists();
+  const states = new Map<string, VariantWishlistState>();
+
+  for (const id of variantIds) {
+    states.set(id, { isInWishlist: false });
+  }
+
+  const variantIdSet = new Set(variantIds);
+
+  for (const wl of wishlists) {
+    for (const item of wl.items ?? []) {
+      if (variantIdSet.has(item.product_variant_id)) {
+        states.set(item.product_variant_id, {
+          isInWishlist: true,
+          wishlistId: wl.id,
+          wishlistItemId: item.id,
+        });
+      }
+    }
+  }
+
+  return states;
+}
+
 // --- Mutations ---
 
 export async function createWishlist(

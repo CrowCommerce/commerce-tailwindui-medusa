@@ -3,7 +3,12 @@
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { useEffect, useState, useTransition } from "react";
-import { addToWishlist, removeFromWishlist, type WishlistActionResult } from "lib/medusa/wishlist";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  getVariantWishlistState,
+  type WishlistActionResult,
+} from "lib/medusa/wishlist";
 import { useNotification } from "components/notifications";
 import clsx from "clsx";
 
@@ -18,19 +23,36 @@ type WishlistButtonProps = {
 
 export function WishlistButton({
   variantId,
-  isInWishlist: initialIsInWishlist = false,
-  wishlistId,
-  wishlistItemId,
+  isInWishlist: initialIsInWishlist,
+  wishlistId: initialWishlistId,
+  wishlistItemId: initialWishlistItemId,
   size = "md",
   className,
 }: WishlistButtonProps) {
-  const [isWishlisted, setIsWishlisted] = useState(initialIsInWishlist);
+  const [isWishlisted, setIsWishlisted] = useState(initialIsInWishlist ?? false);
+  const [wishlistId, setWishlistId] = useState(initialWishlistId);
+  const [wishlistItemId, setWishlistItemId] = useState(initialWishlistItemId);
   const [isPending, startTransition] = useTransition();
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    setIsWishlisted(initialIsInWishlist);
-  }, [initialIsInWishlist]);
+    if (initialIsInWishlist !== undefined) {
+      setIsWishlisted(initialIsInWishlist);
+      setWishlistId(initialWishlistId);
+      setWishlistItemId(initialWishlistItemId);
+      return;
+    }
+
+    // Auto-check wishlist state when not provided by server
+    let cancelled = false;
+    getVariantWishlistState(variantId).then((state) => {
+      if (cancelled) return;
+      setIsWishlisted(state.isInWishlist);
+      setWishlistId(state.wishlistId);
+      setWishlistItemId(state.wishlistItemId);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [variantId, initialIsInWishlist, initialWishlistId, initialWishlistItemId]);
 
   function handleClick() {
     startTransition(async () => {
@@ -43,6 +65,8 @@ export function WishlistButton({
           showNotification("error", "Could not remove from wishlist", result.error);
         } else {
           setIsWishlisted(false);
+          setWishlistId(undefined);
+          setWishlistItemId(undefined);
           showNotification("success", "Removed from wishlist");
         }
       } else {
@@ -54,6 +78,10 @@ export function WishlistButton({
           showNotification("error", "Could not add to wishlist", result.error);
         } else {
           setIsWishlisted(true);
+          // Refresh state to get the new wishlistId and itemId
+          const newState = await getVariantWishlistState(variantId);
+          setWishlistId(newState.wishlistId);
+          setWishlistItemId(newState.wishlistItemId);
           showNotification("success", "Added to wishlist");
         }
       }
