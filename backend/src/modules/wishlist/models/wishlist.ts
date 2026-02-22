@@ -1,0 +1,19 @@
+import { model } from "@medusajs/framework/utils"
+import { WishlistItem } from "./wishlist-item"
+
+export const Wishlist = model
+  .define("wishlist", {
+    id: model.id({ prefix: "wl" }).primaryKey(),
+    name: model.text().nullable(),
+    customer_id: model.text().nullable(),
+    sales_channel_id: model.text(),
+    items: model.hasMany(() => WishlistItem, {
+      mappedBy: "wishlist",
+    }),
+  })
+  .indexes([
+    {
+      on: ["customer_id", "sales_channel_id"],
+      where: { customer_id: { $ne: null } },
+    },
+  ])
