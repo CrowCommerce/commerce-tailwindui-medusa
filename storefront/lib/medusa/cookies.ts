@@ -49,6 +49,30 @@ export async function removeAuthToken(): Promise<void> {
   cookies.set(AUTH_COOKIE, "", { maxAge: -1 });
 }
 
+// --- Wishlist Cookie (guest wishlist ID) ---
+
+const WISHLIST_COOKIE = "_medusa_wishlist_id";
+
+export async function getWishlistId(): Promise<string | undefined> {
+  const cookies = await nextCookies();
+  return cookies.get(WISHLIST_COOKIE)?.value;
+}
+
+export async function setWishlistId(wishlistId: string): Promise<void> {
+  const cookies = await nextCookies();
+  cookies.set(WISHLIST_COOKIE, wishlistId, {
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+  });
+}
+
+export async function removeWishlistId(): Promise<void> {
+  const cookies = await nextCookies();
+  cookies.set(WISHLIST_COOKIE, "", { maxAge: -1 });
+}
+
 // --- Auth Headers ---
 
 export async function getAuthHeaders(): Promise<

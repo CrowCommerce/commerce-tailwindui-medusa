@@ -150,3 +150,29 @@ export type ProductReviews = {
   count: number;
   ratingDistribution: { rating: number; count: number }[];
 };
+
+// --- Wishlists ---
+
+export type WishlistItem = {
+  id: string;
+  product_variant_id: string;
+  wishlist_id: string;
+  product_variant?: {
+    id: string;
+    title: string;
+    sku: string;
+    product_id: string;
+    product?: Product;
+  };
+  created_at: string;
+};
+
+export type Wishlist = {
+  id: string;
+  name: string | null;
+  customer_id: string | null;
+  sales_channel_id: string;
+  items: WishlistItem[];
+  created_at: string;
+  updated_at: string;
+};
