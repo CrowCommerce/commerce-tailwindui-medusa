@@ -118,61 +118,45 @@ export default async function SharedWishlistPage({
 function SharedWishlistItemCard({ item }: { item: WishlistItem }) {
   const variant = item.product_variant;
   const product = variant?.product;
-  const featuredImage = product?.featuredImage;
-  const price = product?.priceRange?.minVariantPrice;
+  const thumbnail = product?.thumbnail;
 
   return (
-    <div className="group">
+    <div className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
       {/* Product image */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-        {featuredImage ? (
-          <Link
-            href={product?.handle ? `/product/${product.handle}` : "#"}
-            prefetch={true}
-          >
-            <Image
-              src={featuredImage.url}
-              alt={featuredImage.altText || product?.title || "Product image"}
-              width={featuredImage.width || 400}
-              height={featuredImage.height || 400}
-              className="size-full object-cover object-center transition-opacity group-hover:opacity-75"
-            />
-          </Link>
-        ) : (
-          <div className="flex size-full items-center justify-center">
-            <ShoppingBagIcon className="size-12 text-gray-300" />
-          </div>
-        )}
-      </div>
+      {thumbnail ? (
+        <Link
+          href={product?.handle ? `/product/${product.handle}` : "#"}
+          prefetch={true}
+        >
+          <Image
+            src={thumbnail}
+            alt={product?.title || "Product image"}
+            width={400}
+            height={400}
+            className="aspect-[3/4] w-full bg-gray-200 object-cover group-hover:opacity-75 sm:aspect-auto sm:h-72"
+          />
+        </Link>
+      ) : (
+        <div className="flex aspect-[3/4] w-full items-center justify-center bg-gray-100 sm:aspect-auto sm:h-72">
+          <ShoppingBagIcon className="size-12 text-gray-300" />
+        </div>
+      )}
 
       {/* Product info */}
-      <div className="mt-4">
+      <div className="flex flex-1 flex-col space-y-2 p-4">
         {product ? (
-          <Link
-            href={`/product/${product.handle}`}
-            className="text-sm font-medium text-gray-900 hover:text-gray-700"
-          >
-            {product.title}
-          </Link>
+          <h3 className="text-sm font-medium text-gray-900">
+            <Link href={`/product/${product.handle}`}>
+              <span aria-hidden="true" className="absolute inset-0" />
+              {product.title}
+            </Link>
+          </h3>
         ) : (
-          <p className="text-sm font-medium text-gray-900">Unknown product</p>
+          <h3 className="text-sm font-medium text-gray-900">Unknown product</h3>
         )}
 
         {variant?.title && variant.title !== "Default" && (
-          <p className="mt-1 text-sm text-gray-500">{variant.title}</p>
-        )}
-
-        {price && (
-          <p
-            suppressHydrationWarning
-            className="mt-1 text-lg font-medium text-gray-900"
-          >
-            {new Intl.NumberFormat(undefined, {
-              style: "currency",
-              currency: price.currencyCode,
-              currencyDisplay: "narrowSymbol",
-            }).format(parseFloat(price.amount))}
-          </p>
+          <p className="text-sm text-gray-500">{variant.title}</p>
         )}
       </div>
     </div>

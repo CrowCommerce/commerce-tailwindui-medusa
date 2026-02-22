@@ -131,8 +131,7 @@ function WishlistItemCard({
 
   const variant = item.product_variant;
   const product = variant?.product;
-  const featuredImage = product?.featuredImage;
-  const price = product?.priceRange?.minVariantPrice;
+  const thumbnail = product?.thumbnail;
 
   const boundAddToCart = addToCartAction.bind(
     null,
@@ -156,7 +155,7 @@ function WishlistItemCard({
   return (
     <div
       className={clsx(
-        "group relative",
+        "group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white",
         isRemoving && "pointer-events-none opacity-50",
       )}
     >
@@ -172,82 +171,68 @@ function WishlistItemCard({
       </button>
 
       {/* Product image */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-        {featuredImage ? (
-          <Link
-            href={product?.handle ? `/product/${product.handle}` : "#"}
-            prefetch={true}
-          >
-            <Image
-              src={featuredImage.url}
-              alt={featuredImage.altText || product?.title || "Product image"}
-              width={featuredImage.width || 400}
-              height={featuredImage.height || 400}
-              className="size-full object-cover object-center transition-opacity group-hover:opacity-75"
-            />
-          </Link>
-        ) : (
-          <div className="flex size-full items-center justify-center">
-            <ShoppingBagIcon className="size-12 text-gray-300" />
-          </div>
-        )}
-      </div>
+      {thumbnail ? (
+        <Link
+          href={product?.handle ? `/product/${product.handle}` : "#"}
+          prefetch={true}
+        >
+          <Image
+            src={thumbnail}
+            alt={product?.title || "Product image"}
+            width={400}
+            height={400}
+            className="aspect-[3/4] w-full bg-gray-200 object-cover group-hover:opacity-75 sm:aspect-auto sm:h-72"
+          />
+        </Link>
+      ) : (
+        <div className="flex aspect-[3/4] w-full items-center justify-center bg-gray-100 sm:aspect-auto sm:h-72">
+          <ShoppingBagIcon className="size-12 text-gray-300" />
+        </div>
+      )}
 
-      {/* Product info */}
-      <div className="mt-4">
+      {/* Product info + actions */}
+      <div className="flex flex-1 flex-col space-y-2 p-4">
         {product ? (
-          <Link
-            href={`/product/${product.handle}`}
-            className="text-sm font-medium text-gray-900 hover:text-gray-700"
-          >
-            {product.title}
-          </Link>
+          <h3 className="text-sm font-medium text-gray-900">
+            <Link href={`/product/${product.handle}`}>
+              <span aria-hidden="true" className="absolute inset-0" />
+              {product.title}
+            </Link>
+          </h3>
         ) : (
-          <p className="text-sm font-medium text-gray-900">Unknown product</p>
+          <h3 className="text-sm font-medium text-gray-900">Unknown product</h3>
         )}
 
         {variant?.title && variant.title !== "Default" && (
-          <p className="mt-1 text-sm text-gray-500">{variant.title}</p>
+          <p className="text-sm text-gray-500">{variant.title}</p>
         )}
 
-        {price && (
-          <p
-            suppressHydrationWarning
-            className="mt-1 text-lg font-medium text-gray-900"
+        {/* Add to cart — pushed to bottom */}
+        <div className="flex flex-1 flex-col justify-end pt-2">
+          <form
+            action={() => {
+              startAddTransition(() => {
+                boundAddToCart();
+              });
+            }}
           >
-            {new Intl.NumberFormat(undefined, {
-              style: "currency",
-              currency: price.currencyCode,
-              currencyDisplay: "narrowSymbol",
-            }).format(parseFloat(price.amount))}
-          </p>
-        )}
-      </div>
+            <button
+              type="submit"
+              disabled={isAddingToCart}
+              className={clsx(
+                "relative flex w-full items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200",
+                isAddingToCart && "cursor-not-allowed opacity-50",
+              )}
+            >
+              {isAddingToCart ? "Adding..." : "Add to Cart"}
+            </button>
+          </form>
 
-      {/* Add to cart */}
-      <form
-        className="mt-4"
-        action={() => {
-          startAddTransition(() => {
-            boundAddToCart();
-          });
-        }}
-      >
-        <button
-          type="submit"
-          disabled={isAddingToCart}
-          className={clsx(
-            "w-full rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:outline-none",
-            isAddingToCart && "cursor-not-allowed opacity-50",
+          {addToCartMessage && typeof addToCartMessage === "string" && (
+            <p className="mt-1 text-sm text-red-600">{addToCartMessage}</p>
           )}
-        >
-          {isAddingToCart ? "Adding..." : "Add to Cart"}
-        </button>
-      </form>
-
-      {addToCartMessage && typeof addToCartMessage === "string" && (
-        <p className="mt-1 text-sm text-red-600">{addToCartMessage}</p>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

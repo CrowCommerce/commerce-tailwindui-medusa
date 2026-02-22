@@ -153,6 +153,15 @@ export type ProductReviews = {
 
 // --- Wishlists ---
 
+/** Raw Medusa product returned by graph query (not transformed) */
+export type WishlistProduct = {
+  id: string;
+  title: string;
+  handle: string;
+  thumbnail: string | null;
+  description: string | null;
+};
+
 export type WishlistItem = {
   id: string;
   product_variant_id: string;
@@ -162,7 +171,7 @@ export type WishlistItem = {
     title: string;
     sku: string;
     product_id: string;
-    product?: Product;
+    product?: WishlistProduct;
   };
   created_at: string;
 };

@@ -94,7 +94,7 @@ export async function POST(
   // Fetch the complete new wishlist
   const { data: result } = await query.graph({
     entity: "wishlist",
-    fields: ["*", "items.*", "items.product_variant.*"],
+    fields: ["*", "items.*", "items.product_variant.*", "items.product_variant.product.*"],
     filters: { id: newWishlist.id },
   })
 
