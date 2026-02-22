@@ -1,11 +1,13 @@
 import { getNavigation } from "lib/medusa";
 import { retrieveCustomer } from "lib/medusa/customer";
+import { getWishlistItemCount } from "lib/medusa/wishlist";
 import { NavbarClient } from "./navbar-client";
 
 export async function NavbarData() {
-  const [navigation, customer] = await Promise.all([
+  const [navigation, customer, wishlistCount] = await Promise.all([
     getNavigation(),
     retrieveCustomer(),
+    getWishlistItemCount(),
   ]);
 
   const customerData = customer
@@ -15,5 +17,11 @@ export async function NavbarData() {
       }
     : null;
 
-  return <NavbarClient navigation={navigation} customer={customerData} />;
+  return (
+    <NavbarClient
+      navigation={navigation}
+      customer={customerData}
+      wishlistCount={wishlistCount}
+    />
+  );
 }
