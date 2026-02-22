@@ -35,8 +35,9 @@ export const validateVariantWishlistStep = createStep(
       )
     }
 
-    const variantInSalesChannel = data[0].product.sales_channels.some(
-      (sc: { id: string }) => sc.id === sales_channel_id
+    const salesChannels = data[0].product?.sales_channels ?? []
+    const variantInSalesChannel = salesChannels.some(
+      (sc) => sc?.id === sales_channel_id
     )
 
     if (!variantInSalesChannel) {
