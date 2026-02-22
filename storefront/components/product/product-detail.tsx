@@ -16,6 +16,7 @@ import { AddToCart } from "components/cart/add-to-cart";
 import Breadcrumbs from "components/layout/breadcrumbs";
 import ProductDetailPrice from "components/price/product-detail-price";
 import { useProduct, useUpdateURL } from "components/product/product-context";
+import { WishlistButton } from "components/wishlist/wishlist-button";
 import type { Product, ProductOption, ProductVariant } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
 import Image from "next/image";
@@ -97,6 +98,12 @@ export function ProductDetail({
 
   const colorOption = options.find((o) => o.name.toLowerCase() === "color");
   const sizeOption = options.find((o) => o.name.toLowerCase() === "size");
+
+  // Derive the currently selected variant ID from option state
+  const selectedVariant = combinations.find((combo) =>
+    Object.entries(state).every(([key, value]) => combo[key] === value),
+  );
+  const selectedVariantId = selectedVariant?.id ?? variants[0]?.id ?? "";
 
   // Select sensible defaults on first render (prefer available variant)
   useEffect(() => {
@@ -331,10 +338,15 @@ export function ProductDetail({
               </div>
             )}
 
-            <div className="mt-10">
+            <div className="mt-10 flex items-center gap-4">
               <AddToCart
                 product={sourceProduct}
-                className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 mt-8 flex w-full cursor-pointer items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
+                className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 mt-8 flex flex-1 cursor-pointer items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
+              />
+              <WishlistButton
+                variantId={selectedVariantId}
+                size="md"
+                className="mt-8"
               />
             </div>
 
