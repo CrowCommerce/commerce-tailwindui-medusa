@@ -25,7 +25,7 @@ export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  retries: process.env.CI ? 2 : 1, // Turbopack dev server has intermittent module factory errors under concurrent load
   workers: process.env.CI ? 1 : undefined,
   reporter: [["html", { open: "never" }]],
   timeout: 60_000,
