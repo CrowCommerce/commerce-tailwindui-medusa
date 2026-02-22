@@ -52,10 +52,10 @@
 
 ### Phase 2: Polish
 
-- [ ] Nav badge — heart icon in header with item count (server action `getWishlistItemCount()` exists, needs UI)
-- [ ] Heart button server state — product cards/PDP hearts don't reflect current wishlist state (always show outline)
-- [ ] Rename/delete wishlist UI — server actions exist but no buttons in the wishlist page
-- [ ] Store product wishlist count route — `GET /store/products/:id/wishlist` for social proof ("X people saved this")
+- [x] Nav badge — heart icon in header with item count, links to `/account/wishlist`, mobile menu entry
+- [x] Heart button server state — product cards pass state from server, PDP auto-checks on mount via server action
+- [x] Rename/delete wishlist UI — actions dropdown with rename dialog and delete confirmation
+- [x] Store product wishlist count route — `GET /store/products/:id/wishlist-count` for social proof ("X people saved this")
 - [x] Guest route hardening — `GET /store/wishlists/:id` now filters by `customer_id: null`; guest item routes also verify guest ownership
 - [x] Fix `cookies()` inside `"use cache"` crash — `getWishlists()` and `getWishlist()` used `cookies()` inside `"use cache"` scope, crashing product pages after adding to wishlist. Removed incompatible cache directives.
 
