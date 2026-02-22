@@ -6,7 +6,7 @@
 - [ ] Checkout flow (`redirectToCheckout` is a stub — redirects to `/cart`) — cart now fetches promotions + shipping methods
 - [ ] Multi-region / multi-currency support
 - [ ] Product categories (Medusa nested category tree)
-- [ ] Wishlist / saved items
+- [x] Wishlist / saved items
 - [ ] CMS pages (`getPage`/`getPages` return stubs)
 
 ## Product Reviews
@@ -35,11 +35,28 @@
 
 ## Wishlist
 
-- [ ] Wishlist / saved items (heart icon on product cards and detail pages)
-- [ ] Persistent wishlist for authenticated customers (Medusa custom endpoint or metadata)
-- [ ] Guest wishlist via localStorage with merge on login
-- [ ] Wishlist page under `/account/wishlist`
-- [ ] "Move to cart" action from wishlist
+### Completed
+
+- [x] Wishlist backend module (models, service, migration, module links)
+- [x] Workflow steps (10) with compensation for saga rollback
+- [x] Workflows (6): create, add/delete item, delete, update, transfer
+- [x] Customer API routes (8 endpoints) with Zod validation and ownership checks
+- [x] Guest API routes (4 endpoints) with cookie-based tracking
+- [x] Shared wishlist routes (JWT sharing with 7-day expiry, import/clone)
+- [x] Admin wishlist count widget on product detail pages
+- [x] Storefront server actions (12 functions) with cache tags and revalidation
+- [x] Auth integration (transfer on login/signup, cleanup on signout)
+- [x] Heart toggle button component (product cards and PDP)
+- [x] Account wishlist page with multi-tab navigation, grid, empty state, share, create
+- [x] Shared wishlist page with read-only view and import
+
+### Phase 2: Polish
+
+- [ ] Nav badge — heart icon in header with item count (server action `getWishlistItemCount()` exists, needs UI)
+- [ ] Heart button server state — product cards/PDP hearts don't reflect current wishlist state (always show outline)
+- [ ] Rename/delete wishlist UI — server actions exist but no buttons in the wishlist page
+- [ ] Store product wishlist count route — `GET /store/products/:id/wishlist` for social proof ("X people saved this")
+- [ ] Guest route hardening — `GET /store/wishlists/:id` should filter by `customer_id: null` to prevent reading customer wishlists via guest endpoint
 
 ## Agentic Commerce
 
