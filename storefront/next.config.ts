@@ -1,5 +1,6 @@
 export default {
   cacheComponents: true,
+  reactCompiler: true,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
