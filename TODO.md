@@ -9,12 +9,29 @@
 - [ ] Wishlist / saved items
 - [ ] CMS pages (`getPage`/`getPages` return stubs)
 
-## Build Reviews
+## Product Reviews
 
-- [ ] Product reviews & ratings (star ratings, written reviews, moderation)
-- [ ] Review submission form with order verification
-- [ ] Aggregate ratings on product pages and collection grids
-- [ ] Admin review moderation workflow
+### Completed (Phase 1)
+
+- [x] Product reviews backend module (model, service, workflows, API routes)
+- [x] Storefront UI (form, list, summary, star ratings, Suspense streaming)
+- [x] Admin moderation table with bulk actions
+- [x] Denormalized `ReviewStats` table — pre-calculated stats refreshed on write
+- [x] Default review status "pending" (requires admin approval)
+- [x] Soft deletes on review rollback
+- [x] Event emission (`product_review.created`, `product_review.updated`)
+
+### Phase 2: Admin Responses & Review Images
+
+- [ ] `ProductReviewResponse` entity — admin replies to reviews (full CRUD)
+- [ ] `ProductReviewImage` entity — image upload endpoint for review photos
+- [ ] Display admin responses on storefront review list
+
+### Phase 3: Verified Purchase & Search
+
+- [ ] Order linking (`order_id`, `order_line_item_id`) for verified purchase badge
+- [ ] Full-text search on review content + name in admin
+- [ ] Review editing (upsert pattern — one review per customer per product)
 
 ## Wishlist
 
