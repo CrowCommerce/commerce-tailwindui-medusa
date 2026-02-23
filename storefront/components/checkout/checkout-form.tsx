@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { CheckoutAddress } from "components/checkout/checkout-address";
 import { CheckoutEmail } from "components/checkout/checkout-email";
+import { CheckoutShipping } from "components/checkout/checkout-shipping";
 import type { CheckoutStep } from "lib/types";
 
 const STEP_ORDER: CheckoutStep[] = [
@@ -122,6 +123,12 @@ export function CheckoutForm({
           />
         );
       case "shipping":
+        return (
+          <CheckoutShipping
+            cart={cart}
+            onComplete={() => onStepComplete("shipping")}
+          />
+        );
       case "payment":
       case "review":
         return (
