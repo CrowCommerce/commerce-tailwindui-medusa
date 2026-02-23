@@ -1,4 +1,6 @@
 import { model } from "@medusajs/framework/utils"
+import ReviewResponse from "./review-response"
+import ReviewImage from "./review-image"
 
 const Review = model.define("review", {
   id: model.id().primaryKey(),
@@ -10,6 +12,8 @@ const Review = model.define("review", {
   status: model.enum(["pending", "approved", "flagged"]).default("pending"),
   product_id: model.text().index("IDX_REVIEW_PRODUCT_ID"),
   customer_id: model.text().nullable(),
+  response: model.hasOne(() => ReviewResponse, { nullable: true }).nullable(),
+  images: model.hasMany(() => ReviewImage),
 })
 .checks([
   {
