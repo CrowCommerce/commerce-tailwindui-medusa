@@ -215,7 +215,10 @@ export async function completeCart(
 
     return {
       type: "cart",
-      error: result.error || "Payment could not be completed",
+      error:
+        (typeof result.error === "string"
+          ? result.error
+          : result.error?.message) || "Payment could not be completed",
     };
   } catch (e) {
     return {
