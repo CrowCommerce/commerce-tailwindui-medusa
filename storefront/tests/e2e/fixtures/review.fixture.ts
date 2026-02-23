@@ -6,7 +6,8 @@ const STOREFRONT_URL = process.env.STOREFRONT_URL || "http://localhost:3000";
 const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET || "supersecret";
 const DATABASE_URL =
   process.env.DATABASE_URL || "postgres://localhost/medusa_db";
-const PSQL = process.env.PSQL_PATH || "psql";
+const PSQL =
+  process.env.PSQL_PATH || "/opt/homebrew/opt/postgresql@17/bin/psql";
 
 /**
  * Run a SQL query against the Medusa database.
@@ -106,12 +107,6 @@ async function revalidateReviewsCache(): Promise<void> {
 }
 
 /**
- * Approve a review by ID. Exported for use in spec files that create
- * reviews outside the standard fixtures (e.g., lightbox tests).
- */
-export { approveReview, revalidateReviewsCache, cleanupReview };
-
-/**
  * Delete a specific test review by ID (safe for parallel workers).
  */
 function cleanupReview(reviewId: string): void {
@@ -123,6 +118,52 @@ function cleanupReview(reviewId: string): void {
     // Ignore cleanup errors
   }
 }
+
+/**
+ * Build auth headers for store API requests.
+ */
+function storeHeaders(authToken: string): Record<string, string> {
+  return {
+    authorization: `Bearer ${authToken}`,
+    "Content-Type": "application/json",
+    "x-publishable-api-key":
+      process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+  };
+}
+
+/**
+ * Create a review via the store API. Returns the new review ID.
+ */
+async function createReview(
+  authToken: string,
+  body: Record<string, unknown>,
+): Promise<string> {
+  const res = await fetch(`${BACKEND_URL}/store/reviews`, {
+    method: "POST",
+    headers: storeHeaders(authToken),
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Create review failed (${res.status}): ${text}`);
+  }
+
+  const data = (await res.json()) as { review: { id: string } };
+  return data.review.id;
+}
+
+export {
+  approveReview,
+  revalidateReviewsCache,
+  cleanupReview,
+  createReview,
+  storeHeaders,
+};
+
+// ---------------------------------------------------------------------------
+// Playwright Fixtures
+// ---------------------------------------------------------------------------
 
 type ReviewFixtures = {
   /** Creates an approved review on a product, returns review metadata */
@@ -168,40 +209,17 @@ export const test = authTest.extend<ReviewFixtures>({
     }
     const product = products[0]!;
 
-    // Create review via store API (authenticated customer)
-    const headers = {
-      authorization: `Bearer ${api.getAuthToken()}`,
-      "Content-Type": "application/json",
-      "x-publishable-api-key":
-        process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
-    };
-
-    const res = await fetch(`${BACKEND_URL}/store/reviews`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        product_id: product.id,
-        title: "Great product for testing",
-        content:
-          "This is an E2E test review. The product quality is excellent and delivery was fast.",
-        rating: 5,
-        first_name: "E2E",
-        last_name: "Tester",
-      }),
+    const reviewId = await createReview(api.getAuthToken(), {
+      product_id: product.id,
+      title: "Great product for testing",
+      content:
+        "This is an E2E test review. The product quality is excellent and delivery was fast.",
+      rating: 5,
+      first_name: "E2E",
+      last_name: "Tester",
     });
 
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Create review failed (${res.status}): ${body}`);
-    }
-
-    const data = (await res.json()) as { review: { id: string } };
-    const reviewId = data.review.id;
-
-    // Approve via direct database update
     approveReview(reviewId);
-
-    // Bust Next.js cache so the storefront serves fresh reviews
     await revalidateReviewsCache();
 
     await use({
@@ -210,7 +228,6 @@ export const test = authTest.extend<ReviewFixtures>({
       productHandle: product.handle,
     });
 
-    // Cleanup
     cleanupReview(reviewId);
   },
 
@@ -221,45 +238,22 @@ export const test = authTest.extend<ReviewFixtures>({
     }
     const product = products[0]!;
 
-    // Create review via store API (authenticated customer)
-    const headers = {
-      authorization: `Bearer ${api.getAuthToken()}`,
-      "Content-Type": "application/json",
-      "x-publishable-api-key":
-        process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
-    };
-
-    const res = await fetch(`${BACKEND_URL}/store/reviews`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        product_id: product.id,
-        title: "Review with response",
-        content:
-          "This review will have an admin response attached for E2E testing.",
-        rating: 4,
-        first_name: "E2E",
-        last_name: "Reviewer",
-      }),
+    const reviewId = await createReview(api.getAuthToken(), {
+      product_id: product.id,
+      title: "Review with response",
+      content:
+        "This review will have an admin response attached for E2E testing.",
+      rating: 4,
+      first_name: "E2E",
+      last_name: "Reviewer",
     });
 
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Create review failed (${res.status}): ${body}`);
-    }
-
-    const data = (await res.json()) as { review: { id: string } };
-    const reviewId = data.review.id;
-
-    // Approve via direct database update
     approveReview(reviewId);
 
-    // Add admin response via direct database insert
     const responseContent =
       "Thank you for your review! We appreciate your feedback.";
     createReviewResponse(reviewId, responseContent);
 
-    // Bust Next.js cache so the storefront serves fresh reviews
     await revalidateReviewsCache();
 
     await use({
@@ -269,7 +263,6 @@ export const test = authTest.extend<ReviewFixtures>({
       responseContent,
     });
 
-    // Cleanup
     cleanupReview(reviewId);
   },
 });
