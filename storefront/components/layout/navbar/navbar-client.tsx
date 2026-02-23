@@ -10,7 +10,11 @@ import {
   TabPanel,
   TabPanels,
 } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  HeartIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { AccountDropdown } from "components/account/account-dropdown";
 import { Cart } from "components/cart";
 import { SearchButton } from "components/search-command";
@@ -30,9 +34,14 @@ type CustomerData = {
 type NavbarClientProps = {
   navigation: Navigation;
   customer: CustomerData | null;
+  wishlistCount: number;
 };
 
-export function NavbarClient({ navigation, customer }: NavbarClientProps) {
+export function NavbarClient({
+  navigation,
+  customer,
+  wishlistCount,
+}: NavbarClientProps) {
   const [open, setOpen] = useState(false);
   const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
@@ -269,6 +278,14 @@ export function NavbarClient({ navigation, customer }: NavbarClientProps) {
                     </Link>
                   </div>
                   <div className="flow-root">
+                    <Link
+                      href="/account/wishlist"
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Wishlist
+                    </Link>
+                  </div>
+                  <div className="flow-root">
                     <form action={signout}>
                       <button
                         type="submit"
@@ -367,6 +384,32 @@ export function NavbarClient({ navigation, customer }: NavbarClientProps) {
                       Sign in
                     </Link>
                   )}
+                </div>
+
+                {/* Wishlist */}
+                <div className="ml-4 flow-root lg:ml-6">
+                  <Link
+                    href="/account/wishlist"
+                    aria-label={
+                      wishlistCount > 0
+                        ? `Wishlist, ${wishlistCount} item${wishlistCount === 1 ? "" : "s"}`
+                        : "Wishlist"
+                    }
+                    className="group -m-2 flex items-center rounded-md p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                  >
+                    <HeartIcon
+                      aria-hidden="true"
+                      className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
+                    />
+                    {wishlistCount > 0 && (
+                      <span
+                        aria-hidden="true"
+                        className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800"
+                      >
+                        {wishlistCount}
+                      </span>
+                    )}
+                  </Link>
                 </div>
 
                 {/* Cart */}

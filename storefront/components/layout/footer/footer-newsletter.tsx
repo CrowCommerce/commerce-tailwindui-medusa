@@ -14,7 +14,7 @@ export function FooterNewsletter() {
           required
           autoComplete="email"
           aria-label="Email address"
-          className="focus:border-primary-600 focus:ring-primary-600 block w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-base text-gray-900 placeholder:text-gray-400 focus:ring-1"
+          className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:text-sm/6"
         />
         <div className="ml-4 shrink-0">
           <button

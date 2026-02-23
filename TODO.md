@@ -6,7 +6,7 @@
 - [ ] Checkout flow (`redirectToCheckout` is a stub — redirects to `/cart`) — cart now fetches promotions + shipping methods
 - [ ] Multi-region / multi-currency support
 - [ ] Product categories (Medusa nested category tree)
-- [ ] Wishlist / saved items
+- [x] Wishlist / saved items
 - [ ] CMS pages (`getPage`/`getPages` return stubs)
 
 ## Product Reviews
@@ -35,11 +35,29 @@
 
 ## Wishlist
 
-- [ ] Wishlist / saved items (heart icon on product cards and detail pages)
-- [ ] Persistent wishlist for authenticated customers (Medusa custom endpoint or metadata)
-- [ ] Guest wishlist via localStorage with merge on login
-- [ ] Wishlist page under `/account/wishlist`
-- [ ] "Move to cart" action from wishlist
+### Completed
+
+- [x] Wishlist backend module (models, service, migration, module links)
+- [x] Workflow steps (10) with compensation for saga rollback
+- [x] Workflows (6): create, add/delete item, delete, update, transfer
+- [x] Customer API routes (8 endpoints) with Zod validation and ownership checks
+- [x] Guest API routes (4 endpoints) with cookie-based tracking
+- [x] Shared wishlist routes (JWT sharing with 7-day expiry, import/clone)
+- [x] Admin wishlist count widget on product detail pages
+- [x] Storefront server actions (12 functions) with cache tags and revalidation
+- [x] Auth integration (transfer on login/signup, cleanup on signout)
+- [x] Heart toggle button component (product cards and PDP)
+- [x] Account wishlist page with multi-tab navigation, grid, empty state, share, create
+- [x] Shared wishlist page with read-only view and import
+
+### Phase 2: Polish
+
+- [x] Nav badge — heart icon in header with item count, links to `/account/wishlist`, mobile menu entry
+- [x] Heart button server state — product cards pass state from server, PDP auto-checks on mount via server action
+- [x] Rename/delete wishlist UI — actions dropdown with rename dialog and delete confirmation
+- [x] Store product wishlist count route — `GET /store/products/:id/wishlist-count` for social proof ("X people saved this")
+- [x] Guest route hardening — `GET /store/wishlists/:id` now filters by `customer_id: null`; guest item routes also verify guest ownership
+- [x] Fix `cookies()` inside `"use cache"` crash — `getWishlists()` and `getWishlist()` used `cookies()` inside `"use cache"` scope, crashing product pages after adding to wishlist. Removed incompatible cache directives.
 
 ## Agentic Commerce
 
@@ -63,9 +81,10 @@
 ## Testing
 
 - [ ] Create `vitest.config.ts`
-- [ ] Create `playwright.config.ts`
+- [x] Create `playwright.config.ts`
 - [ ] Unit tests for `lib/medusa/transforms.ts`
 - [ ] E2E test: browse products → add to cart flow
+- [x] Wishlist E2E test suite (25 tests across 6 spec files — guest, authenticated, heart-button, sharing, import, transfer)
 
 ## Infrastructure
 

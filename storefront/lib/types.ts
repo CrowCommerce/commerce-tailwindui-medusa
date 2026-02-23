@@ -150,3 +150,38 @@ export type ProductReviews = {
   count: number;
   ratingDistribution: { rating: number; count: number }[];
 };
+
+// --- Wishlists ---
+
+/** Raw Medusa product returned by graph query (not transformed) */
+export type WishlistProduct = {
+  id: string;
+  title: string;
+  handle: string;
+  thumbnail: string | null;
+  description: string | null;
+};
+
+export type WishlistItem = {
+  id: string;
+  product_variant_id: string;
+  wishlist_id: string;
+  product_variant?: {
+    id: string;
+    title: string;
+    sku: string;
+    product_id: string;
+    product?: WishlistProduct;
+  };
+  created_at: string;
+};
+
+export type Wishlist = {
+  id: string;
+  name: string | null;
+  customer_id: string | null;
+  sales_channel_id: string;
+  items: WishlistItem[];
+  created_at: string;
+  updated_at: string;
+};
