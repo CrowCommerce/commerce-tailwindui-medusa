@@ -1,10 +1,12 @@
 "use client";
 
 import type { HttpTypes } from "@medusajs/types";
+import type { Stripe, StripeElements } from "@stripe/stripe-js";
 import { useCallback, useMemo, useState } from "react";
 
 import { CheckoutAddress } from "components/checkout/checkout-address";
 import { CheckoutEmail } from "components/checkout/checkout-email";
+import { CheckoutPayment } from "components/checkout/checkout-payment";
 import { CheckoutShipping } from "components/checkout/checkout-shipping";
 import type { CheckoutStep } from "lib/types";
 
@@ -84,9 +86,9 @@ export function CheckoutForm({
 
   const [activeStep, setActiveStep] = useState<CheckoutStep>(defaultActiveStep);
 
-  // Stripe refs for payment step (future use)
-  const [stripeInstance, setStripeInstance] = useState<any>(null);
-  const [elementsInstance, setElementsInstance] = useState<any>(null);
+  // Stripe refs for payment confirmation in review step
+  const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
+  const [elementsInstance, setElementsInstance] = useState<StripeElements | null>(null);
 
   const onStepComplete = useCallback(
     (step: CheckoutStep) => {
@@ -130,6 +132,17 @@ export function CheckoutForm({
           />
         );
       case "payment":
+        return (
+          <CheckoutPayment
+            cart={cart}
+            customer={customer}
+            onComplete={() => onStepComplete("payment")}
+            onStripeReady={(stripe, elements) => {
+              setStripeInstance(stripe);
+              setElementsInstance(elements);
+            }}
+          />
+        );
       case "review":
         return (
           <p className="py-4 text-sm text-gray-500">Coming soon...</p>
