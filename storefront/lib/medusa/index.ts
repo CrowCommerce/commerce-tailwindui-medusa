@@ -523,6 +523,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
   revalidateTag(TAGS.collections, "max");
   revalidateTag(TAGS.products, "max");
   revalidateTag(TAGS.cart, "max");
+  revalidateTag(TAGS.reviews, "max");
 
   return NextResponse.json({
     status: 200,
