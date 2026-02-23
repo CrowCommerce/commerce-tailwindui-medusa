@@ -3,6 +3,7 @@
 import type { HttpTypes } from "@medusajs/types";
 import { useCallback, useMemo, useState } from "react";
 
+import { CheckoutAddress } from "components/checkout/checkout-address";
 import { CheckoutEmail } from "components/checkout/checkout-email";
 import type { CheckoutStep } from "lib/types";
 
@@ -113,6 +114,13 @@ export function CheckoutForm({
           />
         );
       case "address":
+        return (
+          <CheckoutAddress
+            cart={cart}
+            customer={customer}
+            onComplete={() => onStepComplete("address")}
+          />
+        );
       case "shipping":
       case "payment":
       case "review":
