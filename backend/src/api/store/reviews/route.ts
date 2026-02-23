@@ -20,6 +20,15 @@ export const PostStoreReviewSchema = z.object({
   product_id: z.string(),
   first_name: z.string(),
   last_name: z.string(),
+  images: z
+    .array(
+      z.object({
+        url: z.string().url(),
+        sort_order: z.number().int().min(0),
+      })
+    )
+    .max(3)
+    .optional(),
 })
 
 type PostStoreReviewReq = z.infer<typeof PostStoreReviewSchema>
@@ -35,6 +44,7 @@ export const POST = async (
       input: {
         ...input,
         customer_id: req.auth_context?.actor_id,
+        status: "approved",
       },
     })
 

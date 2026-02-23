@@ -4,8 +4,11 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework/http"
+import { MedusaError } from "@medusajs/framework/utils"
+import multer from "multer"
 import { PostStoreReviewSchema } from "./store/reviews/route"
 import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route"
+import { PostAdminReviewResponseSchema } from "./admin/reviews/[id]/response/route"
 import { GetAdminReviewsSchema } from "./admin/reviews/route"
 import { GetStoreReviewsSchema } from "./store/products/[id]/reviews/route"
 import {
@@ -17,8 +20,22 @@ import {
   PostImportWishlistSchema,
 } from "./store/wishlists/validators"
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/webp"]
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(new MedusaError(MedusaError.Types.INVALID_DATA, "Only JPEG, PNG, and WebP images are allowed"))
+    }
+  },
+})
+
 export default defineMiddlewares({
   routes: [
+    // --- Store review routes ---
     {
       method: ["POST"],
       matcher: "/store/reviews",
@@ -27,6 +44,35 @@ export default defineMiddlewares({
         validateAndTransformBody(PostStoreReviewSchema),
       ],
     },
+    {
+      method: ["POST"],
+      matcher: "/store/reviews/uploads",
+      middlewares: [
+        authenticate("customer", ["session", "bearer"]),
+        upload.array("files", 3),
+      ],
+    },
+    {
+      matcher: "/store/products/:id/reviews",
+      method: ["GET"],
+      middlewares: [
+        validateAndTransformQuery(GetStoreReviewsSchema, {
+          isList: true,
+          defaults: [
+            "id",
+            "rating",
+            "title",
+            "first_name",
+            "last_name",
+            "content",
+            "created_at",
+            "images.*",
+            "response.*",
+          ],
+        }),
+      ],
+    },
+    // --- Admin review routes ---
     {
       matcher: "/admin/reviews",
       method: ["GET"],
@@ -44,6 +90,7 @@ export default defineMiddlewares({
             "created_at",
             "updated_at",
             "product.*",
+            "response.*",
           ],
         }),
       ],
@@ -56,24 +103,13 @@ export default defineMiddlewares({
       ],
     },
     {
-      matcher: "/store/products/:id/reviews",
-      method: ["GET"],
+      matcher: "/admin/reviews/:id/response",
+      method: ["POST"],
       middlewares: [
-        validateAndTransformQuery(GetStoreReviewsSchema, {
-          isList: true,
-          defaults: [
-            "id",
-            "rating",
-            "title",
-            "first_name",
-            "last_name",
-            "content",
-            "created_at",
-          ],
-        }),
+        validateAndTransformBody(PostAdminReviewResponseSchema),
       ],
     },
-    // Customer wishlist routes — auth on all paths
+    // --- Customer wishlist routes — auth on all paths ---
     {
       matcher: "/store/customers/me/wishlists*",
       middlewares: [

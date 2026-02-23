@@ -1,6 +1,9 @@
 export default {
   cacheComponents: true,
   reactCompiler: true,
+  serverActions: {
+    bodySizeLimit: "15mb",
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -29,6 +32,9 @@ export default {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      ...(process.env.NODE_ENV !== "production"
+        ? [{ protocol: "https" as const, hostname: "placehold.co" }]
+        : []),
     ],
   },
 };

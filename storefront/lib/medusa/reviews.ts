@@ -3,12 +3,23 @@
 import { sdk } from "lib/medusa";
 import { TAGS } from "lib/constants";
 import type { ProductReviews, Review } from "lib/types";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, revalidatePath, revalidateTag } from "next/cache";
 import { getAuthHeaders } from "lib/medusa/cookies";
 import { retrieveCustomer } from "lib/medusa/customer";
 
 export type ReviewActionResult = { error?: string; success?: boolean } | null;
+
+type ReviewImageInput = { url: string; sort_order: number };
+
+function parseImagesField(json: string | null): ReviewImageInput[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 export async function getProductReviews(
   productId: string,
@@ -63,6 +74,18 @@ export async function getProductReviews(
   };
 }
 
+export async function getReviewerName(): Promise<{
+  firstName: string;
+  lastName: string;
+} | null> {
+  const customer = await retrieveCustomer();
+  if (!customer) return null;
+  return {
+    firstName: customer.first_name || "Customer",
+    lastName: customer.last_name || "",
+  };
+}
+
 export async function addProductReview(
   prevState: ReviewActionResult,
   formData: FormData,
@@ -71,6 +94,9 @@ export async function addProductReview(
   const title = (formData.get("title") as string)?.trim() || undefined;
   const content = (formData.get("content") as string)?.trim();
   const rating = Number(formData.get("rating"));
+
+  // Parse image URLs from hidden form field (JSON-encoded array)
+  const images = parseImagesField(formData.get("images") as string | null);
 
   if (!content) return { error: "Review content is required" };
   if (!rating || rating < 1 || rating > 5)
@@ -92,6 +118,7 @@ export async function addProductReview(
         rating,
         first_name: customer.first_name || "Customer",
         last_name: customer.last_name || "",
+        ...(images.length > 0 && { images }),
       },
     });
   } catch (e) {

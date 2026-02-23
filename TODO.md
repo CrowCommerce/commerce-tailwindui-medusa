@@ -23,9 +23,25 @@
 
 ### Phase 2: Admin Responses & Review Images
 
-- [ ] `ProductReviewResponse` entity — admin replies to reviews (full CRUD)
-- [ ] `ProductReviewImage` entity — image upload endpoint for review photos
-- [ ] Display admin responses on storefront review list
+- [x] `ProductReviewResponse` entity — admin replies to reviews (full CRUD)
+- [x] `ProductReviewImage` entity — image upload endpoint for review photos
+- [x] Display admin responses on storefront review list
+- [x] Review image lightbox with prev/next navigation
+- [x] Admin response management drawer (create/edit/delete)
+- [x] Image upload UI in review form dialog (max 3, JPEG/PNG/WebP)
+
+### Code Review Follow-ups (from PR #8)
+
+- [ ] Migrate admin review drawer to `@medusajs/ui` primitives (Drawer, Button, Textarea, Label) for consistency with admin UI conventions
+- [ ] Validate `images[].url` hostname against storage provider domain, or switch to opaque upload IDs instead of raw URLs (security hardening)
+- [ ] Refactor `uploadReviewImages` server action to accept `FormData` instead of `File[]` for proper Server Action serialization
+- [ ] Add `data-testid` attributes to review components and migrate E2E selectors from Tailwind classes to stable `data-testid` selectors
+- [ ] Extract ReviewList lightbox state into a thin client wrapper so the list itself can be a server component
+- [ ] Add regex validation for Medusa IDs in E2E fixture SQL interpolation (e.g. `/^rev_[a-z0-9]+$/`)
+- [ ] Add fail-fast env var checks in E2E fixtures for CI environments
+- [ ] Rename `prev_img` ID prefix to `revi` on ReviewImage model (requires migration)
+- [ ] Revoke `URL.createObjectURL` blobs in ReviewForm on file remove and component cleanup
+- [ ] Add explicit `multer` to backend `package.json` dependencies (currently works via transitive dep from `@medusajs/medusa`)
 
 ### Phase 3: Verified Purchase & Search
 
@@ -89,6 +105,7 @@
 - [ ] Unit tests for `lib/medusa/transforms.ts`
 - [ ] E2E test: browse products → add to cart flow
 - [x] Wishlist E2E test suite (40 tests across 10 spec files — guest, authenticated, heart-button, heart-state, sharing, import, transfer, nav-badge, rename-delete, social-proof; 80 total with Firefox)
+- [x] Review E2E test suite (27 tests across 4 spec files — form, display, image-upload, lightbox; 54 total with Firefox)
 
 ## Infrastructure
 

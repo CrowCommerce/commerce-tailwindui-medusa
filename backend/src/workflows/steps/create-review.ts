@@ -14,6 +14,7 @@ export type CreateReviewStepInput = {
   first_name: string
   last_name: string
   status?: "pending" | "approved" | "flagged"
+  images?: { url: string; sort_order: number }[]
 }
 
 export const createReviewStep = createStep(
@@ -23,7 +24,8 @@ export const createReviewStep = createStep(
       PRODUCT_REVIEW_MODULE
     )
 
-    const review = await reviewModuleService.createReviews(input)
+    const { images: _images, ...reviewData } = input
+    const review = await reviewModuleService.createReviews(reviewData)
 
     return new StepResponse(review, review.id)
   },

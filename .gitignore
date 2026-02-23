@@ -8,6 +8,8 @@
 /coverage
 .playwright
 .playwright-mcp
+storefront/test-results/
+storefront/playwright-report/
 
 # misc
 .DS_Store

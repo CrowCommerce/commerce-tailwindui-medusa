@@ -1,10 +1,14 @@
 import { MedusaService } from "@medusajs/framework/utils"
 import Review from "./models/review"
 import ReviewStats from "./models/review-stats"
+import ReviewResponse from "./models/review-response"
+import ReviewImage from "./models/review-image"
 
 class ProductReviewModuleService extends MedusaService({
   Review,
   ReviewStats,
+  ReviewResponse,
+  ReviewImage,
 }) {
   private async getProductStats(productId: string) {
     const stats = await this.listReviewStats({ product_id: productId })
