@@ -9,8 +9,7 @@ import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route
 import { GetAdminReviewsSchema } from "./admin/reviews/route"
 import { GetStoreReviewsSchema } from "./store/products/[id]/reviews/route"
 import {
-  PostCreateWishlistSchema,
-  PutUpdateWishlistSchema,
+  WishlistNameSchema,
   PostCreateWishlistItemSchema,
 } from "./store/customers/me/wishlists/validators"
 import {
@@ -74,60 +73,33 @@ export default defineMiddlewares({
         }),
       ],
     },
-    // Customer wishlist routes
+    // Customer wishlist routes — auth on all paths
+    {
+      matcher: "/store/customers/me/wishlists*",
+      middlewares: [
+        authenticate("customer", ["session", "bearer"]),
+      ],
+    },
+    // Body validation for specific customer wishlist mutations
     {
       matcher: "/store/customers/me/wishlists",
       method: ["POST"],
       middlewares: [
-        authenticate("customer", ["session", "bearer"]),
-        validateAndTransformBody(PostCreateWishlistSchema),
-      ],
-    },
-    {
-      matcher: "/store/customers/me/wishlists",
-      method: ["GET"],
-      middlewares: [
-        authenticate("customer", ["session", "bearer"]),
-      ],
-    },
-    {
-      matcher: "/store/customers/me/wishlists/:id",
-      middlewares: [
-        authenticate("customer", ["session", "bearer"]),
+        validateAndTransformBody(WishlistNameSchema),
       ],
     },
     {
       matcher: "/store/customers/me/wishlists/:id",
       method: ["PUT"],
       middlewares: [
-        authenticate("customer", ["session", "bearer"]),
-        validateAndTransformBody(PutUpdateWishlistSchema),
+        validateAndTransformBody(WishlistNameSchema),
       ],
     },
     {
       matcher: "/store/customers/me/wishlists/:id/items",
       method: ["POST"],
       middlewares: [
-        authenticate("customer", ["session", "bearer"]),
         validateAndTransformBody(PostCreateWishlistItemSchema),
-      ],
-    },
-    {
-      matcher: "/store/customers/me/wishlists/:id/items/:itemId",
-      middlewares: [
-        authenticate("customer", ["session", "bearer"]),
-      ],
-    },
-    {
-      matcher: "/store/customers/me/wishlists/:id/share",
-      middlewares: [
-        authenticate("customer", ["session", "bearer"]),
-      ],
-    },
-    {
-      matcher: "/store/customers/me/wishlists/:id/transfer",
-      middlewares: [
-        authenticate("customer", ["session", "bearer"]),
       ],
     },
     // Guest wishlist routes — no auth required

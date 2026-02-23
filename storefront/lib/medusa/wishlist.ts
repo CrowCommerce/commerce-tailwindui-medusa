@@ -22,18 +22,45 @@ function revalidateWishlists(): void {
   revalidatePath("/", "layout");
 }
 
-// --- Read Operations ---
+function formatError(e: unknown, fallback: string): string {
+  return e instanceof Error ? e.message : fallback;
+}
 
-export async function getWishlists(): Promise<Wishlist[]> {
+/**
+ * Runs a mutation callback, catches errors into WishlistActionResult,
+ * and always revalidates wishlists afterwards.
+ */
+async function wishlistMutation(
+  fn: () => Promise<void>,
+  fallbackError: string,
+): Promise<WishlistActionResult> {
+  try {
+    await fn();
+  } catch (e) {
+    return { error: formatError(e, fallbackError) };
+  } finally {
+    revalidateWishlists();
+  }
+  return { success: true };
+}
+
+// ---------------------------------------------------------------------------
+// Read Operations
+// ---------------------------------------------------------------------------
+
+/**
+ * Core wishlist fetching logic shared by both getWishlists and
+ * getWishlistsDynamic. Handles both authenticated and guest flows.
+ */
+async function fetchWishlists(): Promise<Wishlist[]> {
   const token = await getAuthToken();
   const headers = await getAuthHeaders();
 
   if (token) {
-    // Authenticated: fetch all customer wishlists
     try {
       const result = await sdk.client.fetch<WishlistsResponse>(
         "/store/customers/me/wishlists",
-        { method: "GET", headers }
+        { method: "GET", headers },
       );
       return result.wishlists;
     } catch {
@@ -41,19 +68,22 @@ export async function getWishlists(): Promise<Wishlist[]> {
     }
   }
 
-  // Guest: fetch single wishlist by cookie ID
   const wishlistId = await getWishlistId();
   if (!wishlistId) return [];
 
   try {
     const result = await sdk.client.fetch<WishlistResponse>(
       `/store/wishlists/${wishlistId}`,
-      { method: "GET" }
+      { method: "GET" },
     );
     return [result.wishlist];
   } catch {
     return [];
   }
+}
+
+export async function getWishlists(): Promise<Wishlist[]> {
+  return fetchWishlists();
 }
 
 /**
@@ -63,33 +93,7 @@ export async function getWishlists(): Promise<Wishlist[]> {
  * statically prerendered because it uses cookies() inside "use cache".
  */
 export async function getWishlistsDynamic(): Promise<Wishlist[]> {
-  const token = await getAuthToken();
-  const headers = await getAuthHeaders();
-
-  if (token) {
-    try {
-      const result = await sdk.client.fetch<WishlistsResponse>(
-        "/store/customers/me/wishlists",
-        { method: "GET", headers }
-      );
-      return result.wishlists;
-    } catch {
-      return [];
-    }
-  }
-
-  const wishlistId = await getWishlistId();
-  if (!wishlistId) return [];
-
-  try {
-    const result = await sdk.client.fetch<WishlistResponse>(
-      `/store/wishlists/${wishlistId}`,
-      { method: "GET" }
-    );
-    return [result.wishlist];
-  } catch {
-    return [];
-  }
+  return fetchWishlists();
 }
 
 export async function getWishlist(wishlistId: string): Promise<Wishlist | null> {
@@ -98,7 +102,7 @@ export async function getWishlist(wishlistId: string): Promise<Wishlist | null> 
   try {
     const result = await sdk.client.fetch<WishlistResponse>(
       `/store/wishlists/${wishlistId}`,
-      { method: "GET", headers }
+      { method: "GET", headers },
     );
     return result.wishlist;
   } catch {
@@ -110,19 +114,12 @@ export async function getSharedWishlist(token: string): Promise<Wishlist | null>
   try {
     const result = await sdk.client.fetch<WishlistResponse>(
       `/store/wishlists/shared/${token}`,
-      { method: "GET" }
+      { method: "GET" },
     );
     return result.wishlist;
   } catch {
     return null;
   }
-}
-
-export async function isVariantInWishlist(variantId: string): Promise<boolean> {
-  const wishlists = await getWishlists();
-  return wishlists.some((wl) =>
-    wl.items?.some((item) => item.product_variant_id === variantId)
-  );
 }
 
 export async function getWishlistItemCount(): Promise<number> {
@@ -196,7 +193,9 @@ export async function getVariantsWishlistStates(
   return states;
 }
 
-// --- Mutations ---
+// ---------------------------------------------------------------------------
+// Mutations
+// ---------------------------------------------------------------------------
 
 export async function createWishlist(
   prevState: WishlistActionResult,
@@ -205,18 +204,14 @@ export async function createWishlist(
   const name = formData.get("name") as string | null;
   const headers = await getAuthHeaders();
 
-  try {
-    await sdk.client.fetch<WishlistResponse>(
-      "/store/customers/me/wishlists",
-      { method: "POST", headers, body: { name: name || undefined } }
-    );
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Error creating wishlist" };
-  } finally {
-    revalidateWishlists();
-  }
-
-  return { success: true };
+  return wishlistMutation(
+    () =>
+      sdk.client.fetch<WishlistResponse>(
+        "/store/customers/me/wishlists",
+        { method: "POST", headers, body: { name: name || undefined } },
+      ).then(() => undefined),
+    "Error creating wishlist",
+  );
 }
 
 export async function addToWishlist(
@@ -232,68 +227,60 @@ export async function addToWishlist(
   const headers = await getAuthHeaders();
 
   if (token) {
-    // Authenticated flow
+    // Authenticated flow: resolve target wishlist if not specified
     if (!wishlistId) {
-      // Auto-target: if customer has exactly one wishlist, use it
       const wishlists = await getWishlists();
       if (wishlists.length === 1) {
         wishlistId = wishlists[0]!.id;
       } else if (wishlists.length === 0) {
-        // Auto-create a default wishlist
         try {
           const result = await sdk.client.fetch<WishlistResponse>(
             "/store/customers/me/wishlists",
-            { method: "POST", headers, body: { name: "My Wishlist" } }
+            { method: "POST", headers, body: { name: "My Wishlist" } },
           );
           wishlistId = result.wishlist.id;
         } catch (e) {
-          return { error: e instanceof Error ? e.message : "Error creating wishlist" };
+          return { error: formatError(e, "Error creating wishlist") };
         }
       } else {
         return { error: "Please select a wishlist" };
       }
     }
 
-    try {
-      await sdk.client.fetch<WishlistResponse>(
-        `/store/customers/me/wishlists/${wishlistId}/items`,
-        { method: "POST", headers, body: { variant_id: variantId } }
-      );
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : "Error adding to wishlist" };
-    } finally {
-      revalidateWishlists();
-    }
-  } else {
-    // Guest flow — lazy create guest wishlist
-    let guestWishlistId = await getWishlistId();
+    return wishlistMutation(
+      () =>
+        sdk.client.fetch<WishlistResponse>(
+          `/store/customers/me/wishlists/${wishlistId}/items`,
+          { method: "POST", headers, body: { variant_id: variantId } },
+        ).then(() => undefined),
+      "Error adding to wishlist",
+    );
+  }
 
-    if (!guestWishlistId) {
-      try {
-        const result = await sdk.client.fetch<WishlistResponse>(
-          "/store/wishlists",
-          { method: "POST" }
-        );
-        guestWishlistId = result.wishlist.id;
-        await setWishlistId(guestWishlistId);
-      } catch (e) {
-        return { error: e instanceof Error ? e.message : "Error creating wishlist" };
-      }
-    }
+  // Guest flow: lazy-create guest wishlist
+  let guestWishlistId = await getWishlistId();
 
+  if (!guestWishlistId) {
     try {
-      await sdk.client.fetch<WishlistResponse>(
-        `/store/wishlists/${guestWishlistId}/items`,
-        { method: "POST", body: { variant_id: variantId } }
+      const result = await sdk.client.fetch<WishlistResponse>(
+        "/store/wishlists",
+        { method: "POST" },
       );
+      guestWishlistId = result.wishlist.id;
+      await setWishlistId(guestWishlistId);
     } catch (e) {
-      return { error: e instanceof Error ? e.message : "Error adding to wishlist" };
-    } finally {
-      revalidateWishlists();
+      return { error: formatError(e, "Error creating wishlist") };
     }
   }
 
-  return { success: true };
+  return wishlistMutation(
+    () =>
+      sdk.client.fetch<WishlistResponse>(
+        `/store/wishlists/${guestWishlistId}/items`,
+        { method: "POST", body: { variant_id: variantId } },
+      ).then(() => undefined),
+    "Error adding to wishlist",
+  );
 }
 
 export async function removeFromWishlist(
@@ -308,19 +295,14 @@ export async function removeFromWishlist(
   const token = await getAuthToken();
   const headers = await getAuthHeaders();
 
-  try {
-    const basePath = token
-      ? `/store/customers/me/wishlists/${wishlistId}/items/${itemId}`
-      : `/store/wishlists/${wishlistId}/items/${itemId}`;
+  const basePath = token
+    ? `/store/customers/me/wishlists/${wishlistId}/items/${itemId}`
+    : `/store/wishlists/${wishlistId}/items/${itemId}`;
 
-    await sdk.client.fetch(basePath, { method: "DELETE", headers });
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Error removing item" };
-  } finally {
-    revalidateWishlists();
-  }
-
-  return { success: true };
+  return wishlistMutation(
+    () => sdk.client.fetch(basePath, { method: "DELETE", headers }).then(() => undefined),
+    "Error removing item",
+  );
 }
 
 export async function deleteWishlist(
@@ -332,18 +314,14 @@ export async function deleteWishlist(
 
   const headers = await getAuthHeaders();
 
-  try {
-    await sdk.client.fetch(
-      `/store/customers/me/wishlists/${wishlistId}`,
-      { method: "DELETE", headers }
-    );
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Error deleting wishlist" };
-  } finally {
-    revalidateWishlists();
-  }
-
-  return { success: true };
+  return wishlistMutation(
+    () =>
+      sdk.client.fetch(
+        `/store/customers/me/wishlists/${wishlistId}`,
+        { method: "DELETE", headers },
+      ).then(() => undefined),
+    "Error deleting wishlist",
+  );
 }
 
 export async function renameWishlist(
@@ -357,18 +335,14 @@ export async function renameWishlist(
 
   const headers = await getAuthHeaders();
 
-  try {
-    await sdk.client.fetch(
-      `/store/customers/me/wishlists/${wishlistId}`,
-      { method: "PUT", headers, body: { name } }
-    );
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Error renaming wishlist" };
-  } finally {
-    revalidateWishlists();
-  }
-
-  return { success: true };
+  return wishlistMutation(
+    () =>
+      sdk.client.fetch(
+        `/store/customers/me/wishlists/${wishlistId}`,
+        { method: "PUT", headers, body: { name } },
+      ).then(() => undefined),
+    "Error renaming wishlist",
+  );
 }
 
 export async function transferWishlist(): Promise<void> {
@@ -380,12 +354,11 @@ export async function transferWishlist(): Promise<void> {
   try {
     await sdk.client.fetch(
       `/store/customers/me/wishlists/${guestWishlistId}/transfer`,
-      { method: "POST", headers }
+      { method: "POST", headers },
     );
-    // Only remove cookie on successful transfer
     await removeWishlistId();
   } catch {
-    // Transfer is best-effort — keep cookie so guest data isn't lost
+    // Transfer is best-effort -- keep cookie so guest data isn't lost
   } finally {
     revalidateWishlists();
   }
@@ -397,7 +370,7 @@ export async function shareWishlist(wishlistId: string): Promise<string | null> 
   try {
     const result = await sdk.client.fetch<{ token: string }>(
       `/store/customers/me/wishlists/${wishlistId}/share`,
-      { method: "POST", headers }
+      { method: "POST", headers },
     );
     return result.token;
   } catch {
@@ -410,16 +383,12 @@ export async function importWishlist(
 ): Promise<WishlistActionResult> {
   const headers = await getAuthHeaders();
 
-  try {
-    await sdk.client.fetch<WishlistResponse>(
-      "/store/wishlists/import",
-      { method: "POST", headers, body: { share_token: shareToken } }
-    );
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Error importing wishlist" };
-  } finally {
-    revalidateWishlists();
-  }
-
-  return { success: true };
+  return wishlistMutation(
+    () =>
+      sdk.client.fetch<WishlistResponse>(
+        "/store/wishlists/import",
+        { method: "POST", headers, body: { share_token: shareToken } },
+      ).then(() => undefined),
+    "Error importing wishlist",
+  );
 }

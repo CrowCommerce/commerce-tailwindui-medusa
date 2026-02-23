@@ -5,9 +5,9 @@ import type {
 import { z } from "@medusajs/framework/zod"
 import { deleteWishlistWorkflow } from "../../../../../../workflows/delete-wishlist"
 import { updateWishlistWorkflow } from "../../../../../../workflows/update-wishlist"
-import { PutUpdateWishlistSchema } from "../validators"
+import { WishlistNameSchema } from "../validators"
 
-type PutReq = z.infer<typeof PutUpdateWishlistSchema>
+type PutReq = z.infer<typeof WishlistNameSchema>
 
 export async function GET(
   req: AuthenticatedMedusaRequest,

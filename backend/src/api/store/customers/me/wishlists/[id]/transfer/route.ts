@@ -2,20 +2,14 @@ import type {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { MedusaError } from "@medusajs/framework/utils"
 import { transferWishlistWorkflow } from "../../../../../../../workflows/transfer-wishlist"
+import { requireSalesChannelId } from "../../../../../wishlists/helpers"
 
 export async function POST(
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) {
-  const [salesChannelId] = req.publishable_key_context?.sales_channel_ids ?? []
-  if (!salesChannelId) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "At least one sales channel ID is required"
-    )
-  }
+  const salesChannelId = requireSalesChannelId(req)
 
   const { result } = await transferWishlistWorkflow(req.scope).run({
     input: {

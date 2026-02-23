@@ -1,22 +1,9 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { MedusaError } from "@medusajs/framework/utils"
 import { deleteWishlistItemWorkflow } from "../../../../../../workflows/delete-wishlist-item"
+import { requireGuestWishlist } from "../../../helpers"
 
 export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
-  // Verify this is a guest wishlist (not a customer wishlist)
-  const query = req.scope.resolve("query")
-  const { data } = await query.graph({
-    entity: "wishlist",
-    fields: ["id"],
-    filters: {
-      id: req.params.id,
-      customer_id: null,
-    },
-  })
-
-  if (!data.length) {
-    throw new MedusaError(MedusaError.Types.NOT_FOUND, "Wishlist not found")
-  }
+  await requireGuestWishlist(req, req.params.id)
 
   const { result } = await deleteWishlistItemWorkflow(req.scope).run({
     input: {

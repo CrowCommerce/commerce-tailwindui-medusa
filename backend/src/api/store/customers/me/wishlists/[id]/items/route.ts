@@ -5,6 +5,7 @@ import type {
 import { MedusaError } from "@medusajs/framework/utils"
 import { z } from "@medusajs/framework/zod"
 import { createWishlistItemWorkflow } from "../../../../../../../workflows/create-wishlist-item"
+import { requireSalesChannelId } from "../../../../../wishlists/helpers"
 import { PostCreateWishlistItemSchema } from "../../validators"
 
 type PostReq = z.infer<typeof PostCreateWishlistItemSchema>
@@ -13,13 +14,7 @@ export async function POST(
   req: AuthenticatedMedusaRequest<PostReq>,
   res: MedusaResponse
 ) {
-  const [salesChannelId] = req.publishable_key_context?.sales_channel_ids ?? []
-  if (!salesChannelId) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "At least one sales channel ID is required"
-    )
-  }
+  const salesChannelId = requireSalesChannelId(req)
 
   // Verify wishlist belongs to the authenticated customer
   const query = req.scope.resolve("query")
