@@ -1,9 +1,11 @@
 import {
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { createReviewStep, type CreateReviewStepInput } from "./steps/create-review"
+import { createReviewImagesStep } from "./steps/create-review-images"
 import { refreshReviewStatsStep } from "./steps/refresh-review-stats"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 
@@ -22,6 +24,17 @@ export const createReviewWorkflow = createWorkflow(
     })
 
     const review = createReviewStep(input)
+
+    const imagesInput = transform({ review, input }, (data) => ({
+      review_id: data.review.id,
+      images: data.input.images || [],
+    }))
+
+    when({ imagesInput }, (data) => data.imagesInput.images.length > 0).then(
+      function () {
+        createReviewImagesStep(imagesInput)
+      }
+    )
 
     const statsInput = transform({ input }, (data) => ({
       product_id: data.input.product_id,

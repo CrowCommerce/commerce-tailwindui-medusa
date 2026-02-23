@@ -134,6 +134,18 @@ export type Navigation = {
 
 // --- Reviews ---
 
+export type ReviewImage = {
+  id: string;
+  url: string;
+  sort_order: number;
+};
+
+export type ReviewResponse = {
+  id: string;
+  content: string;
+  created_at: string;
+};
+
 export type Review = {
   id: string;
   title: string;
@@ -142,6 +154,8 @@ export type Review = {
   first_name: string;
   last_name: string;
   created_at: string;
+  images: ReviewImage[];
+  response: ReviewResponse | null;
 };
 
 export type ProductReviews = {

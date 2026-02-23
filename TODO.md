@@ -23,9 +23,12 @@
 
 ### Phase 2: Admin Responses & Review Images
 
-- [ ] `ProductReviewResponse` entity — admin replies to reviews (full CRUD)
-- [ ] `ProductReviewImage` entity — image upload endpoint for review photos
-- [ ] Display admin responses on storefront review list
+- [x] `ProductReviewResponse` entity — admin replies to reviews (full CRUD)
+- [x] `ProductReviewImage` entity — image upload endpoint for review photos
+- [x] Display admin responses on storefront review list
+- [x] Review image lightbox with prev/next navigation
+- [x] Admin response management drawer (create/edit/delete)
+- [x] Image upload UI in review form dialog (max 3, JPEG/PNG/WebP)
 
 ### Phase 3: Verified Purchase & Search
 

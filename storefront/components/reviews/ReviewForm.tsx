@@ -9,7 +9,7 @@ import {
 import { XMarkIcon, StarIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { addProductReview, type ReviewActionResult } from "lib/medusa/reviews";
+import { addProductReview, uploadReviewImages, type ReviewActionResult } from "lib/medusa/reviews";
 import { useActionState, useState } from "react";
 
 export function ReviewForm({
@@ -23,14 +23,45 @@ export function ReviewForm({
 }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [state, formAction, isPending] = useActionState<
     ReviewActionResult,
     FormData
   >(addProductReview, null);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles((prev) => [...prev, ...files].slice(0, 3));
+    e.target.value = ""; // reset input
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (formData: FormData) => {
+    if (selectedFiles.length > 0) {
+      setIsUploading(true);
+      try {
+        const uploaded = await uploadReviewImages(selectedFiles);
+        const images = uploaded.map((f, i) => ({
+          url: f.url,
+          sort_order: i,
+        }));
+        formData.set("images", JSON.stringify(images));
+      } catch {
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+    formAction(formData);
+  };
+
   const displayRating = hoverRating || rating;
-  const isDisabled = isPending || rating === 0;
+  const isDisabled = isPending || isUploading || rating === 0;
 
   if (state?.success) {
     return (
@@ -81,7 +112,7 @@ export function ReviewForm({
               Write a review
             </DialogTitle>
 
-            <form action={formAction} className="mt-6 space-y-6">
+            <form action={handleSubmit} className="mt-6 space-y-6">
               <input type="hidden" name="product_id" value={productId} />
               <input type="hidden" name="rating" value={rating} />
 
@@ -145,6 +176,41 @@ export function ReviewForm({
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Photos <span className="text-gray-400">(optional, max 3)</span>
+                </label>
+                <div className="mt-2 flex gap-2">
+                  {selectedFiles.map((file, i) => (
+                    <div key={i} className="relative">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt=""
+                        className="size-16 rounded-md object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFile(i)}
+                        className="absolute -top-1 -right-1 rounded-full bg-gray-900 p-0.5 text-white"
+                      >
+                        <XMarkIcon className="size-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {selectedFiles.length < 3 && (
+                    <label className="flex size-16 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      <span className="text-2xl text-gray-400">+</span>
+                    </label>
+                  )}
+                </div>
+              </div>
+
               {state?.error && (
                 <p className="text-sm text-red-600">{state.error}</p>
               )}
@@ -159,7 +225,7 @@ export function ReviewForm({
                     : "bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2",
                 )}
               >
-                {isPending ? "Submitting..." : "Submit review"}
+                {isUploading ? "Uploading images..." : isPending ? "Submitting..." : "Submit review"}
               </button>
             </form>
           </DialogPanel>

@@ -34,6 +34,8 @@ export const updateReviewsStep = createStep(
       PRODUCT_REVIEW_MODULE
     )
 
-    await reviewModuleService.updateReviews(originalData)
+    await reviewModuleService.updateReviews(
+      originalData.map(({ images, response, ...review }) => review)
+    )
   }
 )

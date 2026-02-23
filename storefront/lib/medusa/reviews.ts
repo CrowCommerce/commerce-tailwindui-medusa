@@ -72,6 +72,12 @@ export async function addProductReview(
   const content = (formData.get("content") as string)?.trim();
   const rating = Number(formData.get("rating"));
 
+  // Parse image URLs from hidden form field (JSON-encoded array)
+  const imagesJson = formData.get("images") as string | null;
+  const images: { url: string; sort_order: number }[] = imagesJson
+    ? JSON.parse(imagesJson)
+    : [];
+
   if (!content) return { error: "Review content is required" };
   if (!rating || rating < 1 || rating > 5)
     return { error: "Please select a rating" };
@@ -92,6 +98,7 @@ export async function addProductReview(
         rating,
         first_name: customer.first_name || "Customer",
         last_name: customer.last_name || "",
+        ...(images.length > 0 ? { images } : {}),
       },
     });
   } catch (e) {
@@ -104,4 +111,23 @@ export async function addProductReview(
   }
 
   return { success: true };
+}
+
+export async function uploadReviewImages(
+  files: File[],
+): Promise<{ id: string; url: string }[]> {
+  const headers = await getAuthHeaders();
+
+  const formData = new FormData();
+  files.forEach((file) => formData.append("files", file));
+
+  const response = await sdk.client.fetch<{
+    files: { id: string; url: string }[];
+  }>("/store/reviews/uploads", {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  return response.files;
 }
