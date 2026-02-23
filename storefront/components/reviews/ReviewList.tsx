@@ -4,7 +4,6 @@ import { StarIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import type { Review } from "lib/types";
 import { DEFAULT_LOCALE } from "lib/constants";
-import Image from "next/image";
 import { useState } from "react";
 import { ReviewImageLightbox } from "./ReviewImageLightbox";
 
@@ -80,12 +79,13 @@ export function ReviewList({ reviews }: { reviews: Review[] }) {
                         }
                         className="overflow-hidden rounded-md"
                       >
-                        <Image
+                        <img
                           src={img.url}
                           alt={`Review image ${i + 1}`}
-                          width={64}
-                          height={64}
-                          className="size-16 object-cover transition hover:opacity-75"
+                          className="size-16 rounded-md object-cover transition hover:opacity-75"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                       </button>
                     ))}

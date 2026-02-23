@@ -36,11 +36,13 @@ export function ProductReviews({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:grid lg:max-w-7xl lg:grid-cols-12 lg:gap-x-8 lg:px-8 lg:py-32">
-      <ReviewSummary
-        reviews={initialData}
-        canReview={canReview}
-        onWriteReview={() => setFormOpen(true)}
-      />
+      <div className="lg:col-span-4 lg:sticky lg:top-8 lg:self-start">
+        <ReviewSummary
+          reviews={initialData}
+          canReview={canReview}
+          onWriteReview={() => setFormOpen(true)}
+        />
+      </div>
 
       <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
         <h3 className="sr-only">Recent reviews</h3>

@@ -11,8 +11,13 @@ export function ReviewSummary({
   onWriteReview?: () => void;
   canReview: boolean;
 }) {
+  const totalRatings = reviews.ratingDistribution.reduce(
+    (sum, d) => sum + d.count,
+    0,
+  );
+
   return (
-    <div className="lg:col-span-4">
+    <div>
       <h2 className="text-2xl font-bold tracking-tight text-gray-900">
         Customer Reviews
       </h2>
@@ -65,10 +70,10 @@ export function ReviewSummary({
 
                   <div className="relative ml-3 flex-1">
                     <div className="h-3 rounded-full border border-gray-200 bg-gray-100" />
-                    {item.count > 0 && reviews.count > 0 ? (
+                    {item.count > 0 && totalRatings > 0 ? (
                       <div
                         style={{
-                          width: `calc(${item.count} / ${reviews.count} * 100%)`,
+                          width: `calc(${item.count} / ${totalRatings} * 100%)`,
                         }}
                         className="absolute inset-y-0 rounded-full border border-yellow-400 bg-yellow-400"
                       />
@@ -77,8 +82,8 @@ export function ReviewSummary({
                 </div>
               </dt>
               <dd className="ml-3 w-10 text-right text-sm text-gray-900 tabular-nums">
-                {reviews.count > 0
-                  ? Math.round((item.count / reviews.count) * 100)
+                {totalRatings > 0
+                  ? Math.round((item.count / totalRatings) * 100)
                   : 0}
                 %
               </dd>
