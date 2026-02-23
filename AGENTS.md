@@ -20,7 +20,7 @@ Next.js 16 ecommerce storefront built on Vercel's Commerce template, enhanced wi
 | clsx             | 2.1.x           | Conditional class composition                |
 | Geist            | 1.3.x           | Font family                                  |
 | Vitest           | 4.x             | Unit testing (installed, not configured yet) |
-| Playwright       | 1.56.x          | E2E testing (installed, not configured yet)  |
+| Playwright       | 1.56.x          | E2E testing (configured, 40 wishlist specs)  |
 
 ## Directory Structure
 
@@ -47,18 +47,26 @@ storefront/                        # Next.js 16 frontend
 │   ├── layout/                    # Desktop/mobile navigation, footer
 │   ├── price/                     # Context-specific price components (grid, detail, cart)
 │   ├── product/                   # Product detail components
-│   └── search-command/            # Command palette (Cmd+K) with debounced search
+│   ├── reviews/                   # Product review form and display
+│   ├── search-command/            # Command palette (Cmd+K) with debounced search
+│   └── wishlist/                  # Heart button, wishlist page client, social proof count
 ├── lib/
 │   ├── medusa/
 │   │   ├── index.ts               # SDK client + all data-fetching functions
 │   │   ├── cookies.ts             # Secure cookie management + auth headers
 │   │   ├── customer.ts            # Customer auth: login, signup, signout, profile
 │   │   ├── error.ts               # Centralized Medusa SDK error formatting
-│   │   └── transforms.ts          # Medusa → internal type transformations
+│   │   ├── transforms.ts          # Medusa → internal type transformations
+│   │   └── wishlist.ts            # Wishlist server actions + data fetching
 │   ├── constants.ts               # Cache tags, sort options, hidden product tag
 │   ├── constants/navigation.ts    # DEFAULT_NAVIGATION fallback, UTILITY_NAV
 │   ├── types.ts                   # Backend-agnostic internal types
 │   └── utils.ts                   # URL helpers, env validation, Tailwind UI transforms
+├── playwright.config.ts           # E2E test config (Chromium + Firefox)
+├── tests/e2e/                     # E2E test suites
+│   ├── fixtures/                  # API, auth, and wishlist test fixtures
+│   ├── helpers/                   # Shared selectors
+│   └── wishlist/                  # 10 wishlist spec files (40 tests)
 ├── package.json
 └── next.config.ts
 
@@ -87,6 +95,8 @@ backend/                           # Medusa v2 backend
 | `/search/[collection]`   | Search within collection | Dynamic                              |
 | `/collections/*`         | Rewrite                  | Rewrites to `/products/*`            |
 | `/[page]`                | CMS pages                | Stub — Medusa has no CMS             |
+| `/account/wishlist`      | Wishlist management      | Auth-protected, multi-list UI        |
+| `/wishlist/shared/[token]` | Shared wishlist view   | Public read-only, import for authed  |
 | `/api/revalidate`        | Webhook                  | Cache invalidation endpoint          |
 
 ## Data Layer Architecture
@@ -192,7 +202,7 @@ export async function getProduct(handle: string) {
 }
 ```
 
-**Cache tags** (defined in `lib/constants.ts`): `collections`, `products`, `cart`.
+**Cache tags** (defined in `lib/constants.ts`): `collections`, `products`, `cart`, `customers`, `reviews`, `wishlists`.
 
 **Invalidation:**
 
@@ -253,6 +263,9 @@ Most components are Server Components. Client components are used only for:
 - Search command palette (keyboard shortcuts, input state)
 - Add-to-cart button (optimistic updates via `useActionState`)
 - Mobile menu (Dialog interaction)
+- Wishlist button (heart toggle with server action)
+- Wishlist page client (multi-tab, create/rename/delete dialogs, share)
+- Review form (star rating, form submission)
 
 ### Price Components (`components/price/`)
 
@@ -303,14 +316,15 @@ Validated on startup by `validateEnvironmentVariables()` in `lib/utils.ts`. Only
 
 ## Medusa Backend
 
-Lives at `backend/` within this monorepo. Uses PostgreSQL 17 with `medusa_db` database. Uses `npm` (not bun).
+Lives at `backend/` within this monorepo. Uses PostgreSQL 17 with `medusa_db` database. Part of the bun workspace monorepo.
 
 ### Starting
 
 ```bash
 brew services start postgresql@17          # 1. Start PostgreSQL
-cd backend && npm run dev                  # 2. Start Medusa (port 9000)
+cd backend && bun run dev                  # 2. Start Medusa (port 9000)
 cd storefront && bun dev                   # 3. Start storefront (port 3000)
+# Or from root: bun run dev               # Start both in parallel
 ```
 
 ### Stopping
@@ -329,10 +343,10 @@ Dashboard at `http://localhost:9000/app`. Manages products, collections, orders,
 
 ```bash
 cd backend
-npm run dev                                                  # Start dev server
-npx medusa db:migrate                                        # Run pending migrations
-npx medusa db:generate <module-name>                         # Generate migration for custom module
-npx medusa user -e admin@example.com -p password             # Create admin user
+bun run dev                                                  # Start dev server
+bunx medusa db:migrate                                       # Run pending migrations
+bunx medusa db:generate <module-name>                        # Generate migration for custom module
+bunx medusa user -e admin@example.com -p password            # Create admin user
 ```
 
 ### Retrieving the Publishable API Key
@@ -344,14 +358,19 @@ psql medusa_db -t -c "SELECT token FROM api_key WHERE type = 'publishable' LIMIT
 
 ## Testing Infrastructure
 
-**Installed but not configured:**
+**Configured:**
+
+- **Playwright** 1.56.x — E2E testing (`cd storefront && bunx playwright test`)
+  - Chromium + Firefox (2 browsers × 40 tests = 80 runs)
+  - Custom fixtures for API, auth, and wishlist setup
+  - Retries enabled (2) to handle Turbopack dev server flakiness
+  - 10 spec files covering: guest, authenticated, heart-button, heart-state, sharing, import, transfer, nav-badge, rename-delete, social-proof
+
+**Not yet configured:**
 
 - **Vitest** 4.x — Unit testing (`bun run test:unit`)
-- **Playwright** 1.56.x — E2E testing (`bun run test:e2e`)
 - **Testing Library** — React component testing (`@testing-library/react`, `@testing-library/jest-dom`)
 - **happy-dom** — Lightweight DOM implementation for Vitest
-
-**TODO:** Create `vitest.config.ts`, `playwright.config.ts`, and initial test suites.
 
 ## Common Pitfalls
 
@@ -380,8 +399,8 @@ psql medusa_db -t -c "SELECT token FROM api_key WHERE type = 'publishable' LIMIT
 | `strict`                   | `true`   | All strict checks enabled                                               |
 | `noUncheckedIndexedAccess` | `true`   | Array/object access requires null checks                                |
 | `baseUrl`                  | `"."`    | Absolute imports from project root (`import { Cart } from 'lib/types'`) |
-| `target`                   | `es2015` | Output target                                                           |
-| `moduleResolution`         | `node`   | Node-style module resolution                                            |
+| `target`                   | `ES2022` | Output target                                                           |
+| `moduleResolution`         | `Bundler`| Bundler-style module resolution                                         |
 
 ## Image Optimization
 

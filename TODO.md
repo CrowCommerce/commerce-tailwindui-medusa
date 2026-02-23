@@ -58,6 +58,9 @@
 - [x] Store product wishlist count route — `GET /store/products/:id/wishlist-count` for social proof ("X people saved this")
 - [x] Guest route hardening — `GET /store/wishlists/:id` now filters by `customer_id: null`; guest item routes also verify guest ownership
 - [x] Fix `cookies()` inside `"use cache"` crash — `getWishlists()` and `getWishlist()` used `cookies()` inside `"use cache"` scope, crashing product pages after adding to wishlist. Removed incompatible cache directives.
+- [x] Product images in wishlist cards — TailwindUI card design with variant/product thumbnails
+- [x] JWT security — explicit `jwtSecret` guard on all 3 JWT-using routes (share, shared view, import)
+- [x] Code simplification — extracted shared helpers (`verifyShareToken`, `requireGuestWishlist`, `requireSalesChannelId`), merged duplicate Zod schemas, consolidated auth middleware, added `wishlistMutation` helper on storefront. Net -179 lines.
 
 ## Agentic Commerce
 
@@ -77,6 +80,7 @@
 - [x] Pass `lineItemId` directly in delete button (skip extra `getCart()` call)
 - [x] Clear stale cart cookies on retrieval failure
 - [x] Expand `CART_FIELDS` with `*promotions,+shipping_methods.name`
+- [x] Fix global input focus styling — removed `outline: none !important` override in `globals.css` breaking all TailwindUI outline/ring utilities; standardized all inputs to TailwindUI v4 outline pattern
 
 ## Testing
 
@@ -84,7 +88,7 @@
 - [x] Create `playwright.config.ts`
 - [ ] Unit tests for `lib/medusa/transforms.ts`
 - [ ] E2E test: browse products → add to cart flow
-- [x] Wishlist E2E test suite (25 tests across 6 spec files — guest, authenticated, heart-button, sharing, import, transfer)
+- [x] Wishlist E2E test suite (40 tests across 10 spec files — guest, authenticated, heart-button, heart-state, sharing, import, transfer, nav-badge, rename-delete, social-proof; 80 total with Firefox)
 
 ## Infrastructure
 
