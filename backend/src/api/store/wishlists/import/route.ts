@@ -24,10 +24,13 @@ export async function POST(
   }
 
   const { http } = req.scope.resolve("configModule").projectConfig
+  if (!http.jwtSecret) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "JWT secret is not configured")
+  }
 
   let decoded: unknown
   try {
-    decoded = jwt.verify(req.validatedBody.share_token, http.jwtSecret!)
+    decoded = jwt.verify(req.validatedBody.share_token, http.jwtSecret)
   } catch (e) {
     if (e instanceof TokenExpiredError) {
       throw new MedusaError(

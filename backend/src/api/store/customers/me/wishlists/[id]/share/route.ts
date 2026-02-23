@@ -25,10 +25,13 @@ export async function POST(
   }
 
   const { http } = req.scope.resolve("configModule").projectConfig
+  if (!http.jwtSecret) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "JWT secret is not configured")
+  }
 
   const token = jwt.sign(
     { wishlist_id: data[0].id },
-    http.jwtSecret!,
+    http.jwtSecret,
     { expiresIn: "7d" }
   )
 

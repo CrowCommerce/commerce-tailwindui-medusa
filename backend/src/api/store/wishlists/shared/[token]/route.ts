@@ -4,10 +4,13 @@ import jwt, { TokenExpiredError } from "jsonwebtoken"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const { http } = req.scope.resolve("configModule").projectConfig
+  if (!http.jwtSecret) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "JWT secret is not configured")
+  }
 
   let decoded: unknown
   try {
-    decoded = jwt.verify(req.params.token, http.jwtSecret!)
+    decoded = jwt.verify(req.params.token, http.jwtSecret)
   } catch (e) {
     if (e instanceof TokenExpiredError) {
       throw new MedusaError(
