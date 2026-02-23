@@ -30,6 +30,19 @@
 - [x] Admin response management drawer (create/edit/delete)
 - [x] Image upload UI in review form dialog (max 3, JPEG/PNG/WebP)
 
+### Code Review Follow-ups (from PR #8)
+
+- [ ] Migrate admin review drawer to `@medusajs/ui` primitives (Drawer, Button, Textarea, Label) for consistency with admin UI conventions
+- [ ] Validate `images[].url` hostname against storage provider domain, or switch to opaque upload IDs instead of raw URLs (security hardening)
+- [ ] Refactor `uploadReviewImages` server action to accept `FormData` instead of `File[]` for proper Server Action serialization
+- [ ] Add `data-testid` attributes to review components and migrate E2E selectors from Tailwind classes to stable `data-testid` selectors
+- [ ] Extract ReviewList lightbox state into a thin client wrapper so the list itself can be a server component
+- [ ] Add regex validation for Medusa IDs in E2E fixture SQL interpolation (e.g. `/^rev_[a-z0-9]+$/`)
+- [ ] Add fail-fast env var checks in E2E fixtures for CI environments
+- [ ] Rename `prev_img` ID prefix to `revi` on ReviewImage model (requires migration)
+- [ ] Revoke `URL.createObjectURL` blobs in ReviewForm on file remove and component cleanup
+- [ ] Add explicit `multer` to backend `package.json` dependencies (currently works via transitive dep from `@medusajs/medusa`)
+
 ### Phase 3: Verified Purchase & Search
 
 - [ ] Order linking (`order_id`, `order_line_item_id`) for verified purchase badge
