@@ -105,6 +105,7 @@
 - [ ] Unit tests for `lib/medusa/transforms.ts`
 - [ ] E2E test: browse products → add to cart flow
 - [x] Wishlist E2E test suite (40 tests across 10 spec files — guest, authenticated, heart-button, heart-state, sharing, import, transfer, nav-badge, rename-delete, social-proof; 80 total with Firefox)
+- [x] Review E2E test suite (27 tests across 4 spec files — form, display, image-upload, lightbox; 54 total with Firefox)
 
 ## Infrastructure
 

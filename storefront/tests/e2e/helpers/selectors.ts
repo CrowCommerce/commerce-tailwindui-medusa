@@ -1,9 +1,9 @@
 /**
- * Shared selectors for wishlist UI elements.
+ * Shared selectors for E2E tests.
  * Derived from actual component markup in:
- * - components/wishlist/wishlist-button.tsx
- * - components/wishlist/wishlist-page-client.tsx
+ * - components/wishlist/ (wishlist-button, wishlist-page-client)
  * - app/wishlist/shared/[token]/page.tsx
+ * - components/reviews/ (ReviewForm, ReviewList, ReviewImageLightbox)
  */
 
 // Heart button (PDP and product cards)

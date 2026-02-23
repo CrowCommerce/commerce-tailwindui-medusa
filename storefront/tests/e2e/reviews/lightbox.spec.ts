@@ -197,7 +197,8 @@ test.describe("Review Image Lightbox", () => {
     await nextBtn.click();
 
     // Image src should change
-    await expect(image).not.toHaveAttribute("src", initialSrc!, {
+    expect(initialSrc).toBeTruthy();
+    await expect(image).not.toHaveAttribute("src", initialSrc as string, {
       timeout: 5_000,
     });
   });

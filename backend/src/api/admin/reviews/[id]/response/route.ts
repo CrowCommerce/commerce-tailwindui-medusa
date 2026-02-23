@@ -49,7 +49,7 @@ export const POST = async (
     },
   })
 
-  res.json({ product_review_response: result.response })
+  return res.json({ product_review_response: result.response })
 }
 
 export const DELETE = async (
