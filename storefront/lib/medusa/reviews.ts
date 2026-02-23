@@ -3,12 +3,23 @@
 import { sdk } from "lib/medusa";
 import { TAGS } from "lib/constants";
 import type { ProductReviews, Review } from "lib/types";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, revalidatePath, revalidateTag } from "next/cache";
 import { getAuthHeaders } from "lib/medusa/cookies";
 import { retrieveCustomer } from "lib/medusa/customer";
 
 export type ReviewActionResult = { error?: string; success?: boolean } | null;
+
+type ReviewImageInput = { url: string; sort_order: number };
+
+function parseImagesField(json: string | null): ReviewImageInput[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 export async function getProductReviews(
   productId: string,
@@ -73,18 +84,7 @@ export async function addProductReview(
   const rating = Number(formData.get("rating"));
 
   // Parse image URLs from hidden form field (JSON-encoded array)
-  const imagesJson = formData.get("images") as string | null;
-  let images: { url: string; sort_order: number }[] = [];
-  if (imagesJson) {
-    try {
-      const parsed = JSON.parse(imagesJson);
-      if (Array.isArray(parsed)) {
-        images = parsed;
-      }
-    } catch {
-      // Malformed JSON — proceed without images
-    }
-  }
+  const images = parseImagesField(formData.get("images") as string | null);
 
   if (!content) return { error: "Review content is required" };
   if (!rating || rating < 1 || rating > 5)
@@ -106,7 +106,7 @@ export async function addProductReview(
         rating,
         first_name: customer.first_name || "Customer",
         last_name: customer.last_name || "",
-        ...(images.length > 0 ? { images } : {}),
+        ...(images.length > 0 && { images }),
       },
     });
   } catch (e) {
@@ -127,7 +127,7 @@ export async function uploadReviewImages(
   const headers = await getAuthHeaders();
 
   const formData = new FormData();
-  files.forEach((file) => formData.append("files", file));
+  for (const file of files) formData.append("files", file);
 
   try {
     const response = await sdk.client.fetch<{

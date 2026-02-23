@@ -2,22 +2,22 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { ChatBubbleLeftRight } from "@medusajs/icons"
 import {
   createDataTableColumnHelper,
+  createDataTableCommandHelper,
   Container,
   DataTable,
   useDataTable,
   Heading,
   StatusBadge,
   Toaster,
+  toast,
   DataTablePaginationState,
-  createDataTableCommandHelper,
   DataTableRowSelectionState,
 } from "@medusajs/ui"
+import { HttpTypes } from "@medusajs/framework/types"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
-import { sdk } from "../../lib/sdk"
-import { HttpTypes } from "@medusajs/framework/types"
 import { Link } from "react-router-dom"
-import { toast } from "@medusajs/ui"
+import { sdk } from "../../lib/sdk"
 
 type Review = {
   id: string
@@ -41,52 +41,42 @@ const columnHelper = createDataTableColumnHelper<Review>()
 
 const commandHelper = createDataTableCommandHelper()
 
+const statusCommands = [
+  { label: "Approve", shortcut: "A", status: "approved" },
+  { label: "Flag", shortcut: "F", status: "flagged" },
+] as const
+
 const useCommands = (refetch: () => void) => {
-  return [
+  return statusCommands.map(({ label, shortcut, status }) =>
     commandHelper.command({
-      label: "Approve",
-      shortcut: "A",
+      label,
+      shortcut,
       action: async (selection) => {
         const ids = Object.keys(selection)
         try {
           await sdk.client.fetch("/admin/reviews/status", {
             method: "POST",
-            body: {
-              ids,
-              status: "approved",
-            },
+            body: { ids, status },
           })
-          toast.success("Reviews approved")
+          toast.success(`Reviews ${status}`)
           refetch()
         } catch {
-          toast.error("Failed to approve reviews")
+          toast.error(`Failed to ${label.toLowerCase()} reviews`)
         }
       },
     }),
-    commandHelper.command({
-      label: "Flag",
-      shortcut: "F",
-      action: async (selection) => {
-        const ids = Object.keys(selection)
-        try {
-          await sdk.client.fetch("/admin/reviews/status", {
-            method: "POST",
-            body: {
-              ids,
-              status: "flagged",
-            },
-          })
-          toast.success("Reviews flagged")
-          refetch()
-        } catch {
-          toast.error("Failed to flag reviews")
-        }
-      },
-    }),
-  ]
+  )
 }
 
 const limit = 15
+
+const statusColor = (status: Review["status"]): "green" | "red" | "grey" => {
+  switch (status) {
+    case "approved": return "green"
+    case "flagged": return "red"
+    default: return "grey"
+  }
+}
 
 const ReviewDetailDrawer = ({
   review,
@@ -221,18 +211,11 @@ const ReviewsPage = () => {
     }),
     columnHelper.accessor("status", {
       header: "Status",
-      cell: ({ row }) => {
-        const color = row.original.status === "approved"
-          ? "green"
-          : row.original.status === "flagged"
-          ? "red"
-          : "grey"
-        return (
-          <StatusBadge color={color}>
-            {row.original.status.charAt(0).toUpperCase() + row.original.status.slice(1)}
-          </StatusBadge>
-        )
-      },
+      cell: ({ row }) => (
+        <StatusBadge color={statusColor(row.original.status)}>
+          {row.original.status.charAt(0).toUpperCase() + row.original.status.slice(1)}
+        </StatusBadge>
+      ),
     }),
     columnHelper.accessor("response", {
       header: "Response",
@@ -267,9 +250,7 @@ const ReviewsPage = () => {
     }),
   ], [])
 
-  const offset = useMemo(() => {
-    return pagination.pageIndex * limit
-  }, [pagination])
+  const offset = pagination.pageIndex * limit
 
   const { data, isLoading, refetch } = useQuery<{
     reviews: Review[]
@@ -280,8 +261,8 @@ const ReviewsPage = () => {
     queryKey: ["reviews", offset, limit],
     queryFn: () => sdk.client.fetch("/admin/reviews", {
       query: {
-        offset: pagination.pageIndex * pagination.pageSize,
-        limit: pagination.pageSize,
+        offset,
+        limit,
         order: "-created_at",
       },
     }),

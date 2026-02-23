@@ -66,6 +66,12 @@ export function ReviewForm({
   const displayRating = hoverRating || rating;
   const isDisabled = isPending || isUploading || rating === 0;
 
+  function submitButtonLabel(): string {
+    if (isUploading) return "Uploading images...";
+    if (isPending) return "Submitting...";
+    return "Submit review";
+  }
+
   if (state?.success) {
     return (
       <Dialog open={open} onClose={onClose} className="relative z-50">
@@ -228,7 +234,7 @@ export function ReviewForm({
                     : "bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2",
                 )}
               >
-                {isUploading ? "Uploading images..." : isPending ? "Submitting..." : "Submit review"}
+                {submitButtonLabel()}
               </button>
             </form>
           </DialogPanel>

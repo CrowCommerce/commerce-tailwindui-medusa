@@ -4,10 +4,9 @@ import {
   approveReview,
   revalidateReviewsCache,
   cleanupReview,
+  createReview,
 } from "../fixtures/review.fixture";
 import * as sel from "../helpers/selectors";
-
-const BACKEND_URL = process.env.MEDUSA_BACKEND_URL || "http://localhost:9000";
 
 /**
  * Create a review with images via API.
@@ -16,51 +15,32 @@ async function createReviewWithImages(
   api: { getAuthToken(): string },
   productId: string,
 ): Promise<string> {
-  const headers = {
-    authorization: `Bearer ${api.getAuthToken()}`,
-    "Content-Type": "application/json",
-    "x-publishable-api-key":
-      process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
-  };
-
-  const res = await fetch(`${BACKEND_URL}/store/reviews`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      product_id: productId,
-      title: "Review with photos",
-      content: "Check out these product photos from my purchase!",
-      rating: 5,
-      first_name: "E2E",
-      last_name: "PhotoReviewer",
-      images: [
-        {
-          url: "https://placehold.co/400x300/orange/white?text=Review+Image+1",
-          sort_order: 0,
-        },
-        {
-          url: "https://placehold.co/400x300/blue/white?text=Review+Image+2",
-          sort_order: 1,
-        },
-        {
-          url: "https://placehold.co/400x300/green/white?text=Review+Image+3",
-          sort_order: 2,
-        },
-      ],
-    }),
+  const reviewId = await createReview(api.getAuthToken(), {
+    product_id: productId,
+    title: "Review with photos",
+    content: "Check out these product photos from my purchase!",
+    rating: 5,
+    first_name: "E2E",
+    last_name: "PhotoReviewer",
+    images: [
+      {
+        url: "https://placehold.co/400x300/orange/white?text=Review+Image+1",
+        sort_order: 0,
+      },
+      {
+        url: "https://placehold.co/400x300/blue/white?text=Review+Image+2",
+        sort_order: 1,
+      },
+      {
+        url: "https://placehold.co/400x300/green/white?text=Review+Image+3",
+        sort_order: 2,
+      },
+    ],
   });
 
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(
-      `Create review with images failed (${res.status}): ${body}`,
-    );
-  }
-
-  const data = (await res.json()) as { review: { id: string } };
-  approveReview(data.review.id);
+  approveReview(reviewId);
   await revalidateReviewsCache();
-  return data.review.id;
+  return reviewId;
 }
 
 /**
