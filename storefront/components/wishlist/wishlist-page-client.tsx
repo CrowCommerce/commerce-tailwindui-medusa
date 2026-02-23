@@ -373,7 +373,7 @@ function NewWishlistButton() {
                     type="text"
                     required
                     placeholder="e.g. Gift ideas"
-                    className="focus:border-primary-500 focus:ring-primary-500 mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:ring-1 focus:outline-none"
+                    className="mt-1 block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:text-sm/6"
                   />
 
                   {state?.error && (
@@ -534,7 +534,7 @@ function RenameWishlistDialog({
                 type="text"
                 required
                 defaultValue={wishlist.name || ""}
-                className="focus:border-primary-500 focus:ring-primary-500 mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:ring-1 focus:outline-none"
+                className="mt-1 block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:text-sm/6"
               />
               {state?.error && (
                 <p className="mt-2 text-sm text-red-600">{state.error}</p>

@@ -41,15 +41,6 @@
   }
 }
 
-/* Remove all focus visuals (outline/ring) globally */
-:is(button, [role="button"], a, input, select, textarea, summary):is(
-    :focus,
-    :focus-visible
-  ) {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
@@ -60,18 +51,6 @@
   img[loading="lazy"] {
     clip-path: inset(0.6px);
   }
-}
-
-/* Also ensure default interactive elements never get a ring via utilities */
-a,
-input,
-button,
-select,
-textarea,
-summary,
-[role="button"] {
-  outline: none !important;
-  box-shadow: none !important;
 }
 
 /* Fade in animation for product grids */
