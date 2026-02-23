@@ -35,6 +35,14 @@ const upload = multer({
 
 export default defineMiddlewares({
   routes: [
+    // --- Saved payment methods — auth required ---
+    {
+      matcher: "/store/payment-methods/:account_holder_id",
+      method: "GET",
+      middlewares: [
+        authenticate("customer", ["bearer", "session"]),
+      ],
+    },
     // --- Store review routes ---
     {
       method: ["POST"],
