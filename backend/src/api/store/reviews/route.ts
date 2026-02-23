@@ -44,6 +44,7 @@ export const POST = async (
       input: {
         ...input,
         customer_id: req.auth_context?.actor_id,
+        status: "approved",
       },
     })
 

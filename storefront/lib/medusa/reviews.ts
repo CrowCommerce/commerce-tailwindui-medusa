@@ -74,6 +74,18 @@ export async function getProductReviews(
   };
 }
 
+export async function getReviewerName(): Promise<{
+  firstName: string;
+  lastName: string;
+} | null> {
+  const customer = await retrieveCustomer();
+  if (!customer) return null;
+  return {
+    firstName: customer.first_name || "Customer",
+    lastName: customer.last_name || "",
+  };
+}
+
 export async function addProductReview(
   prevState: ReviewActionResult,
   formData: FormData,
@@ -119,30 +131,4 @@ export async function addProductReview(
   }
 
   return { success: true };
-}
-
-export async function uploadReviewImages(
-  files: File[],
-): Promise<{ id: string; url: string }[]> {
-  const headers = await getAuthHeaders();
-
-  const formData = new FormData();
-  for (const file of files) formData.append("files", file);
-
-  try {
-    const response = await sdk.client.fetch<{
-      files: { id: string; url: string }[];
-    }>("/store/reviews/uploads", {
-      method: "POST",
-      headers,
-      body: formData,
-    });
-
-    return response.files;
-  } catch (e) {
-    throw new Error(
-      "Failed to upload review images",
-      { cause: e },
-    );
-  }
 }

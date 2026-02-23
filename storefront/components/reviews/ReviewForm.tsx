@@ -9,28 +9,29 @@ import {
 import { XMarkIcon, StarIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { addProductReview, uploadReviewImages, type ReviewActionResult } from "lib/medusa/reviews";
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import type { Review } from "lib/types";
 
 export function ReviewForm({
   productId,
   open,
   onClose,
+  onSubmitted,
+  customerName,
+  serverError,
 }: {
   productId: string;
   open: boolean;
   onClose: () => void;
+  onSubmitted: (review: Review, formData: FormData) => void;
+  customerName: { firstName: string; lastName: string } | null;
+  serverError?: string | null;
 }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
-  const [state, formAction, isPending] = useActionState<
-    ReviewActionResult,
-    FormData
-  >(addProductReview, null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -43,60 +44,75 @@ export function ReviewForm({
   };
 
   const handleSubmit = async (formData: FormData) => {
-    setUploadError(null);
+    setError(null);
+    setIsSubmitting(true);
+
+    // Upload images first (if any)
+    let uploadedImages: { url: string; sort_order: number }[] = [];
     if (selectedFiles.length > 0) {
-      setIsUploading(true);
       try {
-        const uploaded = await uploadReviewImages(selectedFiles);
-        const images = uploaded.map((f, i) => ({
-          url: f.url,
-          sort_order: i,
-        }));
-        formData.set("images", JSON.stringify(images));
+        const uploadData = new FormData();
+        for (const file of selectedFiles) uploadData.append("files", file);
+
+        const res = await fetch("/api/reviews/upload", {
+          method: "POST",
+          body: uploadData,
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Upload failed");
+        }
+
+        const { files: uploaded } = await res.json();
+        uploadedImages = uploaded.map(
+          (f: { url: string }, i: number) => ({ url: f.url, sort_order: i }),
+        );
+        formData.set("images", JSON.stringify(uploadedImages));
       } catch {
-        setIsUploading(false);
-        setUploadError("Failed to upload images. Please try again.");
+        setIsSubmitting(false);
+        setError("Failed to upload images. Please try again.");
         return;
       }
-      setIsUploading(false);
     }
-    formAction(formData);
+
+    // Build optimistic Review object
+    const title = (formData.get("title") as string)?.trim() || "";
+    const content = (formData.get("content") as string)?.trim() || "";
+
+    const optimisticReview: Review = {
+      id: `optimistic_${Date.now()}`,
+      title,
+      content,
+      rating,
+      first_name: customerName?.firstName || "You",
+      last_name: customerName?.lastName || "",
+      created_at: new Date().toISOString(),
+      images: uploadedImages.map((img, i) => ({
+        id: `optimistic_img_${i}`,
+        url: img.url,
+        sort_order: img.sort_order,
+      })),
+      response: null,
+    };
+
+    setIsSubmitting(false);
+
+    // Reset form state for next time
+    setRating(0);
+    setSelectedFiles([]);
+    setError(null);
+
+    // Hand off to parent — parent handles optimistic update + server action
+    onSubmitted(optimisticReview, formData);
   };
 
   const displayRating = hoverRating || rating;
-  const isDisabled = isPending || isUploading || rating === 0;
+  const isDisabled = isSubmitting || rating === 0;
 
   function submitButtonLabel(): string {
-    if (isUploading) return "Uploading images...";
-    if (isPending) return "Submitting...";
+    if (isSubmitting) return selectedFiles.length > 0 ? "Uploading images..." : "Submitting...";
     return "Submit review";
-  }
-
-  if (state?.success) {
-    return (
-      <Dialog open={open} onClose={onClose} className="relative z-50">
-        <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity" />
-        <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <DialogPanel className="relative w-full max-w-lg rounded-lg bg-white px-6 py-8 text-center shadow-xl">
-              <DialogTitle className="text-lg font-semibold text-gray-900">
-                Thank you!
-              </DialogTitle>
-              <p className="mt-2 text-sm text-gray-600">
-                Your review has been posted.
-              </p>
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-primary-600 hover:bg-primary-500 mt-6 rounded-md px-4 py-2 text-sm font-semibold text-white"
-              >
-                Done
-              </button>
-            </DialogPanel>
-          </div>
-        </div>
-      </Dialog>
-    );
   }
 
   return (
@@ -220,8 +236,8 @@ export function ReviewForm({
                 </div>
               </div>
 
-              {(state?.error || uploadError) && (
-                <p className="text-sm text-red-600">{state?.error || uploadError}</p>
+              {(error || serverError) && (
+                <p className="text-sm text-red-600">{error || serverError}</p>
               )}
 
               <button

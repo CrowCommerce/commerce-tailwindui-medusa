@@ -92,6 +92,8 @@ export const REVIEW_ADD_PHOTO_LABEL =
 // Reviews — list
 export const REVIEW_LIST_ITEM = "div.py-12";
 export const REVIEW_REVIEWER_NAME = "h4.text-sm.font-bold";
+export const REVIEW_CONTENT_TEXT = "div.py-12 p.text-sm.text-gray-600";
+export const REVIEW_TITLE_TEXT = "div.py-12 h5.text-sm.font-semibold";
 
 // Reviews — admin response (in list)
 export const REVIEW_STORE_RESPONSE = 'div.bg-gray-50:has(p:has-text("Store response"))';

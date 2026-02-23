@@ -94,16 +94,17 @@ test.describe("Review Form", () => {
     await expect(submitBtn).toBeEnabled();
     await submitBtn.click();
 
-    // Wait for success state
+    // Dialog closes immediately (optimistic submission)
     await expect(
-      page.locator(sel.REVIEW_SUCCESS_TITLE),
-    ).toBeVisible({ timeout: 15_000 });
-
-    // Close dialog
-    await page.locator(sel.REVIEW_SUCCESS_DONE).click();
-    await expect(
-      page.locator(sel.REVIEW_SUCCESS_TITLE),
+      page.locator(sel.REVIEW_DIALOG_TITLE),
     ).not.toBeVisible({ timeout: 5_000 });
+
+    // Review appears in the list
+    await expect(
+      page.locator(sel.REVIEW_CONTENT_TEXT).filter({
+        hasText: "This product exceeded my expectations",
+      }),
+    ).toBeVisible({ timeout: 5_000 });
   });
 
   test("shows error when content is empty", async ({
