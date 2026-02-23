@@ -12,7 +12,7 @@ const Review = model.define("review", {
   status: model.enum(["pending", "approved", "flagged"]).default("pending"),
   product_id: model.text().index("IDX_REVIEW_PRODUCT_ID"),
   customer_id: model.text().nullable(),
-  response: model.hasOne(() => ReviewResponse, { nullable: true }).nullable(),
+  response: model.hasOne(() => ReviewResponse).nullable(),
   images: model.hasMany(() => ReviewImage),
 })
 .checks([
