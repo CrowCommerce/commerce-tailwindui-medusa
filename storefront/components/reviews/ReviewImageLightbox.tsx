@@ -37,6 +37,7 @@ export function ReviewImageLightbox({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close image"
             className="absolute -top-10 right-0 text-white hover:text-gray-300"
           >
             <XMarkIcon className="size-8" />
@@ -44,7 +45,7 @@ export function ReviewImageLightbox({
 
           <Image
             src={image.url}
-            alt=""
+            alt={`Review image ${index + 1} of ${images.length}`}
             width={800}
             height={600}
             className="max-h-[80vh] rounded-lg object-contain"
@@ -55,6 +56,7 @@ export function ReviewImageLightbox({
               <button
                 type="button"
                 onClick={() => setIndex((i) => (i > 0 ? i - 1 : images.length - 1))}
+                aria-label="Previous image"
                 className="rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
               >
                 <ChevronLeftIcon className="size-6" />
@@ -62,6 +64,7 @@ export function ReviewImageLightbox({
               <button
                 type="button"
                 onClick={() => setIndex((i) => (i < images.length - 1 ? i + 1 : 0))}
+                aria-label="Next image"
                 className="rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
               >
                 <ChevronRightIcon className="size-6" />

@@ -25,6 +25,7 @@ export function ReviewForm({
   const [hoverRating, setHoverRating] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const [state, formAction, isPending] = useActionState<
     ReviewActionResult,
@@ -42,6 +43,7 @@ export function ReviewForm({
   };
 
   const handleSubmit = async (formData: FormData) => {
+    setUploadError(null);
     if (selectedFiles.length > 0) {
       setIsUploading(true);
       try {
@@ -53,6 +55,7 @@ export function ReviewForm({
         formData.set("images", JSON.stringify(images));
       } catch {
         setIsUploading(false);
+        setUploadError("Failed to upload images. Please try again.");
         return;
       }
       setIsUploading(false);
@@ -211,8 +214,8 @@ export function ReviewForm({
                 </div>
               </div>
 
-              {state?.error && (
-                <p className="text-sm text-red-600">{state.error}</p>
+              {(state?.error || uploadError) && (
+                <p className="text-sm text-red-600">{state?.error || uploadError}</p>
               )}
 
               <button

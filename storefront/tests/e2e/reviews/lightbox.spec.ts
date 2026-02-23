@@ -3,6 +3,7 @@ import {
   expect,
   approveReview,
   revalidateReviewsCache,
+  cleanupReview,
 } from "../fixtures/review.fixture";
 import * as sel from "../helpers/selectors";
 
@@ -98,13 +99,22 @@ async function expectLightboxOpen(page: import("@playwright/test").Page) {
 }
 
 test.describe("Review Image Lightbox", () => {
+  const createdReviewIds: string[] = [];
+
+  test.afterEach(() => {
+    for (const id of createdReviewIds) {
+      cleanupReview(id);
+    }
+    createdReviewIds.length = 0;
+  });
+
   test("shows image thumbnails for reviews with images", async ({
     guestPage: page,
     api,
     testProductId,
     testProductHandle,
   }) => {
-    await createReviewWithImages(api, testProductId);
+    createdReviewIds.push(await createReviewWithImages(api, testProductId));
     await gotoProductWithReviews(page, testProductHandle);
 
     // Wait for review list
@@ -131,7 +141,7 @@ test.describe("Review Image Lightbox", () => {
     testProductId,
     testProductHandle,
   }) => {
-    await createReviewWithImages(api, testProductId);
+    createdReviewIds.push(await createReviewWithImages(api, testProductId));
     await gotoProductWithReviews(page, testProductHandle);
 
     await expect(page.locator(sel.REVIEW_LIST_ITEM).first()).toBeVisible({
@@ -153,7 +163,7 @@ test.describe("Review Image Lightbox", () => {
     testProductId,
     testProductHandle,
   }) => {
-    await createReviewWithImages(api, testProductId);
+    createdReviewIds.push(await createReviewWithImages(api, testProductId));
     await gotoProductWithReviews(page, testProductHandle);
 
     await expect(page.locator(sel.REVIEW_LIST_ITEM).first()).toBeVisible({
@@ -182,7 +192,7 @@ test.describe("Review Image Lightbox", () => {
     testProductId,
     testProductHandle,
   }) => {
-    await createReviewWithImages(api, testProductId);
+    createdReviewIds.push(await createReviewWithImages(api, testProductId));
     await gotoProductWithReviews(page, testProductHandle);
 
     await expect(page.locator(sel.REVIEW_LIST_ITEM).first()).toBeVisible({
@@ -218,7 +228,7 @@ test.describe("Review Image Lightbox", () => {
     testProductId,
     testProductHandle,
   }) => {
-    await createReviewWithImages(api, testProductId);
+    createdReviewIds.push(await createReviewWithImages(api, testProductId));
     await gotoProductWithReviews(page, testProductHandle);
 
     await expect(page.locator(sel.REVIEW_LIST_ITEM).first()).toBeVisible({

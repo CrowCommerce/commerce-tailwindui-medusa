@@ -82,7 +82,7 @@ export function ReviewList({ reviews }: { reviews: Review[] }) {
                       >
                         <Image
                           src={img.url}
-                          alt=""
+                          alt={`Review image ${i + 1}`}
                           width={64}
                           height={64}
                           className="size-16 object-cover transition hover:opacity-75"

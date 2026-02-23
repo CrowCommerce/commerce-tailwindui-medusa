@@ -4,6 +4,7 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework/http"
+import { MedusaError } from "@medusajs/framework/utils"
 import multer from "multer"
 import { PostStoreReviewSchema } from "./store/reviews/route"
 import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route"
@@ -27,7 +28,7 @@ const upload = multer({
     if (allowed.includes(file.mimetype)) {
       cb(null, true)
     } else {
-      cb(new Error("Only JPEG, PNG, and WebP images are allowed"))
+      cb(new MedusaError(MedusaError.Types.INVALID_DATA, "Only JPEG, PNG, and WebP images are allowed"))
     }
   },
 })

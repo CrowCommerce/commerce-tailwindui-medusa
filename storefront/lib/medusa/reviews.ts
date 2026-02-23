@@ -74,9 +74,17 @@ export async function addProductReview(
 
   // Parse image URLs from hidden form field (JSON-encoded array)
   const imagesJson = formData.get("images") as string | null;
-  const images: { url: string; sort_order: number }[] = imagesJson
-    ? JSON.parse(imagesJson)
-    : [];
+  let images: { url: string; sort_order: number }[] = [];
+  if (imagesJson) {
+    try {
+      const parsed = JSON.parse(imagesJson);
+      if (Array.isArray(parsed)) {
+        images = parsed;
+      }
+    } catch {
+      // Malformed JSON — proceed without images
+    }
+  }
 
   if (!content) return { error: "Review content is required" };
   if (!rating || rating < 1 || rating > 5)
@@ -121,13 +129,20 @@ export async function uploadReviewImages(
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
 
-  const response = await sdk.client.fetch<{
-    files: { id: string; url: string }[];
-  }>("/store/reviews/uploads", {
-    method: "POST",
-    headers,
-    body: formData,
-  });
+  try {
+    const response = await sdk.client.fetch<{
+      files: { id: string; url: string }[];
+    }>("/store/reviews/uploads", {
+      method: "POST",
+      headers,
+      body: formData,
+    });
 
-  return response.files;
+    return response.files;
+  } catch (e) {
+    throw new Error(
+      "Failed to upload review images",
+      { cause: e },
+    );
+  }
 }

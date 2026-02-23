@@ -48,19 +48,19 @@ const useCommands = (refetch: () => void) => {
       shortcut: "A",
       action: async (selection) => {
         const ids = Object.keys(selection)
-
-        sdk.client.fetch("/admin/reviews/status", {
-          method: "POST",
-          body: {
-            ids,
-            status: "approved",
-          },
-        }).then(() => {
+        try {
+          await sdk.client.fetch("/admin/reviews/status", {
+            method: "POST",
+            body: {
+              ids,
+              status: "approved",
+            },
+          })
           toast.success("Reviews approved")
           refetch()
-        }).catch(() => {
+        } catch {
           toast.error("Failed to approve reviews")
-        })
+        }
       },
     }),
     commandHelper.command({
@@ -68,19 +68,19 @@ const useCommands = (refetch: () => void) => {
       shortcut: "F",
       action: async (selection) => {
         const ids = Object.keys(selection)
-
-        sdk.client.fetch("/admin/reviews/status", {
-          method: "POST",
-          body: {
-            ids,
-            status: "flagged",
-          },
-        }).then(() => {
+        try {
+          await sdk.client.fetch("/admin/reviews/status", {
+            method: "POST",
+            body: {
+              ids,
+              status: "flagged",
+            },
+          })
           toast.success("Reviews flagged")
           refetch()
-        }).catch(() => {
+        } catch {
           toast.error("Failed to flag reviews")
-        })
+        }
       },
     }),
   ]
@@ -319,6 +319,7 @@ const ReviewsPage = () => {
       <Toaster />
       {selectedReview && (
         <ReviewDetailDrawer
+          key={selectedReview.id}
           review={selectedReview}
           onClose={() => setSelectedReview(null)}
           onResponseChange={refetch}

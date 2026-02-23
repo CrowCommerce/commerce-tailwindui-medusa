@@ -5,9 +5,8 @@ const BACKEND_URL = process.env.MEDUSA_BACKEND_URL || "http://localhost:9000";
 const STOREFRONT_URL = process.env.STOREFRONT_URL || "http://localhost:3000";
 const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET || "supersecret";
 const DATABASE_URL =
-  process.env.DATABASE_URL || "postgres://itsjusteric@localhost/medusa_db";
-const PSQL =
-  process.env.PSQL_PATH || "/opt/homebrew/opt/postgresql@17/bin/psql";
+  process.env.DATABASE_URL || "postgres://localhost/medusa_db";
+const PSQL = process.env.PSQL_PATH || "psql";
 
 /**
  * Run a SQL query against the Medusa database.
@@ -110,7 +109,7 @@ async function revalidateReviewsCache(): Promise<void> {
  * Approve a review by ID. Exported for use in spec files that create
  * reviews outside the standard fixtures (e.g., lightbox tests).
  */
-export { approveReview, revalidateReviewsCache };
+export { approveReview, revalidateReviewsCache, cleanupReview };
 
 /**
  * Delete a specific test review by ID (safe for parallel workers).

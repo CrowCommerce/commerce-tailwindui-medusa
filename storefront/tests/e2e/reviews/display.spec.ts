@@ -127,7 +127,7 @@ test.describe("Review Display", () => {
       timeout: 15_000,
     });
 
-    const text = await page.locator(sel.REVIEW_COUNT_TEXT).textContent();
+    const text = await page.locator(sel.REVIEW_COUNT_TEXT).textContent() ?? "";
     expect(text).toMatch(/Based on \d+ reviews?/);
   });
 
