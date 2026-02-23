@@ -7,6 +7,7 @@ import { useCallback, useMemo, useState } from "react";
 import { CheckoutAddress } from "components/checkout/checkout-address";
 import { CheckoutEmail } from "components/checkout/checkout-email";
 import { CheckoutPayment } from "components/checkout/checkout-payment";
+import { CheckoutReview } from "components/checkout/checkout-review";
 import { CheckoutShipping } from "components/checkout/checkout-shipping";
 import type { CheckoutStep } from "lib/types";
 
@@ -145,7 +146,12 @@ export function CheckoutForm({
         );
       case "review":
         return (
-          <p className="py-4 text-sm text-gray-500">Coming soon...</p>
+          <CheckoutReview
+            cart={cart}
+            stripe={stripeInstance}
+            elements={elementsInstance}
+            onEditStep={onEditStep}
+          />
         );
     }
   }
