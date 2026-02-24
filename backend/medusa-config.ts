@@ -29,7 +29,9 @@ module.exports = defineConfig({
             id: "stripe",
             options: {
               apiKey: process.env.STRIPE_API_KEY,
-              webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+              ...(process.env.STRIPE_WEBHOOK_SECRET && {
+                webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+              }),
               capture: false,
               automatic_payment_methods: true,
             },

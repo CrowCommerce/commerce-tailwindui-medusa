@@ -234,8 +234,11 @@ export function CheckoutForm({
             </div>
 
             {/* Step content (only shown when active) */}
-            {isActive && (
-              <div className="mt-2 pl-11">
+            {/* Payment step stays mounted (hidden) during review so Stripe Elements remain in DOM */}
+            {(isActive || (step === "payment" && activeStep === "review")) && (
+              <div
+                className={`mt-2 pl-11 ${step === "payment" && activeStep === "review" ? "hidden" : ""}`}
+              >
                 {renderStepContent(step)}
               </div>
             )}

@@ -49,7 +49,16 @@ async function getDefaultRegion(): Promise<HttpTypes.StoreRegion> {
     throw new Error("No regions found in Medusa. Create at least one region.");
   }
 
-  cachedRegion = regions[0]!;
+  // Prefer region specified by env var, then USD region, then first region
+  const preferredId = process.env.NEXT_PUBLIC_DEFAULT_REGION_ID;
+  const preferred = preferredId
+    ? regions.find((r) => r.id === preferredId)
+    : undefined;
+
+  cachedRegion =
+    preferred ??
+    regions.find((r) => r.currency_code === "usd") ??
+    regions[0]!;
   return cachedRegion;
 }
 
