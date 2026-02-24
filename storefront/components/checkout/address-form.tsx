@@ -8,10 +8,11 @@ type AddressFormProps = {
   defaultValues?: AddressPayload;
   countries: { iso_2: string; display_name: string }[];
   onChange?: (address: AddressPayload) => void;
+  idPrefix?: string;
 };
 
 const INPUT_CLASS =
-  "block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6";
+  "block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:text-sm/6";
 
 const LABEL_CLASS = "block text-sm/6 font-medium text-gray-900";
 
@@ -32,6 +33,7 @@ export function AddressForm({
   defaultValues,
   countries,
   onChange,
+  idPrefix = "addr",
 }: AddressFormProps) {
   const [address, setAddress] = useState<AddressPayload>({
     ...EMPTY_ADDRESS,
@@ -53,12 +55,12 @@ export function AddressForm({
     <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
       {/* First name / Last name */}
       <div className="sm:col-span-3">
-        <label htmlFor="addr-first-name" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-first-name`} className={LABEL_CLASS}>
           First name
         </label>
         <div className="mt-1">
           <input
-            id="addr-first-name"
+            id={`${idPrefix}-first-name`}
             name="first_name"
             type="text"
             required
@@ -71,12 +73,12 @@ export function AddressForm({
       </div>
 
       <div className="sm:col-span-3">
-        <label htmlFor="addr-last-name" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-last-name`} className={LABEL_CLASS}>
           Last name
         </label>
         <div className="mt-1">
           <input
-            id="addr-last-name"
+            id={`${idPrefix}-last-name`}
             name="last_name"
             type="text"
             required
@@ -90,13 +92,13 @@ export function AddressForm({
 
       {/* Company (optional) */}
       <div className="sm:col-span-6">
-        <label htmlFor="addr-company" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-company`} className={LABEL_CLASS}>
           Company{" "}
           <span className="text-sm font-normal text-gray-500">(optional)</span>
         </label>
         <div className="mt-1">
           <input
-            id="addr-company"
+            id={`${idPrefix}-company`}
             name="company"
             type="text"
             autoComplete="organization"
@@ -109,12 +111,12 @@ export function AddressForm({
 
       {/* Address line 1 */}
       <div className="sm:col-span-6">
-        <label htmlFor="addr-address1" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-address1`} className={LABEL_CLASS}>
           Address
         </label>
         <div className="mt-1">
           <input
-            id="addr-address1"
+            id={`${idPrefix}-address1`}
             name="address_1"
             type="text"
             required
@@ -128,13 +130,13 @@ export function AddressForm({
 
       {/* Address line 2 (optional) */}
       <div className="sm:col-span-6">
-        <label htmlFor="addr-address2" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-address2`} className={LABEL_CLASS}>
           Apartment, suite, etc.{" "}
           <span className="text-sm font-normal text-gray-500">(optional)</span>
         </label>
         <div className="mt-1">
           <input
-            id="addr-address2"
+            id={`${idPrefix}-address2`}
             name="address_2"
             type="text"
             autoComplete="address-line2"
@@ -147,12 +149,12 @@ export function AddressForm({
 
       {/* City / Province / Postal code — 3-column grid */}
       <div className="sm:col-span-2">
-        <label htmlFor="addr-city" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-city`} className={LABEL_CLASS}>
           City
         </label>
         <div className="mt-1">
           <input
-            id="addr-city"
+            id={`${idPrefix}-city`}
             name="city"
             type="text"
             required
@@ -165,12 +167,12 @@ export function AddressForm({
       </div>
 
       <div className="sm:col-span-2">
-        <label htmlFor="addr-province" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-province`} className={LABEL_CLASS}>
           State / Province
         </label>
         <div className="mt-1">
           <input
-            id="addr-province"
+            id={`${idPrefix}-province`}
             name="province"
             type="text"
             autoComplete="address-level1"
@@ -182,12 +184,12 @@ export function AddressForm({
       </div>
 
       <div className="sm:col-span-2">
-        <label htmlFor="addr-postal-code" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-postal-code`} className={LABEL_CLASS}>
           Postal code
         </label>
         <div className="mt-1">
           <input
-            id="addr-postal-code"
+            id={`${idPrefix}-postal-code`}
             name="postal_code"
             type="text"
             required
@@ -201,12 +203,12 @@ export function AddressForm({
 
       {/* Country */}
       <div className="sm:col-span-3">
-        <label htmlFor="addr-country" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-country`} className={LABEL_CLASS}>
           Country
         </label>
         <div className="mt-1">
           <select
-            id="addr-country"
+            id={`${idPrefix}-country`}
             name="country_code"
             required
             autoComplete="country"
@@ -226,12 +228,12 @@ export function AddressForm({
 
       {/* Phone */}
       <div className="sm:col-span-3">
-        <label htmlFor="addr-phone" className={LABEL_CLASS}>
+        <label htmlFor={`${idPrefix}-phone`} className={LABEL_CLASS}>
           Phone
         </label>
         <div className="mt-1">
           <input
-            id="addr-phone"
+            id={`${idPrefix}-phone`}
             name="phone"
             type="tel"
             autoComplete="tel"

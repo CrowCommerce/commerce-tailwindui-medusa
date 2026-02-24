@@ -12,9 +12,12 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SavedPaymentMethods } from "components/checkout/saved-payment-methods";
+import { STRIPE_PROVIDER_ID } from "lib/constants";
 import { initializePaymentSession } from "lib/medusa/checkout";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_KEY
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY)
+  : null;
 
 type CheckoutPaymentProps = {
   cart: HttpTypes.StoreCart;
@@ -96,7 +99,7 @@ function PaymentForm({
         <button
           type="submit"
           disabled={!stripe || !elements || !isComplete || isSubmitting}
-          className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+          className="w-full rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
         >
           {isSubmitting ? "Processing..." : "Continue to review"}
         </button>
@@ -159,7 +162,7 @@ export function CheckoutPayment({
           : undefined;
         const result = await initializePaymentSession(
           cart.id,
-          "pp_stripe_stripe",
+          STRIPE_PROVIDER_ID,
           data,
         );
 

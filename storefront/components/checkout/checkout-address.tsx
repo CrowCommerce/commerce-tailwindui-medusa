@@ -128,8 +128,8 @@ export function CheckoutAddress({
       } else {
         setError(result);
       }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "An unexpected error occurred.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }
@@ -163,6 +163,7 @@ export function CheckoutAddress({
             defaultValues={shippingAddress}
             countries={countries}
             onChange={handleShippingChange}
+            idPrefix="shipping"
           />
         </div>
       )}
@@ -174,7 +175,7 @@ export function CheckoutAddress({
             type="checkbox"
             checked={billingSameAsShipping}
             onChange={(e) => setBillingSameAsShipping(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+            className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
           />
           <span className="text-sm text-gray-700">
             Billing address same as shipping
@@ -193,6 +194,7 @@ export function CheckoutAddress({
             defaultValues={billingAddress}
             countries={countries}
             onChange={handleBillingChange}
+            idPrefix="billing"
           />
         </div>
       )}
@@ -204,7 +206,7 @@ export function CheckoutAddress({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+        className="w-full rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
       >
         {isSubmitting ? "Processing..." : "Continue"}
       </button>

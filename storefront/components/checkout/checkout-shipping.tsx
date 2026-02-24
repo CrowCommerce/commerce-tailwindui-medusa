@@ -1,6 +1,7 @@
 "use client";
 
 import type { HttpTypes } from "@medusajs/types";
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
 import { getShippingOptions, setShippingMethod } from "lib/medusa/checkout";
@@ -134,9 +135,10 @@ export function CheckoutShipping({
           {options.map((option) => (
             <label
               key={option.id}
-              className={`group relative block cursor-pointer rounded-lg border border-gray-300 bg-white px-6 py-4 has-[:checked]:outline has-[:checked]:outline-2 has-[:checked]:-outline-offset-2 has-[:checked]:outline-indigo-600 sm:flex sm:justify-between ${
-                isSubmitting ? "pointer-events-none opacity-60" : ""
-              }`}
+              className={clsx(
+                "group relative block cursor-pointer rounded-lg border border-gray-300 bg-white px-6 py-4 has-[:checked]:outline has-[:checked]:outline-2 has-[:checked]:-outline-offset-2 has-[:checked]:outline-primary-600 sm:flex sm:justify-between",
+                isSubmitting && "pointer-events-none opacity-60",
+              )}
             >
               <input
                 type="radio"

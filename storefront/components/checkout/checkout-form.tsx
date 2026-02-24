@@ -2,6 +2,7 @@
 
 import type { HttpTypes } from "@medusajs/types";
 import type { Stripe, StripeElements } from "@stripe/stripe-js";
+import clsx from "clsx";
 import { useCallback, useMemo, useState } from "react";
 
 import { CheckoutAddress } from "components/checkout/checkout-address";
@@ -193,7 +194,7 @@ export function CheckoutForm({
                     {STEP_LABELS[step]}
                   </h2>
                 )}
-                <div className={isActive ? "mt-6" : "hidden"}>
+                <div className={clsx(isActive ? "mt-6" : "hidden")}>
                   {renderStepContent(step)}
                 </div>
               </>
@@ -213,7 +214,7 @@ export function CheckoutForm({
                 <button
                   type="button"
                   onClick={() => onEditStep(step)}
-                  className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-500"
                 >
                   Edit
                 </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { HttpTypes } from "@medusajs/types";
+import clsx from "clsx";
 import { useEffect, useState } from "react";
 
 import type { AddressPayload } from "lib/types";
@@ -84,11 +85,12 @@ export function SavedAddressPicker({
           return (
             <label
               key={addr.id}
-              className={`group relative block cursor-pointer rounded-lg border bg-white px-6 py-4 sm:flex sm:justify-between ${
+              className={clsx(
+                "group relative block cursor-pointer rounded-lg border bg-white px-6 py-4 sm:flex sm:justify-between",
                 isChecked
-                  ? "border-transparent outline outline-2 -outline-offset-2 outline-indigo-600"
-                  : "border-gray-300"
-              }`}
+                  ? "border-transparent outline outline-2 -outline-offset-2 outline-primary-600"
+                  : "border-gray-300",
+              )}
             >
               <input
                 type="radio"
@@ -114,11 +116,12 @@ export function SavedAddressPicker({
 
         {/* "Use a different address" option */}
         <label
-          className={`group relative block cursor-pointer rounded-lg border bg-white px-6 py-4 sm:flex sm:justify-between ${
+          className={clsx(
+            "group relative block cursor-pointer rounded-lg border bg-white px-6 py-4 sm:flex sm:justify-between",
             selected === "new"
-              ? "border-transparent outline outline-2 -outline-offset-2 outline-indigo-600"
-              : "border-gray-300"
-          }`}
+              ? "border-transparent outline outline-2 -outline-offset-2 outline-primary-600"
+              : "border-gray-300",
+          )}
         >
           <input
             type="radio"

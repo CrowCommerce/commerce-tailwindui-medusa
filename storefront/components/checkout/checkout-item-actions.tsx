@@ -11,7 +11,7 @@ export function RemoveItemButton({ lineItemId }: { lineItemId: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="font-medium text-indigo-600 hover:text-indigo-500"
+        className="font-medium text-primary-600 hover:text-primary-500"
       >
         {isPending ? "Removing..." : "Remove"}
       </button>
