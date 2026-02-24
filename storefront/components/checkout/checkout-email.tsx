@@ -39,14 +39,18 @@ export function CheckoutEmail({
     setError(null);
     setIsSubmitting(true);
 
-    const result = await setCartEmail(cart.id, email);
+    try {
+      const result = await setCartEmail(cart.id, email);
 
-    setIsSubmitting(false);
-
-    if (result === null) {
-      onComplete();
-    } else {
-      setError(result);
+      if (result === null) {
+        onComplete();
+      } else {
+        setError(result);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -83,7 +87,7 @@ export function CheckoutEmail({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+          className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:text-sm/6"
         />
       </div>
       {error && (
@@ -93,7 +97,7 @@ export function CheckoutEmail({
         <button
           type="submit"
           disabled={isSubmitting || !email}
-          className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+          className="w-full rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
         >
           {isSubmitting ? "Processing..." : "Continue"}
         </button>

@@ -173,7 +173,7 @@ export function CheckoutReview({
               return_url: `${window.location.origin}/checkout/capture/${cart.id}`,
               payment_method_data: {
                 billing_details: {
-                  name: `${cart.billing_address?.first_name} ${cart.billing_address?.last_name}`,
+                  name: [cart.billing_address?.first_name, cart.billing_address?.last_name].filter(Boolean).join(" "),
                   address: {
                     city: cart.billing_address?.city ?? "",
                     country: cart.billing_address?.country_code ?? "",
@@ -211,6 +211,8 @@ export function CheckoutReview({
             paymentIntent.status === "succeeded")
         ) {
           await handleOrderComplete();
+        } else if (paymentIntent) {
+          setError(`Unexpected payment status: ${paymentIntent.status}. Please try again.`);
         }
         return;
       }
@@ -236,7 +238,7 @@ export function CheckoutReview({
           <button
             type="button"
             onClick={() => onEditStep("email")}
-            className="text-indigo-600 hover:text-indigo-500"
+            className="text-primary-600 hover:text-primary-500"
           >
             Edit
           </button>
@@ -251,7 +253,7 @@ export function CheckoutReview({
           <button
             type="button"
             onClick={() => onEditStep("address")}
-            className="text-indigo-600 hover:text-indigo-500"
+            className="text-primary-600 hover:text-primary-500"
           >
             Edit
           </button>
@@ -268,7 +270,7 @@ export function CheckoutReview({
           <button
             type="button"
             onClick={() => onEditStep("address")}
-            className="text-indigo-600 hover:text-indigo-500"
+            className="text-primary-600 hover:text-primary-500"
           >
             Edit
           </button>
@@ -281,7 +283,7 @@ export function CheckoutReview({
           <button
             type="button"
             onClick={() => onEditStep("shipping")}
-            className="text-indigo-600 hover:text-indigo-500"
+            className="text-primary-600 hover:text-primary-500"
           >
             Edit
           </button>
@@ -294,7 +296,7 @@ export function CheckoutReview({
           <button
             type="button"
             onClick={() => onEditStep("payment")}
-            className="text-indigo-600 hover:text-indigo-500"
+            className="text-primary-600 hover:text-primary-500"
           >
             Edit
           </button>
@@ -308,7 +310,7 @@ export function CheckoutReview({
           type="button"
           onClick={handlePlaceOrder}
           disabled={isSubmitting}
-          className="w-full rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+          className="w-full rounded-md border border-transparent bg-primary-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
         >
           {isSubmitting ? "Placing order..." : "Place Order"}
         </button>

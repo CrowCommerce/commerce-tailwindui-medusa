@@ -1,7 +1,7 @@
 "use server";
 
 import type { HttpTypes } from "@medusajs/types";
-import { TAGS } from "lib/constants";
+import { STRIPE_PROVIDER_ID, TAGS } from "lib/constants";
 import { sdk } from "lib/medusa";
 import { getAuthHeaders, getCartId, removeCartId } from "lib/medusa/cookies";
 import { medusaError } from "lib/medusa/error";
@@ -105,7 +105,13 @@ export async function getShippingOptions(
 
   try {
     const { shipping_options } = await sdk.client.fetch<{
-      shipping_options: any[];
+      shipping_options: Array<{
+        id: string;
+        name: string;
+        price_type?: string;
+        amount?: number;
+        currency_code?: string;
+      }>;
     }>("/store/shipping-options", {
       method: "GET",
       headers,
@@ -115,7 +121,7 @@ export async function getShippingOptions(
     return shipping_options.map((opt) => ({
       id: opt.id,
       name: opt.name,
-      price_type: opt.price_type || "flat",
+      price_type: (opt.price_type || "flat") as ShippingOption["price_type"],
       amount: opt.amount ?? 0,
       currency_code: opt.currency_code || "USD",
     }));
@@ -189,7 +195,8 @@ export async function getSavedPaymentMethods(
       headers,
     });
     return payment_methods;
-  } catch {
+  } catch (err) {
+    console.error("[Checkout] Failed to fetch saved payment methods:", err);
     return [];
   }
 }
@@ -241,7 +248,7 @@ export async function applyExpressCheckoutData(
   email: string,
   shipping: AddressPayload,
   billing?: AddressPayload,
-): Promise<void> {
+): Promise<string> {
   const emailError = await setCartEmail(cartId, email);
   if (emailError) throw new Error(emailError);
 
@@ -258,9 +265,16 @@ export async function applyExpressCheckoutData(
 
   const paymentError = await initializePaymentSession(
     cartId,
-    "pp_stripe_stripe",
+    STRIPE_PROVIDER_ID,
   );
   if (paymentError) throw new Error(paymentError);
+
+  // Fetch updated cart for the client secret
+  const updatedCart = await getCheckoutCart();
+  const secret = updatedCart?.payment_collection?.payment_sessions?.[0]
+    ?.data?.client_secret as string | undefined;
+  if (!secret) throw new Error("Payment session created but no client secret found");
+  return secret;
 }
 
 // === Customer Addresses (for saved address picker) ===
@@ -279,7 +293,8 @@ export async function getCustomerAddresses(): Promise<
       headers,
     });
     return addresses;
-  } catch {
+  } catch (err) {
+    console.error("[Checkout] Failed to fetch customer addresses:", err);
     return [];
   }
 }

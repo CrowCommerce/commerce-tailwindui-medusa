@@ -36,5 +36,6 @@ export async function GET(
     );
   }
 
-  return NextResponse.redirect(`${origin}/checkout?error=payment_failed`);
+  const errorMsg = encodeURIComponent(result.error || "payment_failed");
+  return NextResponse.redirect(`${origin}/checkout?error=${errorMsg}`);
 }

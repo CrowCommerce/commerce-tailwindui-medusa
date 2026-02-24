@@ -20,7 +20,9 @@ import {
 } from "lib/medusa/checkout";
 import type { AddressPayload } from "lib/types";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_KEY
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY)
+  : null;
 
 // ---------------------------------------------------------------------------
 // Inner component — has access to useStripe() / useElements()
@@ -51,8 +53,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         const { billingDetails, shippingAddress } =
           event;
 
-        const email =
-          billingDetails?.email || shippingAddress?.name || "";
+        const email = billingDetails?.email || "";
         const name = billingDetails?.name || shippingAddress?.name || "";
         const nameParts = name.split(" ");
         const firstName = nameParts[0] || "";
@@ -108,7 +109,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         };
 
         // Chain all Medusa steps: email, addresses, shipping, payment session
-        await applyExpressCheckoutData(
+        const clientSecret = await applyExpressCheckoutData(
           cart.id,
           email,
           shippingPayload,
@@ -118,9 +119,9 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         // Confirm payment with Stripe
         const { error } = await stripe.confirmPayment({
           elements,
-          clientSecret: undefined as any, // ExpressCheckoutElement manages its own secret
+          clientSecret,
           confirmParams: {
-            return_url: `${window.location.origin}/order/confirmed`,
+            return_url: `${window.location.origin}/checkout/capture/${cart.id}`,
           },
           redirect: "if_required",
         });
@@ -171,8 +172,8 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
 // ---------------------------------------------------------------------------
 
 export function ExpressCheckout({ cart }: { cart: HttpTypes.StoreCart }) {
-  // Hide for zero-total carts
-  if (cart.total === 0) return null;
+  // Hide if Stripe is not configured or for zero-total carts
+  if (!stripePromise || cart.total === 0) return null;
 
   const amount = Math.round((cart.total ?? 0) * 100);
 

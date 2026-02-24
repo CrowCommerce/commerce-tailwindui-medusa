@@ -21,6 +21,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     )
   }
 
+  if (!accountHolder.data) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      "Account holder data not available"
+    )
+  }
+
   const paymentMethods = await paymentModuleService.listPaymentMethods({
     provider_id: accountHolder.provider_id,
     context: {

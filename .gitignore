@@ -54,4 +54,4 @@ backend/static/
 references/
 
 # root-level screenshots
-*.png
+/*.png

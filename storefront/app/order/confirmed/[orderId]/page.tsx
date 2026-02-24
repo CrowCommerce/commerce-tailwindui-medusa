@@ -1,5 +1,6 @@
 import { sdk } from "lib/medusa";
 import { getAuthHeaders } from "lib/medusa/cookies";
+import { formatMoney } from "lib/medusa/format";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -21,16 +22,40 @@ async function getOrder(orderId: string) {
       },
     );
     return order;
-  } catch {
+  } catch (err) {
+    console.error("[Order] Failed to retrieve order:", err);
     return null;
   }
 }
 
-function formatMoney(amount: number | undefined, currencyCode: string): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode || "USD",
-  }).format(amount ?? 0);
+function getPaymentMethodLabel(order: any): string {
+  const payment =
+    order.payment_collections?.[0]?.payments?.[0] ||
+    order.payment_collections?.[0]?.payment_sessions?.[0];
+  if (!payment) return "Card";
+  const providerId = payment.provider_id || "";
+  if (providerId.includes("stripe")) return "Card (Stripe)";
+  if (providerId.includes("paypal")) return "PayPal";
+  return "Card";
+}
+
+function getPaymentCardSummary(order: any): string | null {
+  const payment = order.payment_collections?.[0]?.payments?.[0];
+  const data = payment?.data as Record<string, any> | undefined;
+  if (data?.payment_method?.card) {
+    const card = data.payment_method.card;
+    const brand =
+      (card.brand || "card").charAt(0).toUpperCase() +
+      (card.brand || "card").slice(1);
+    return `${brand} ending in ${card.last4}`;
+  }
+  if (data?.card?.last4) {
+    const brand =
+      (data.card.brand || "card").charAt(0).toUpperCase() +
+      (data.card.brand || "card").slice(1);
+    return `${brand} ending in ${data.card.last4}`;
+  }
+  return null;
 }
 
 export default async function OrderConfirmedPage({
@@ -51,7 +76,7 @@ export default async function OrderConfirmedPage({
     <div className="bg-white">
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="max-w-xl">
-          <h1 className="text-base font-medium text-indigo-600">Thank you!</h1>
+          <h1 className="text-base font-medium text-primary-600">Thank you!</h1>
           <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Your order is confirmed
           </p>
@@ -154,36 +179,8 @@ export default async function OrderConfirmedPage({
               <div>
                 <dt className="font-medium text-gray-900">Payment method</dt>
                 <dd className="mt-2 text-gray-700">
-                  <p>
-                    {(() => {
-                      const payment =
-                        order.payment_collections?.[0]?.payments?.[0] ||
-                        order.payment_collections?.[0]?.payment_sessions?.[0];
-                      if (!payment) return "Card";
-                      const providerId =
-                        payment.provider_id || "";
-                      if (providerId.includes("stripe")) return "Card (Stripe)";
-                      if (providerId.includes("paypal")) return "PayPal";
-                      return "Card";
-                    })()}
-                  </p>
-                  <p>
-                    {(() => {
-                      const payment =
-                        order.payment_collections?.[0]?.payments?.[0];
-                      const data = payment?.data as Record<string, any> | undefined;
-                      if (data?.payment_method?.card) {
-                        const card = data.payment_method.card;
-                        const brand = (card.brand || "card").charAt(0).toUpperCase() + (card.brand || "card").slice(1);
-                        return `${brand} ending in ${card.last4}`;
-                      }
-                      if (data?.card?.last4) {
-                        const brand = (data.card.brand || "card").charAt(0).toUpperCase() + (data.card.brand || "card").slice(1);
-                        return `${brand} ending in ${data.card.last4}`;
-                      }
-                      return null;
-                    })()}
-                  </p>
+                  <p>{getPaymentMethodLabel(order)}</p>
+                  <p>{getPaymentCardSummary(order)}</p>
                 </dd>
               </div>
               <div>
@@ -244,7 +241,7 @@ export default async function OrderConfirmedPage({
         <div className="mt-16 border-t border-gray-200 py-6 text-right">
           <Link
             href="/"
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            className="text-sm font-medium text-primary-600 hover:text-primary-500"
           >
             Continue Shopping
             <span aria-hidden="true"> &rarr;</span>
