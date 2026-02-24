@@ -52,7 +52,7 @@ export default async function OrderConfirmedPage({
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="max-w-xl">
           <h1 className="text-base font-medium text-indigo-600">Thank you!</h1>
-          <p className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
+          <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Your order is confirmed
           </p>
           <p className="mt-2 text-base text-gray-500">
@@ -200,7 +200,7 @@ export default async function OrderConfirmedPage({
               <div className="flex justify-between">
                 <dt className="font-medium text-gray-900">Subtotal</dt>
                 <dd className="text-gray-700">
-                  {formatMoney(order.subtotal, currencyCode)}
+                  {formatMoney(order.item_subtotal, currencyCode)}
                 </dd>
               </div>
               {(order.discount_total ?? 0) > 0 && (
