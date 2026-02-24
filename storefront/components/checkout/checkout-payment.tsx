@@ -24,6 +24,8 @@ type CheckoutPaymentProps = {
   customer: HttpTypes.StoreCustomer | null;
   onComplete: () => void;
   onStripeReady: (stripe: Stripe, elements: StripeElements) => void;
+  savedMethodId: string | null;
+  onSavedMethodChange: (methodId: string | null) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -35,12 +37,16 @@ function PaymentForm({
   customer,
   onComplete,
   onStripeReady,
+  savedMethodId,
+  onSavedMethodChange,
 }: CheckoutPaymentProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [isComplete, setIsComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const usingSavedMethod = savedMethodId !== null;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -51,6 +57,14 @@ function PaymentForm({
     setIsSubmitting(true);
 
     try {
+      if (usingSavedMethod) {
+        // Saved method — payment session already initialized server-side.
+        // Pass stripe/elements refs so the review step can confirm.
+        onStripeReady(stripe, elements);
+        onComplete();
+        return;
+      }
+
       // submit() validates and tokenizes but does NOT confirm payment
       const { error: submitError } = await elements.submit();
 
@@ -81,6 +95,8 @@ function PaymentForm({
         <SavedPaymentMethods
           cart={cart}
           paymentSession={paymentSession}
+          selectedMethodId={savedMethodId}
+          onSelectedMethodChange={onSavedMethodChange}
           onMethodChange={() => {
             // After re-init with saved method, the Elements context
             // may need to refresh. The parent will re-extract clientSecret.
@@ -98,7 +114,7 @@ function PaymentForm({
       <div className="mt-6">
         <button
           type="submit"
-          disabled={!stripe || !elements || !isComplete || isSubmitting}
+          disabled={!stripe || !elements || (!isComplete && !usingSavedMethod) || isSubmitting}
           className="w-full rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
         >
           {isSubmitting ? "Processing..." : "Continue to review"}
@@ -122,10 +138,11 @@ export function CheckoutPayment({
   customer,
   onComplete,
   onStripeReady,
-}: CheckoutPaymentProps) {
+}: Omit<CheckoutPaymentProps, "savedMethodId" | "onSavedMethodChange">) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [savedMethodId, setSavedMethodId] = useState<string | null>(null);
   const initRef = useRef(false);
 
   // Zero-total cart: skip Stripe entirely
@@ -258,6 +275,8 @@ export function CheckoutPayment({
         customer={customer}
         onComplete={onComplete}
         onStripeReady={onStripeReady}
+        savedMethodId={savedMethodId}
+        onSavedMethodChange={setSavedMethodId}
       />
     </Elements>
   );

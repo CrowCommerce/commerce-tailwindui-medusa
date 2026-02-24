@@ -14,6 +14,8 @@ import type { SavedPaymentMethod } from "lib/types";
 type SavedPaymentMethodsProps = {
   cart: HttpTypes.StoreCart;
   paymentSession: HttpTypes.StorePaymentSession;
+  selectedMethodId: string | null;
+  onSelectedMethodChange: (methodId: string | null) => void;
   onMethodChange: () => void;
 };
 
@@ -33,10 +35,11 @@ function formatBrand(brand: string): string {
 export function SavedPaymentMethods({
   cart,
   paymentSession,
+  selectedMethodId,
+  onSelectedMethodChange,
   onMethodChange,
 }: SavedPaymentMethodsProps) {
   const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[]>([]);
-  const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSwitching, setIsSwitching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +67,7 @@ export function SavedPaymentMethods({
   }, [accountHolderId]);
 
   async function handleSelectSaved(methodId: string) {
-    setSelectedMethodId(methodId);
+    onSelectedMethodChange(methodId);
     setError(null);
     setIsSwitching(true);
 
@@ -76,7 +79,7 @@ export function SavedPaymentMethods({
       );
       if (result !== null) {
         setError(result);
-        setSelectedMethodId(null);
+        onSelectedMethodChange(null);
       } else {
         onMethodChange();
       }
@@ -84,14 +87,14 @@ export function SavedPaymentMethods({
       setError(
         e instanceof Error ? e.message : "Failed to select payment method.",
       );
-      setSelectedMethodId(null);
+      onSelectedMethodChange(null);
     } finally {
       setIsSwitching(false);
     }
   }
 
   async function handleUseNewCard() {
-    setSelectedMethodId(null);
+    onSelectedMethodChange(null);
     setError(null);
     setIsSwitching(true);
 
