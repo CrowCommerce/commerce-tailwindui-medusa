@@ -37,17 +37,37 @@ export function CheckoutShipping({
     fetchedRef.current = true;
 
     getShippingOptions(cart.id)
-      .then((opts) => {
+      .then(async (opts) => {
         setOptions(opts);
-        // Pre-select if cart already has a shipping method
-        if (!selectedOptionId && opts.length === 1) {
-          setSelectedOptionId(opts[0]!.id);
+        setIsLoading(false);
+
+        // Auto-select and submit if there's only one option
+        const preselected =
+          cart.shipping_methods?.[0]?.shipping_option_id ?? null;
+        const autoSelectId =
+          opts.length === 1 ? opts[0]!.id : preselected;
+
+        if (autoSelectId && opts.some((o) => o.id === autoSelectId)) {
+          setSelectedOptionId(autoSelectId);
+          setIsSubmitting(true);
+          try {
+            const result = await setShippingMethod(cart.id, autoSelectId);
+            if (result === null) {
+              onComplete();
+            } else {
+              setError(result);
+            }
+          } catch {
+            // Let user retry manually
+          } finally {
+            setIsSubmitting(false);
+          }
         }
       })
       .catch(() => {
         setError("Failed to load shipping options. Please try again.");
-      })
-      .finally(() => setIsLoading(false));
+        setIsLoading(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart.id]);
 
@@ -124,6 +144,12 @@ export function CheckoutShipping({
                 value={option.id}
                 checked={selectedOptionId === option.id}
                 onChange={() => handleSelect(option.id)}
+                onClick={() => {
+                  // onChange won't fire if already checked — handle re-click
+                  if (selectedOptionId === option.id) {
+                    handleSelect(option.id);
+                  }
+                }}
                 className="absolute inset-0 appearance-none focus:outline focus:outline-0"
               />
               <span className="flex items-center">
