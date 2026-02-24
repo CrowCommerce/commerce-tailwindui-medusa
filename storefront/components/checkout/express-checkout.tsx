@@ -43,6 +43,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
   const stripe = useStripe();
   const elements = useElements();
   const [isAvailable, setIsAvailable] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
 
   const onReady = useCallback(
     ({ availablePaymentMethods }: StripeExpressCheckoutElementReadyEvent) => {
@@ -136,6 +137,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
 
         if (error) {
           console.error("[Express Checkout] Payment confirmation error:", error);
+          setOrderError(error.message || "Payment confirmation failed. Please try again.");
           return;
         }
 
@@ -146,9 +148,17 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
           window.location.href = `/order/confirmed/${result.order.id}`;
         } else {
           console.error("[Express Checkout] Cart completion error:", result.error);
+          setOrderError(
+            "Your payment was processed but we couldn't confirm your order. " +
+            "Please contact support with your payment reference. " +
+            "Do not retry the payment.",
+          );
         }
       } catch (err) {
         console.error("[Express Checkout] Error:", err);
+        setOrderError(
+          err instanceof Error ? err.message : "An unexpected error occurred.",
+        );
       }
     },
     [stripe, elements, cart.id],
@@ -158,6 +168,11 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
 
   return (
     <div className="mb-10">
+      {orderError && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4">
+          <p className="text-sm text-red-700">{orderError}</p>
+        </div>
+      )}
       <ExpressCheckoutElement onReady={onReady} onConfirm={onConfirm} />
 
       {/* "Or" divider */}

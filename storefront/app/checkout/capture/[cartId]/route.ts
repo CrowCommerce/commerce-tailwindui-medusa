@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { completeCart } from "lib/medusa/checkout";
+import { getCartId } from "lib/medusa/cookies";
 
 export async function GET(
   req: NextRequest,
@@ -22,12 +23,20 @@ export async function GET(
     );
   }
 
+  // Verify the cart belongs to the current session to prevent unauthorized completion
+  const sessionCartId = await getCartId();
+  if (!sessionCartId || sessionCartId !== cartId) {
+    return NextResponse.redirect(
+      `${origin}/checkout?error=invalid_session`,
+    );
+  }
+
   // Validate redirect status
   if (!["pending", "succeeded"].includes(redirectStatus)) {
     return NextResponse.redirect(`${origin}/checkout?error=payment_failed`);
   }
 
-  // Complete the cart
+  // Complete the cart — Medusa validates payment status server-side with Stripe
   const result = await completeCart(cartId);
 
   if (result.type === "order") {
