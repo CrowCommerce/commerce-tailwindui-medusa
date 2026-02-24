@@ -2,6 +2,10 @@ import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+if (!process.env.STRIPE_API_KEY) {
+  console.warn("[medusa-config] STRIPE_API_KEY is not set — Stripe payments will not work")
+}
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
