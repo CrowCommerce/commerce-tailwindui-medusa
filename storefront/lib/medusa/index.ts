@@ -419,7 +419,30 @@ export async function getCart(): Promise<Cart | undefined> {
   if (!cartId) return undefined;
 
   try {
-    return await fetchCart(cartId);
+    const defaultRegion = await getDefaultRegion();
+    const headers = await getAuthHeaders();
+
+    // Fetch the raw cart to check its region
+    const { cart: rawCart } = await sdk.client.fetch<{
+      cart: HttpTypes.StoreCart;
+    }>(`/store/carts/${cartId}`, {
+      method: "GET",
+      headers,
+      query: { fields: CART_FIELDS },
+    });
+
+    // Reconcile stale carts created under a different region/currency
+    if (rawCart.region_id !== defaultRegion.id) {
+      await sdk.store.cart.update(
+        cartId,
+        { region_id: defaultRegion.id },
+        {},
+        headers,
+      );
+      return await fetchCart(cartId);
+    }
+
+    return transformCart(rawCart);
   } catch (error) {
     console.error(
       "[Cart] Failed to retrieve cart, clearing stale cookie:",
