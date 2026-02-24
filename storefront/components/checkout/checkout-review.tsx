@@ -61,7 +61,7 @@ function formatShippingMethod(cart: HttpTypes.StoreCart): string {
   const formatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currencyCode,
-  }).format(amount / 100);
+  }).format(amount);
 
   return `${name} (${formatted})`;
 }
