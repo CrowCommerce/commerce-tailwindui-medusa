@@ -1,3 +1,5 @@
+import type { HttpTypes } from "@medusajs/types";
+
 export type Cart = {
   id: string | undefined;
   checkoutUrl: string;
@@ -244,5 +246,5 @@ export type SavedPaymentMethod = {
 };
 
 export type CartCompletionResult =
-  | { type: "order"; order: any }
+  | { type: "order"; order: HttpTypes.StoreOrder }
   | { type: "cart"; error: string };

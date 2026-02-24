@@ -1,12 +1,7 @@
 import type { HttpTypes } from "@medusajs/types";
 import { RemoveItemButton } from "components/checkout/checkout-item-actions";
-
-function formatMoney(amount: number | undefined, currencyCode: string): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode || "USD",
-  }).format(amount ?? 0);
-}
+import { formatMoney } from "lib/medusa/format";
+import Link from "next/link";
 
 export function OrderSummary({ cart }: { cart: HttpTypes.StoreCart }) {
   const currencyCode = cart.currency_code || "USD";
@@ -18,15 +13,21 @@ export function OrderSummary({ cart }: { cart: HttpTypes.StoreCart }) {
       <div className="flow-root">
         <ul role="list" className="-my-6 divide-y divide-gray-200">
           {(cart.items || []).map((item) => {
-            const handle = (item.product as any)?.handle;
+            const handle = (item.product as { handle?: string } | undefined)?.handle;
 
             return (
               <li key={item.id} className="flex space-x-6 py-6">
-                <img
-                  alt={item.product?.title || item.title || ""}
-                  src={item.thumbnail || item.product?.thumbnail || ""}
-                  className="size-24 flex-none rounded-md bg-gray-100 object-cover"
-                />
+                {(item.thumbnail || item.product?.thumbnail) ? (
+                  <img
+                    alt={item.product?.title || item.title || ""}
+                    src={item.thumbnail || item.product?.thumbnail || ""}
+                    className="size-24 flex-none rounded-md bg-gray-100 object-cover"
+                  />
+                ) : (
+                  <div className="flex size-24 flex-none items-center justify-center rounded-md bg-gray-100 text-sm text-gray-400">
+                    No image
+                  </div>
+                )}
                 <div className="flex-auto">
                   <div className="space-y-1 sm:flex sm:items-start sm:justify-between sm:space-x-6">
                     <div className="flex-auto space-y-1 text-sm font-medium">
@@ -49,12 +50,12 @@ export function OrderSummary({ cart }: { cart: HttpTypes.StoreCart }) {
                   </div>
                   <div className="mt-4 flex space-x-4 text-sm">
                     {handle && (
-                      <a
+                      <Link
                         href={`/product/${handle}`}
-                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                        className="font-medium text-primary-600 hover:text-primary-500"
                       >
                         Edit
-                      </a>
+                      </Link>
                     )}
                     {item.id && <RemoveItemButton lineItemId={item.id} />}
                   </div>

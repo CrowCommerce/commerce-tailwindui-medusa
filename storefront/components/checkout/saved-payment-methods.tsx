@@ -1,8 +1,10 @@
 "use client";
 
 import type { HttpTypes } from "@medusajs/types";
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
+import { STRIPE_PROVIDER_ID } from "lib/constants";
 import {
   getSavedPaymentMethods,
   initializePaymentSession,
@@ -11,7 +13,7 @@ import type { SavedPaymentMethod } from "lib/types";
 
 type SavedPaymentMethodsProps = {
   cart: HttpTypes.StoreCart;
-  paymentSession: any;
+  paymentSession: HttpTypes.StorePaymentSession;
   onMethodChange: () => void;
 };
 
@@ -41,7 +43,7 @@ export function SavedPaymentMethods({
   const fetchedRef = useRef(false);
 
   const accountHolderId =
-    paymentSession?.context?.account_holder?.id as string | undefined;
+    (paymentSession?.context as Record<string, any>)?.account_holder?.id as string | undefined;
 
   // Fetch saved payment methods on mount
   useEffect(() => {
@@ -69,7 +71,7 @@ export function SavedPaymentMethods({
     try {
       const result = await initializePaymentSession(
         cart.id,
-        "pp_stripe_stripe",
+        STRIPE_PROVIDER_ID,
         { payment_method: methodId },
       );
       if (result !== null) {
@@ -96,7 +98,7 @@ export function SavedPaymentMethods({
     try {
       const result = await initializePaymentSession(
         cart.id,
-        "pp_stripe_stripe",
+        STRIPE_PROVIDER_ID,
       );
       if (result !== null) {
         setError(result);
@@ -150,9 +152,10 @@ export function SavedPaymentMethods({
             return (
               <label
                 key={method.id}
-                className={`group relative block cursor-pointer rounded-lg border border-gray-300 bg-white px-6 py-4 has-[:checked]:outline has-[:checked]:outline-2 has-[:checked]:-outline-offset-2 has-[:checked]:outline-indigo-600 ${
-                  isSwitching ? "pointer-events-none opacity-60" : ""
-                }`}
+                className={clsx(
+                  "group relative block cursor-pointer rounded-lg border border-gray-300 bg-white px-6 py-4 has-[:checked]:outline has-[:checked]:outline-2 has-[:checked]:-outline-offset-2 has-[:checked]:outline-primary-600",
+                  isSwitching && "pointer-events-none opacity-60",
+                )}
               >
                 <input
                   type="radio"
@@ -176,9 +179,10 @@ export function SavedPaymentMethods({
 
           {/* Use a new card option */}
           <label
-            className={`group relative block cursor-pointer rounded-lg border border-gray-300 bg-white px-6 py-4 has-[:checked]:outline has-[:checked]:outline-2 has-[:checked]:-outline-offset-2 has-[:checked]:outline-indigo-600 ${
-              isSwitching ? "pointer-events-none opacity-60" : ""
-            }`}
+            className={clsx(
+              "group relative block cursor-pointer rounded-lg border border-gray-300 bg-white px-6 py-4 has-[:checked]:outline has-[:checked]:outline-2 has-[:checked]:-outline-offset-2 has-[:checked]:outline-primary-600",
+              isSwitching && "pointer-events-none opacity-60",
+            )}
           >
             <input
               type="radio"

@@ -221,7 +221,7 @@ export function Cart() {
                     <div className="flex justify-between text-base font-medium text-gray-900">
                       <p>Subtotal</p>
                       <div className="text-right">
-                        {cart && cart.cost.subtotalAmount.amount !== "0" ? (
+                        {cart && Number(cart.cost.subtotalAmount.amount) > 0 ? (
                           <CartPrice
                             amount={cart.cost.subtotalAmount.amount}
                             currencyCode={cart.cost.subtotalAmount.currencyCode}
