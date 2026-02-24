@@ -24,7 +24,7 @@ test.describe("Guest Checkout Flow", () => {
 
     // Wait for email step to collapse (summary shows email)
     await expect(
-      page.locator(`p.text-sm.text-gray-500:has-text("${testEmail}")`),
+      page.locator(`p:has-text("${testEmail}")`),
     ).toBeVisible({ timeout: 10_000 });
 
     // ---------------------------------------------------------------
@@ -56,7 +56,7 @@ test.describe("Guest Checkout Flow", () => {
 
     // Wait for payment step to become active
     await expect(
-      page.locator('h2.text-lg.font-medium.text-gray-900:has-text("Payment")'),
+      page.getByRole("heading", { name: "Payment" }),
     ).toBeVisible({ timeout: 15_000 });
 
     // ---------------------------------------------------------------
@@ -74,11 +74,11 @@ test.describe("Guest Checkout Flow", () => {
     // Step 5: Review & Place Order
     // ---------------------------------------------------------------
     // Verify review summary shows correct data
-    await expect(page.locator(sel.REVIEW_CONTACT_DT)).toBeVisible({
+    await expect(page.locator(sel.CHECKOUT_REVIEW_CONTACT_DT)).toBeVisible({
       timeout: 10_000,
     });
-    await expect(page.locator(sel.REVIEW_SHIP_TO_DT)).toBeVisible();
-    await expect(page.locator(sel.REVIEW_PAYMENT_DT)).toBeVisible();
+    await expect(page.locator(sel.CHECKOUT_REVIEW_SHIP_TO_DT)).toBeVisible();
+    await expect(page.locator(sel.CHECKOUT_REVIEW_PAYMENT_DT)).toBeVisible();
 
     // Verify email is shown in the review
     await expect(

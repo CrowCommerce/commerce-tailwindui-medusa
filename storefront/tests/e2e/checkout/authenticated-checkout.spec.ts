@@ -50,7 +50,7 @@ test.describe("Authenticated Checkout Flow", () => {
 
     // Wait for payment step to become active
     await expect(
-      page.locator('h2.text-lg.font-medium.text-gray-900:has-text("Payment")'),
+      page.getByRole("heading", { name: "Payment" }),
     ).toBeVisible({ timeout: 15_000 });
 
     // ---------------------------------------------------------------
@@ -65,10 +65,10 @@ test.describe("Authenticated Checkout Flow", () => {
     // ---------------------------------------------------------------
     // Step 5: Review & Place Order
     // ---------------------------------------------------------------
-    await expect(page.locator(sel.REVIEW_CONTACT_DT)).toBeVisible({
+    await expect(page.locator(sel.CHECKOUT_REVIEW_CONTACT_DT)).toBeVisible({
       timeout: 10_000,
     });
-    await expect(page.locator(sel.REVIEW_SHIP_TO_DT)).toBeVisible();
+    await expect(page.locator(sel.CHECKOUT_REVIEW_SHIP_TO_DT)).toBeVisible();
 
     const placeOrderButton = page.locator(sel.PLACE_ORDER_BUTTON);
     await expect(placeOrderButton).toBeVisible();

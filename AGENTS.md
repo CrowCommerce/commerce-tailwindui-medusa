@@ -236,7 +236,7 @@ Medusa v2 cart total fields — use the right one for each context:
    - `addItem(prevState, variantId)` — Add to cart
    - `removeItem(prevState, lineItemId)` — Remove from cart (uses line item ID directly)
    - `updateItemQuantity(prevState, {merchandiseId, quantity})` — Update quantity
-   - `redirectToCheckout()` — Stub, redirects to `/cart`
+   - `redirectToCheckout()` — Redirects to `/checkout`
 4. **Optimistic UI:** Cart components use `useOptimistic` for instant feedback
 5. **Revalidation pattern** (every mutation, in `finally` block):
    ```typescript

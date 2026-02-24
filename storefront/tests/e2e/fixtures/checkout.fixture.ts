@@ -77,6 +77,23 @@ async function addToCartAndCheckout(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 }
 
+// Test data constants
+export const TEST_ADDRESS = {
+  first_name: "Test",
+  last_name: "Buyer",
+  address_1: "123 Test Street",
+  city: "New York",
+  province: "NY",
+  postal_code: "10001",
+  country_code: "us",
+} as const;
+
+export const STRIPE_TEST_CARD = {
+  number: "4242424242424242",
+  expiry: "1230",
+  cvc: "123",
+} as const;
+
 /**
  * Fill Stripe PaymentElement card fields.
  *
@@ -148,15 +165,15 @@ async function fillStripeCard(page: Page): Promise<void> {
 
   await typeInFrame(
     '[placeholder="1234 1234 1234 1234"], [name="cardnumber"], [aria-label*="Card number" i]',
-    "4242424242424242",
+    STRIPE_TEST_CARD.number,
   );
   await typeInFrame(
     '[placeholder="MM / YY"], [name="exp-date"], [aria-label*="expir" i]',
-    "1230",
+    STRIPE_TEST_CARD.expiry,
   );
   await typeInFrame(
     '[placeholder="CVC"], [name="cvc"], [aria-label*="CVC" i]',
-    "123",
+    STRIPE_TEST_CARD.cvc,
   );
   // ZIP code — Stripe may render it with various placeholders
   await typeInFrame(
@@ -202,20 +219,3 @@ export { expect };
 
 // Re-export helpers for tests
 export { addToCartAndCheckout, fillStripeCard, selectShippingOption };
-
-// Test data constants
-export const TEST_ADDRESS = {
-  first_name: "Test",
-  last_name: "Buyer",
-  address_1: "123 Test Street",
-  city: "New York",
-  province: "NY",
-  postal_code: "10001",
-  country_code: "us",
-} as const;
-
-export const STRIPE_TEST_CARD = {
-  number: "4242424242424242",
-  expiry: "1230",
-  cvc: "123",
-} as const;
