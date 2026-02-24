@@ -3,7 +3,7 @@
 ## Deferred Features (Phase 2+)
 
 - [x] Customer accounts — see [implementation phases](#customer-accounts-implementation) below
-- [ ] Checkout flow (`redirectToCheckout` is a stub — redirects to `/cart`) — cart now fetches promotions + shipping methods
+- [x] Checkout flow (5-step: email → address → shipping → payment → review with Stripe Payment Element)
 - [ ] Multi-region / multi-currency support
 - [ ] Product categories (Medusa nested category tree)
 - [x] Wishlist / saved items
@@ -100,6 +100,8 @@
 
 ## Testing
 
+- [ ] Testing discounts (apply promo codes, verify discount display in checkout + order confirmation)
+- [ ] Compare checkout page UI to TailwindUI components (ensure all checkout/order pages match TailwindUI patterns)
 - [ ] Create `vitest.config.ts`
 - [x] Create `playwright.config.ts`
 - [ ] Unit tests for `lib/medusa/transforms.ts`

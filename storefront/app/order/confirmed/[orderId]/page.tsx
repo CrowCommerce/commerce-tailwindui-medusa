@@ -16,7 +16,7 @@ async function getOrder(orderId: string) {
         method: "GET",
         headers,
         query: {
-          fields: "*items,*items.variant,*items.product,*shipping_address,*billing_address,*shipping_methods",
+          fields: "*items,*items.variant,*items.product,*shipping_address,*billing_address,*shipping_methods,*payment_collections,*payment_collections.payments,*payment_collections.payment_sessions,+promotions",
         },
       },
     );
@@ -149,6 +149,51 @@ export default async function OrderConfirmedPage({
               </div>
             </dl>
 
+            {/* Payment & Shipping method */}
+            <dl className="grid grid-cols-2 gap-x-6 border-t border-gray-200 py-10 text-sm">
+              <div>
+                <dt className="font-medium text-gray-900">Payment method</dt>
+                <dd className="mt-2 text-gray-700">
+                  <p>
+                    {(() => {
+                      const payment =
+                        order.payment_collections?.[0]?.payments?.[0] ||
+                        order.payment_collections?.[0]?.payment_sessions?.[0];
+                      if (!payment) return "Card";
+                      const providerId =
+                        payment.provider_id || "";
+                      if (providerId.includes("stripe")) return "Card (Stripe)";
+                      if (providerId.includes("paypal")) return "PayPal";
+                      return "Card";
+                    })()}
+                  </p>
+                  <p>
+                    {(() => {
+                      const payment =
+                        order.payment_collections?.[0]?.payments?.[0];
+                      const data = payment?.data as Record<string, any> | undefined;
+                      if (data?.payment_method?.card) {
+                        const card = data.payment_method.card;
+                        const brand = (card.brand || "card").charAt(0).toUpperCase() + (card.brand || "card").slice(1);
+                        return `${brand} ending in ${card.last4}`;
+                      }
+                      if (data?.card?.last4) {
+                        const brand = (data.card.brand || "card").charAt(0).toUpperCase() + (data.card.brand || "card").slice(1);
+                        return `${brand} ending in ${data.card.last4}`;
+                      }
+                      return null;
+                    })()}
+                  </p>
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900">Shipping method</dt>
+                <dd className="mt-2 text-gray-700">
+                  <p>{order.shipping_methods?.[0]?.name || "Standard Shipping"}</p>
+                </dd>
+              </div>
+            </dl>
+
             {/* Summary */}
             <h3 className="sr-only">Summary</h3>
             <dl className="space-y-6 border-t border-gray-200 pt-10 text-sm">
@@ -160,7 +205,14 @@ export default async function OrderConfirmedPage({
               </div>
               {(order.discount_total ?? 0) > 0 && (
                 <div className="flex justify-between">
-                  <dt className="font-medium text-gray-900">Discount</dt>
+                  <dt className="flex font-medium text-gray-900">
+                    Discount
+                    {order.promotions?.[0]?.code && (
+                      <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-600">
+                        {order.promotions[0].code}
+                      </span>
+                    )}
+                  </dt>
                   <dd className="text-gray-700">
                     -{formatMoney(order.discount_total, currencyCode)}
                   </dd>
