@@ -80,11 +80,11 @@ export function CheckoutForm({
 }) {
   const completedSteps = useMemo(() => deriveCompletedSteps(cart), [cart]);
 
-  const defaultActiveStep = useMemo(() => {
+  const defaultActiveStep = useMemo((): CheckoutStep => {
     for (const step of STEP_ORDER) {
       if (!completedSteps.has(step)) return step;
     }
-    return "review" as CheckoutStep;
+    return "review";
   }, [completedSteps]);
 
   const [activeStep, setActiveStep] = useState<CheckoutStep>(defaultActiveStep);
@@ -99,7 +99,7 @@ export function CheckoutForm({
       const nextStep =
         currentIndex < STEP_ORDER.length - 1
           ? STEP_ORDER[currentIndex + 1]!
-          : ("review" as CheckoutStep);
+          : "review";
       setActiveStep(nextStep);
     },
     [],
@@ -174,53 +174,10 @@ export function CheckoutForm({
         const isPaymentPersisted =
           step === "payment" && (isActive || activeStep === "review");
 
+        const isCollapsed = isCompleted && !isActive;
+
         return (
           <div key={step} className="py-6">
-            {/* Active step (non-payment, or payment when not using persistent render) */}
-            {isActive && !isPaymentPersisted && (
-              <>
-                <h2 className="text-lg font-medium text-gray-900">
-                  {STEP_LABELS[step]}
-                </h2>
-                <div className="mt-6">{renderStepContent(step)}</div>
-              </>
-            )}
-
-            {/* Payment step: persistent render — visible when active, hidden during review */}
-            {isPaymentPersisted && (
-              <>
-                {isActive && (
-                  <h2 className="text-lg font-medium text-gray-900">
-                    {STEP_LABELS[step]}
-                  </h2>
-                )}
-                <div className={clsx(isActive ? "mt-6" : "hidden")}>
-                  {renderStepContent(step)}
-                </div>
-              </>
-            )}
-
-            {/* Completed step (collapsed) */}
-            {isCompleted && !isActive && (
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-medium text-gray-900">
-                    {STEP_LABELS[step]}
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {getStepSummary(step, cart)}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onEditStep(step)}
-                  className="text-sm font-medium text-primary-600 hover:text-primary-500"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
-
             {/* Future/disabled step */}
             {isFuture && (
               <button
@@ -230,6 +187,43 @@ export function CheckoutForm({
               >
                 {STEP_LABELS[step]}
               </button>
+            )}
+
+            {/* Active or completed step heading */}
+            {!isFuture && (
+              <div className={clsx(isCollapsed && "flex items-center justify-between")}>
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900">
+                    {STEP_LABELS[step]}
+                  </h2>
+                  {isCollapsed && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      {getStepSummary(step, cart)}
+                    </p>
+                  )}
+                </div>
+                {isCollapsed && (
+                  <button
+                    type="button"
+                    onClick={() => onEditStep(step)}
+                    className="text-sm font-medium text-primary-600 hover:text-primary-500"
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Active step content (non-payment) */}
+            {isActive && !isPaymentPersisted && (
+              <div className="mt-6">{renderStepContent(step)}</div>
+            )}
+
+            {/* Payment step: persistent render — visible when active, hidden during review */}
+            {isPaymentPersisted && (
+              <div className={clsx(isActive ? "mt-6" : "hidden")}>
+                {renderStepContent(step)}
+              </div>
             )}
           </div>
         );

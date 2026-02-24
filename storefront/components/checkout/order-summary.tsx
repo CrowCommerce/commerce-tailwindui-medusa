@@ -13,14 +13,16 @@ export function OrderSummary({ cart }: { cart: HttpTypes.StoreCart }) {
       <div className="flow-root">
         <ul role="list" className="-my-6 divide-y divide-gray-200">
           {(cart.items || []).map((item) => {
-            const handle = (item.product as { handle?: string } | undefined)?.handle;
+            const handle = (item.product as { handle?: string } | undefined)
+              ?.handle;
+            const thumbnail = item.thumbnail || item.product?.thumbnail;
 
             return (
               <li key={item.id} className="flex space-x-6 py-6">
-                {(item.thumbnail || item.product?.thumbnail) ? (
+                {thumbnail ? (
                   <img
                     alt={item.product?.title || item.title || ""}
-                    src={item.thumbnail || item.product?.thumbnail || ""}
+                    src={thumbnail}
                     className="size-24 flex-none rounded-md bg-gray-100 object-cover"
                   />
                 ) : (

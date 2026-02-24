@@ -1,7 +1,7 @@
 "use client";
 
 import type { HttpTypes } from "@medusajs/types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AddressForm, EMPTY_ADDRESS } from "components/checkout/address-form";
 import { SavedAddressPicker } from "components/checkout/saved-address-picker";
@@ -63,11 +63,14 @@ export function CheckoutAddress({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fetchedRef = useRef(false);
 
-  const countries: { iso_2: string; display_name: string }[] =
-    (cart.region?.countries as any[])?.map((c) => ({
-      iso_2: c.iso_2,
-      display_name: c.display_name ?? c.name ?? c.iso_2.toUpperCase(),
-    })) ?? [];
+  const countries = useMemo(
+    (): { iso_2: string; display_name: string }[] =>
+      (cart.region?.countries as any[])?.map((c) => ({
+        iso_2: c.iso_2,
+        display_name: c.display_name ?? c.name ?? c.iso_2.toUpperCase(),
+      })) ?? [],
+    [cart.region?.countries],
+  );
 
   // Fetch saved addresses for authenticated customers
   useEffect(() => {
@@ -96,13 +99,13 @@ export function CheckoutAddress({
     [],
   );
 
-  const handleShippingChange = useCallback((addr: AddressPayload) => {
+  function handleShippingChange(addr: AddressPayload): void {
     setShippingAddress(addr);
-  }, []);
+  }
 
-  const handleBillingChange = useCallback((addr: AddressPayload) => {
+  function handleBillingChange(addr: AddressPayload): void {
     setBillingAddress(addr);
-  }, []);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -128,8 +131,8 @@ export function CheckoutAddress({
       } else {
         setError(result);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }

@@ -39,21 +39,20 @@ function getPaymentMethodLabel(order: any): string {
   return "Card";
 }
 
+function capitalizeBrand(brand: string | undefined): string {
+  const b = brand || "card";
+  return b.charAt(0).toUpperCase() + b.slice(1);
+}
+
 function getPaymentCardSummary(order: any): string | null {
   const payment = order.payment_collections?.[0]?.payments?.[0];
   const data = payment?.data as Record<string, any> | undefined;
   if (data?.payment_method?.card) {
     const card = data.payment_method.card;
-    const brand =
-      (card.brand || "card").charAt(0).toUpperCase() +
-      (card.brand || "card").slice(1);
-    return `${brand} ending in ${card.last4}`;
+    return `${capitalizeBrand(card.brand)} ending in ${card.last4}`;
   }
   if (data?.card?.last4) {
-    const brand =
-      (data.card.brand || "card").charAt(0).toUpperCase() +
-      (data.card.brand || "card").slice(1);
-    return `${brand} ending in ${data.card.last4}`;
+    return `${capitalizeBrand(data.card.brand)} ending in ${data.card.last4}`;
   }
   return null;
 }
@@ -95,11 +94,17 @@ export default async function OrderConfirmedPage({
               key={item.id}
               className="flex space-x-6 border-b border-gray-200 py-10"
             >
-              <img
-                alt={item.product?.title || item.title || ""}
-                src={item.thumbnail || item.product?.thumbnail || ""}
-                className="size-20 flex-none rounded-lg bg-gray-100 object-cover sm:size-40"
-              />
+              {(item.thumbnail || item.product?.thumbnail) ? (
+                <img
+                  alt={item.product?.title || item.title || ""}
+                  src={item.thumbnail || item.product?.thumbnail || ""}
+                  className="size-20 flex-none rounded-lg bg-gray-100 object-cover sm:size-40"
+                />
+              ) : (
+                <div className="flex size-20 flex-none items-center justify-center rounded-lg bg-gray-100 text-sm text-gray-400 sm:size-40">
+                  No image
+                </div>
+              )}
               <div className="flex flex-auto flex-col">
                 <div>
                   <h4 className="font-medium text-gray-900">

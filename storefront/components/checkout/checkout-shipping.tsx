@@ -5,19 +5,13 @@ import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
 import { getShippingOptions, setShippingMethod } from "lib/medusa/checkout";
+import { formatMoney } from "lib/medusa/format";
 import type { ShippingOption } from "lib/types";
 
 type CheckoutShippingProps = {
   cart: HttpTypes.StoreCart;
   onComplete: () => void;
 };
-
-function formatPrice(option: ShippingOption): string {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: option.currency_code,
-  }).format(option.amount);
-}
 
 export function CheckoutShipping({
   cart,
@@ -84,9 +78,9 @@ export function CheckoutShipping({
       } else {
         setError(result);
       }
-    } catch (e) {
+    } catch (err) {
       setError(
-        e instanceof Error ? e.message : "An unexpected error occurred.",
+        err instanceof Error ? err.message : "An unexpected error occurred.",
       );
     } finally {
       setIsSubmitting(false);
@@ -163,7 +157,7 @@ export function CheckoutShipping({
               </span>
               <span className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right">
                 <span className="font-medium text-gray-900">
-                  {formatPrice(option)}
+                  {formatMoney(option.amount, option.currency_code)}
                 </span>
               </span>
             </label>

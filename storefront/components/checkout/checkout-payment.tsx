@@ -9,7 +9,7 @@ import {
 } from "@stripe/react-stripe-js";
 import type { Stripe, StripeElements } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { SavedPaymentMethods } from "components/checkout/saved-payment-methods";
 import { STRIPE_PROVIDER_ID } from "lib/constants";
@@ -62,9 +62,9 @@ function PaymentForm({
       // Pass refs up so the review step can confirm later
       onStripeReady(stripe, elements);
       onComplete();
-    } catch (e) {
+    } catch (err) {
       setError(
-        e instanceof Error ? e.message : "An unexpected error occurred.",
+        err instanceof Error ? err.message : "An unexpected error occurred.",
       );
     } finally {
       setIsSubmitting(false);
@@ -112,6 +112,11 @@ function PaymentForm({
 // Outer component — handles session init + clientSecret extraction
 // ---------------------------------------------------------------------------
 
+function extractClientSecret(cart: HttpTypes.StoreCart): string | null {
+  const session = cart.payment_collection?.payment_sessions?.[0] ?? null;
+  return (session?.data?.client_secret as string) ?? null;
+}
+
 export function CheckoutPayment({
   cart,
   customer,
@@ -122,16 +127,6 @@ export function CheckoutPayment({
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const initRef = useRef(false);
-
-  // Extract clientSecret from cart payment sessions
-  const extractClientSecret = useCallback(
-    (cartObj: HttpTypes.StoreCart): string | null => {
-      const session =
-        cartObj.payment_collection?.payment_sessions?.[0] ?? null;
-      return (session?.data?.client_secret as string) ?? null;
-    },
-    [],
-  );
 
   // Zero-total cart: skip Stripe entirely
   const isZeroTotal = cart.total === 0;
@@ -180,10 +175,10 @@ export function CheckoutPayment({
         }
         // If secret is not yet in the cart prop, the component will re-render
         // with updated cart data after revalidation.
-      } catch (e) {
+      } catch (err) {
         setError(
-          e instanceof Error
-            ? e.message
+          err instanceof Error
+            ? err.message
             : "Failed to initialize payment session.",
         );
       } finally {
@@ -203,7 +198,7 @@ export function CheckoutPayment({
     if (secret && secret !== clientSecret) {
       setClientSecret(secret);
     }
-  }, [cart, clientSecret, extractClientSecret, isZeroTotal]);
+  }, [cart, clientSecret, isZeroTotal]);
 
   // --- Zero-total rendering ---
   if (isZeroTotal) {

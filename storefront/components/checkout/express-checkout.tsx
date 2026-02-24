@@ -24,6 +24,17 @@ const stripePromise = process.env.NEXT_PUBLIC_STRIPE_KEY
   ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY)
   : null;
 
+function splitName(fullName: string | undefined): {
+  firstName: string;
+  lastName: string;
+} {
+  const parts = (fullName || "").split(" ");
+  return {
+    firstName: parts[0] || "",
+    lastName: parts.slice(1).join(" ") || "",
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Inner component — has access to useStripe() / useElements()
 // ---------------------------------------------------------------------------
@@ -50,20 +61,17 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
       if (!stripe || !elements) return;
 
       try {
-        const { billingDetails, shippingAddress } =
-          event;
+        const { billingDetails, shippingAddress } = event;
 
         const email = billingDetails?.email || "";
-        const name = billingDetails?.name || shippingAddress?.name || "";
-        const nameParts = name.split(" ");
-        const firstName = nameParts[0] || "";
-        const lastName = nameParts.slice(1).join(" ") || "";
+        const shippingName = splitName(
+          shippingAddress?.name || billingDetails?.name,
+        );
+        const billingName = splitName(billingDetails?.name);
 
         const shippingPayload: AddressPayload = {
-          first_name:
-            shippingAddress?.name?.split(" ")[0] || firstName,
-          last_name:
-            shippingAddress?.name?.split(" ").slice(1).join(" ") || lastName,
+          first_name: shippingName.firstName,
+          last_name: shippingName.lastName,
           address_1:
             shippingAddress?.address?.line1 ||
             billingDetails?.address?.line1 ||
@@ -93,8 +101,8 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         };
 
         const billingPayload: AddressPayload = {
-          first_name: firstName,
-          last_name: lastName,
+          first_name: billingName.firstName,
+          last_name: billingName.lastName,
           address_1: billingDetails?.address?.line1 || shippingPayload.address_1,
           address_2: billingDetails?.address?.line2 || shippingPayload.address_2,
           city: billingDetails?.address?.city || shippingPayload.city,

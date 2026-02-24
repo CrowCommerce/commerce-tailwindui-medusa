@@ -215,8 +215,7 @@ export async function completeCart(
 
     if (result.type === "order") {
       await removeCartId();
-      revalidateTag(TAGS.cart, "max");
-      revalidatePath("/", "layout");
+      revalidateCheckout();
       return { type: "order", order: result.order };
     }
 
@@ -227,10 +226,10 @@ export async function completeCart(
           ? result.error
           : result.error?.message) || "Payment could not be completed",
     };
-  } catch (e) {
+  } catch (err) {
     return {
       type: "cart",
-      error: e instanceof Error ? e.message : "Error completing order",
+      error: err instanceof Error ? err.message : "Error completing order",
     };
   }
 }

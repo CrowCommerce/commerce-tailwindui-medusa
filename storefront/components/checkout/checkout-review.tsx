@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { completeCart } from "lib/medusa/checkout";
+import { formatMoney } from "lib/medusa/format";
 import type { CheckoutStep } from "lib/types";
 
 type CheckoutReviewProps = {
@@ -57,13 +58,7 @@ function formatShippingMethod(cart: HttpTypes.StoreCart): string {
 
   if (amount === 0) return `${name} (Free)`;
 
-  const currencyCode = cart.currency_code || "usd";
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode,
-  }).format(amount);
-
-  return `${name} (${formatted})`;
+  return `${name} (${formatMoney(amount, cart.currency_code || "usd")})`;
 }
 
 function formatPaymentMethod(cart: HttpTypes.StoreCart): string {
@@ -111,6 +106,12 @@ export function CheckoutReview({
 
   const isZeroTotal = cart.total === 0;
 
+  function isPaymentCapturable(
+    status: string | undefined,
+  ): boolean {
+    return status === "requires_capture" || status === "succeeded";
+  }
+
   async function handleOrderComplete() {
     const result = await completeCart(cart.id);
     if (result.type === "order") {
@@ -139,11 +140,7 @@ export function CheckoutReview({
           });
 
         if (confirmError) {
-          const pi = confirmError.payment_intent;
-          if (
-            pi &&
-            (pi.status === "requires_capture" || pi.status === "succeeded")
-          ) {
+          if (isPaymentCapturable(confirmError.payment_intent?.status)) {
             await handleOrderComplete();
             return;
           }
@@ -153,11 +150,7 @@ export function CheckoutReview({
           return;
         }
 
-        if (
-          paymentIntent &&
-          (paymentIntent.status === "requires_capture" ||
-            paymentIntent.status === "succeeded")
-        ) {
+        if (isPaymentCapturable(paymentIntent?.status)) {
           await handleOrderComplete();
         }
         return;
@@ -191,11 +184,7 @@ export function CheckoutReview({
           });
 
         if (confirmError) {
-          const pi = confirmError.payment_intent;
-          if (
-            pi &&
-            (pi.status === "requires_capture" || pi.status === "succeeded")
-          ) {
+          if (isPaymentCapturable(confirmError.payment_intent?.status)) {
             await handleOrderComplete();
             return;
           }
@@ -205,11 +194,7 @@ export function CheckoutReview({
           return;
         }
 
-        if (
-          paymentIntent &&
-          (paymentIntent.status === "requires_capture" ||
-            paymentIntent.status === "succeeded")
-        ) {
+        if (isPaymentCapturable(paymentIntent?.status)) {
           await handleOrderComplete();
         } else if (paymentIntent) {
           setError(`Unexpected payment status: ${paymentIntent.status}. Please try again.`);
@@ -219,9 +204,9 @@ export function CheckoutReview({
 
       // Fallback: no Stripe available, attempt direct completion
       await handleOrderComplete();
-    } catch (e) {
+    } catch (err) {
       setError(
-        e instanceof Error ? e.message : "An unexpected error occurred.",
+        err instanceof Error ? err.message : "An unexpected error occurred.",
       );
     } finally {
       setIsSubmitting(false);
