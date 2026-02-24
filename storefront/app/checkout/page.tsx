@@ -24,11 +24,11 @@ export default async function CheckoutPage() {
 
         <div className="mx-auto grid max-w-lg grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
           <div className="mx-auto w-full max-w-lg">
-            <CheckoutForm cart={cart} customer={customer} />
+            <OrderSummary cart={cart} />
           </div>
 
           <div className="mx-auto w-full max-w-lg">
-            <OrderSummary cart={cart} />
+            <CheckoutForm cart={cart} customer={customer} />
           </div>
         </div>
       </div>

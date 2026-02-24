@@ -9,6 +9,7 @@ import { CheckoutEmail } from "components/checkout/checkout-email";
 import { CheckoutPayment } from "components/checkout/checkout-payment";
 import { CheckoutReview } from "components/checkout/checkout-review";
 import { CheckoutShipping } from "components/checkout/checkout-shipping";
+import { ExpressCheckout } from "components/checkout/express-checkout";
 import type { CheckoutStep } from "lib/types";
 
 const STEP_ORDER: CheckoutStep[] = [
@@ -157,72 +158,58 @@ export function CheckoutForm({
   }
 
   return (
-    <div className="divide-y divide-gray-200 border-b border-t border-gray-200">
-      {STEP_ORDER.map((step, index) => {
+    <div>
+      <ExpressCheckout cart={cart} />
+
+      <div className="divide-y divide-gray-200 border-b border-t border-gray-200">
+      {STEP_ORDER.map((step) => {
         const isCompleted = completedSteps.has(step);
         const isActive = step === activeStep;
-        const isPreviousComplete =
-          index === 0 ||
-          STEP_ORDER.slice(0, index).every((s) => completedSteps.has(s));
         const isFuture = !isCompleted && !isActive;
-        const isDisabled = isFuture && !isPreviousComplete;
+
+        // Payment step needs a persistent render to keep Stripe Elements mounted.
+        // Instead of unmounting when leaving the step and remounting in a hidden div,
+        // we render the content ONCE and toggle visibility via className.
+        const isPaymentPersisted =
+          step === "payment" && (isActive || activeStep === "review");
 
         return (
           <div key={step} className="py-6">
-            {/* Step header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-x-3">
-                {/* Step number indicator */}
-                <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
-                    isCompleted
-                      ? "bg-indigo-600 text-white"
-                      : isActive
-                        ? "border-2 border-indigo-600 text-indigo-600"
-                        : "border-2 border-gray-300 text-gray-500"
-                  }`}
-                >
-                  {isCompleted ? (
-                    <svg
-                      className="h-4 w-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  ) : (
-                    index + 1
-                  )}
-                </span>
+            {/* Active step (non-payment, or payment when not using persistent render) */}
+            {isActive && !isPaymentPersisted && (
+              <>
+                <h2 className="text-lg font-medium text-gray-900">
+                  {STEP_LABELS[step]}
+                </h2>
+                <div className="mt-6">{renderStepContent(step)}</div>
+              </>
+            )}
 
-                <div>
-                  <h3
-                    className={`text-sm font-semibold ${
-                      isDisabled
-                        ? "text-gray-400"
-                        : isActive
-                          ? "text-indigo-600"
-                          : "text-gray-900"
-                    }`}
-                  >
+            {/* Payment step: persistent render — visible when active, hidden during review */}
+            {isPaymentPersisted && (
+              <>
+                {isActive && (
+                  <h2 className="text-lg font-medium text-gray-900">
                     {STEP_LABELS[step]}
-                  </h3>
-
-                  {/* Summary text for completed, collapsed steps */}
-                  {isCompleted && !isActive && (
-                    <p className="mt-0.5 text-sm text-gray-500">
-                      {getStepSummary(step, cart)}
-                    </p>
-                  )}
+                  </h2>
+                )}
+                <div className={isActive ? "mt-6" : "hidden"}>
+                  {renderStepContent(step)}
                 </div>
-              </div>
+              </>
+            )}
 
-              {/* Edit button for completed, collapsed steps */}
-              {isCompleted && !isActive && (
+            {/* Completed step (collapsed) */}
+            {isCompleted && !isActive && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900">
+                    {STEP_LABELS[step]}
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {getStepSummary(step, cart)}
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={() => onEditStep(step)}
@@ -230,21 +217,23 @@ export function CheckoutForm({
                 >
                   Edit
                 </button>
-              )}
-            </div>
-
-            {/* Step content (only shown when active) */}
-            {/* Payment step stays mounted (hidden) during review so Stripe Elements remain in DOM */}
-            {(isActive || (step === "payment" && activeStep === "review")) && (
-              <div
-                className={`mt-2 pl-11 ${step === "payment" && activeStep === "review" ? "hidden" : ""}`}
-              >
-                {renderStepContent(step)}
               </div>
+            )}
+
+            {/* Future/disabled step */}
+            {isFuture && (
+              <button
+                type="button"
+                disabled
+                className="w-full cursor-auto text-left text-lg font-medium text-gray-500"
+              >
+                {STEP_LABELS[step]}
+              </button>
             )}
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

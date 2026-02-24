@@ -228,6 +228,41 @@ export async function completeCart(
   }
 }
 
+// === Express Checkout Composite ===
+
+/**
+ * Chains all steps needed for express checkout (Apple Pay / Google Pay):
+ * setCartEmail -> setCartAddresses -> getShippingOptions -> setShippingMethod -> initializePaymentSession
+ *
+ * Returns the updated cart on success, or throws on error.
+ */
+export async function applyExpressCheckoutData(
+  cartId: string,
+  email: string,
+  shipping: AddressPayload,
+  billing?: AddressPayload,
+): Promise<void> {
+  const emailError = await setCartEmail(cartId, email);
+  if (emailError) throw new Error(emailError);
+
+  const addressError = await setCartAddresses(cartId, shipping, billing);
+  if (addressError) throw new Error(addressError);
+
+  const options = await getShippingOptions(cartId);
+  if (options.length === 0) {
+    throw new Error("No shipping options available");
+  }
+
+  const shippingError = await setShippingMethod(cartId, options[0]!.id);
+  if (shippingError) throw new Error(shippingError);
+
+  const paymentError = await initializePaymentSession(
+    cartId,
+    "pp_stripe_stripe",
+  );
+  if (paymentError) throw new Error(paymentError);
+}
+
 // === Customer Addresses (for saved address picker) ===
 
 export async function getCustomerAddresses(): Promise<

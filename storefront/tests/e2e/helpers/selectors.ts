@@ -115,3 +115,60 @@ export const REVIEW_LIGHTBOX_PREV =
   '[role="dialog"] button:has(svg.size-6):first-of-type';
 export const REVIEW_LIGHTBOX_NEXT =
   '[role="dialog"] button:has(svg.size-6):last-of-type';
+
+// ---------------------------------------------------------------------------
+// Checkout
+// ---------------------------------------------------------------------------
+
+// Email step
+export const CHECKOUT_EMAIL_INPUT = "#checkout-email";
+export const CHECKOUT_CONTINUE_BUTTON = 'button:has-text("Continue")';
+export const SIGNED_IN_AS = 'p:has-text("Signed in as")';
+
+// Address step
+export const ADDR_FIRST_NAME = "#addr-first-name";
+export const ADDR_LAST_NAME = "#addr-last-name";
+export const ADDR_ADDRESS1 = "#addr-address1";
+export const ADDR_CITY = "#addr-city";
+export const ADDR_PROVINCE = "#addr-province";
+export const ADDR_POSTAL_CODE = "#addr-postal-code";
+export const ADDR_COUNTRY = "#addr-country";
+
+// Shipping step
+export const SHIPPING_OPTION = 'input[name="shipping-option"]';
+
+// Payment step
+export const PAYMENT_CONTINUE_BUTTON = 'button:has-text("Continue to review")';
+
+// Review step
+export const PLACE_ORDER_BUTTON = 'button:has-text("Place Order")';
+export const REVIEW_CONTACT_DT = 'dt:has-text("Contact")';
+export const REVIEW_SHIP_TO_DT = 'dt:has-text("Ship to")';
+export const REVIEW_BILL_TO_DT = 'dt:has-text("Bill to")';
+export const REVIEW_SHIPPING_METHOD_DT = 'dt:has-text("Shipping method")';
+export const REVIEW_PAYMENT_DT = 'dt:has-text("Payment")';
+
+// Order summary (left column)
+export const ORDER_SUMMARY_HEADING = 'h2:has-text("Order summary")';
+export const ORDER_SUMMARY_ITEM = 'ul[role="list"] li';
+export const ORDER_SUMMARY_EDIT_LINK =
+  'a.font-medium.text-indigo-600[href*="/product/"]';
+export const ORDER_SUMMARY_REMOVE_BUTTON = 'button:has-text("Remove")';
+export const ORDER_SUMMARY_SUBTOTAL = 'dt:has-text("Subtotal")';
+export const ORDER_SUMMARY_TOTAL = 'dt:has-text("Total")';
+
+// Accordion step headings
+export const STEP_HEADING_ACTIVE = "h2.text-lg.font-medium.text-gray-900";
+export const STEP_DISABLED_BUTTON =
+  "button:disabled.text-lg.font-medium.text-gray-500";
+export const STEP_EDIT_BUTTON =
+  'button.text-indigo-600:has-text("Edit")';
+
+// Express Checkout
+export const EXPRESS_CHECKOUT_DIVIDER = 'span:has-text("or")';
+
+// Order confirmation
+export const ORDER_CONFIRMED_HEADING = 'h1:has-text("Thank you!")';
+export const ORDER_CONFIRMED_SUBTITLE =
+  'p:has-text("Your order is confirmed")';
+export const CONTINUE_SHOPPING_LINK = 'a:has-text("Continue Shopping")';
