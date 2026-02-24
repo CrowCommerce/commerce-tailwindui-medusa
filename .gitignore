@@ -48,3 +48,10 @@ storefront/coverage/
 backend/.medusa/
 backend/.cache/
 backend/dist/
+backend/static/
+
+# reference material
+references/
+
+# root-level screenshots
+*.png
