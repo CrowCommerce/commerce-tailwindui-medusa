@@ -214,6 +214,20 @@ export async function getProduct(handle: string) {
 
 **Critical:** Cart updates require **both** tag revalidation **and** path revalidation for UI to update without hard refresh.
 
+### Cart Pricing Fields
+
+Medusa v2 cart total fields — use the right one for each context:
+
+| Field | Meaning | Use for |
+|-------|---------|---------|
+| `item_subtotal` | Sum of line item subtotals (items only, excl. tax) | "Subtotal" label in cart/checkout |
+| `subtotal` | `item_subtotal` + `shipping_subtotal` (excl. tax) | Rarely — includes shipping |
+| `shipping_total` | Shipping after discounts, incl. tax | "Shipping" line item |
+| `tax_total` | Total tax amount | "Tax" line item |
+| `total` | Final total after discounts/credits, incl. tax | "Total" / "Order total" |
+
+**Important:** `transformCart()` in `lib/medusa/transforms.ts` maps `cost.subtotalAmount` → `cart.item_subtotal` (not `cart.subtotal`) so that the internal `Cart` type's subtotal represents items only.
+
 ### Flow
 
 1. **Storage:** Cart ID stored in `_medusa_cart_id` cookie (secure, httpOnly) via `lib/medusa/cookies.ts`
@@ -380,17 +394,19 @@ psql medusa_db -t -c "SELECT token FROM api_key WHERE type = 'publishable' LIMIT
 
 3. **Prices showing $0.00:** Products need `calculated_price` — ensure `region_id` is passed in API queries.
 
-4. **Price amounts are NOT in cents:** Medusa v2 `calculated_amount` is in the main currency unit (10 = $10.00). The `toMoney()` helper does NOT divide by 100.
+4. **Price amounts are NOT in cents:** Medusa v2 stores all prices in major currency units (10 = $10.00). This applies to product prices, cart totals, and shipping option amounts. Never divide by 100 — `toMoney()`, `formatMoney()`, and `Intl.NumberFormat` receive amounts as-is.
 
-5. **Stale prices after transform changes:** Clear the Next.js cache (`rm -rf .next`) and restart dev.
+5. **Cart subtotal includes shipping:** Medusa v2's `cart.subtotal` = `item_subtotal` + `shipping_subtotal`. For an items-only subtotal (what customers expect to see labeled "Subtotal"), use `cart.item_subtotal`. Our `transformCart()` maps `cost.subtotalAmount` to `cart.item_subtotal` for this reason.
 
-6. **Color variants not displaying:** Variants must have a "Color" option (case-insensitive match).
+6. **Stale prices after transform changes:** Clear the Next.js cache (`rm -rf .next`) and restart dev.
 
-7. **Navigation empty:** Falls back to `DEFAULT_NAVIGATION` from `lib/constants/navigation.ts`. This is expected when no collections exist in Medusa.
+7. **Color variants not displaying:** Variants must have a "Color" option (case-insensitive match).
 
-8. **Build failures:** Usually missing env vars or Medusa backend unreachable.
+8. **Navigation empty:** Falls back to `DEFAULT_NAVIGATION` from `lib/constants/navigation.ts`. This is expected when no collections exist in Medusa.
 
-9. **Pages returning empty:** Medusa has no native CMS. `getPage()` / `getPages()` return stubs.
+9. **Build failures:** Usually missing env vars or Medusa backend unreachable.
+
+10. **Pages returning empty:** Medusa has no native CMS. `getPage()` / `getPages()` return stubs.
 
 ## TypeScript Configuration
 

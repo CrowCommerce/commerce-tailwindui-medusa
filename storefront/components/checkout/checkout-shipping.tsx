@@ -15,7 +15,7 @@ function formatPrice(option: ShippingOption): string {
   return new Intl.NumberFormat(undefined, {
     style: "currency",
     currency: option.currency_code,
-  }).format(option.amount / 100);
+  }).format(option.amount);
 }
 
 export function CheckoutShipping({

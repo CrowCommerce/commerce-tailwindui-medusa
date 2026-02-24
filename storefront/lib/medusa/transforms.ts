@@ -196,7 +196,7 @@ export function transformCart(cart: HttpTypes.StoreCart): Cart {
     id: cart.id,
     checkoutUrl: "",
     cost: {
-      subtotalAmount: toMoney(cart.subtotal, currencyCode),
+      subtotalAmount: toMoney(cart.item_subtotal, currencyCode),
       totalAmount: toMoney(cart.total, currencyCode),
       totalTaxAmount: toMoney(cart.tax_total, currencyCode),
     },
