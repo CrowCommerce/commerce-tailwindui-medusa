@@ -230,9 +230,9 @@ export function CheckoutReview({
     <div className="py-4">
       <dl className="divide-y divide-gray-200 text-sm">
         {/* Contact */}
-        <div className="flex justify-between py-3">
+        <div className="grid grid-cols-[8rem_1fr_auto] items-baseline gap-x-4 py-3">
           <dt className="font-medium text-gray-900">Contact</dt>
-          <dd className="text-gray-700">{cart.email}</dd>
+          <dd className="truncate text-gray-700">{cart.email}</dd>
           <button
             type="button"
             onClick={() => onEditStep("email")}
@@ -243,7 +243,7 @@ export function CheckoutReview({
         </div>
 
         {/* Shipping address */}
-        <div className="flex justify-between py-3">
+        <div className="grid grid-cols-[8rem_1fr_auto] items-baseline gap-x-4 py-3">
           <dt className="font-medium text-gray-900">Ship to</dt>
           <dd className="text-gray-700">
             {formatAddress(cart.shipping_address)}
@@ -258,7 +258,7 @@ export function CheckoutReview({
         </div>
 
         {/* Billing address */}
-        <div className="flex justify-between py-3">
+        <div className="grid grid-cols-[8rem_1fr_auto] items-baseline gap-x-4 py-3">
           <dt className="font-medium text-gray-900">Bill to</dt>
           <dd className="text-gray-700">
             {billingIsSameAsShipping
@@ -275,7 +275,7 @@ export function CheckoutReview({
         </div>
 
         {/* Shipping method */}
-        <div className="flex justify-between py-3">
+        <div className="grid grid-cols-[8rem_1fr_auto] items-baseline gap-x-4 py-3">
           <dt className="font-medium text-gray-900">Shipping method</dt>
           <dd className="text-gray-700">{formatShippingMethod(cart)}</dd>
           <button
@@ -288,7 +288,7 @@ export function CheckoutReview({
         </div>
 
         {/* Payment method */}
-        <div className="flex justify-between py-3">
+        <div className="grid grid-cols-[8rem_1fr_auto] items-baseline gap-x-4 py-3">
           <dt className="font-medium text-gray-900">Payment</dt>
           <dd className="text-gray-700">{formatPaymentMethod(cart)}</dd>
           <button
