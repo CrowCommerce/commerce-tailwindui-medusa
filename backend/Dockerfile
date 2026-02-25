@@ -24,4 +24,4 @@ RUN bun install --production
 
 EXPOSE 9000
 
-CMD ["sh", "-c", "bun run predeploy && bun run start"]
+CMD ["sh", "-c", "npx medusa db:migrate && bun run start"]
