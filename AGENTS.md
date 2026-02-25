@@ -431,3 +431,38 @@ Remote patterns configured in `next.config.ts`:
 | `tailwindcss.com`                                 | Tailwind UI demo assets     |
 
 Formats: AVIF and WebP.
+
+## Review Guidelines
+
+### P0 — Security
+- All server actions must validate and sanitize input before processing
+- Cookie operations must use the dedicated functions in `lib/medusa/cookies.ts` — never set cookies directly
+- Cookies must use httpOnly, sameSite strict, and secure (in production) flags
+- No sensitive data (cart IDs, customer info, payment sessions, JWT tokens) exposed in client components or client-side code
+- No API keys, secrets, or tokens in client bundles — check for `NEXT_PUBLIC_` prefix misuse
+- Server actions handling cart/checkout mutations must enforce authentication where required via `getAuthHeaders()`
+- Payment flows must not be manipulable — no client-controlled pricing, no cart state injection, no replay vectors
+- All customer-facing API routes must validate the requesting user owns the resource (prevent IDOR)
+- Never trust Stripe `redirect_status` or client-side payment intent status — always validate server-side via `completeCart()`
+- `STRIPE_WEBHOOK_SECRET` must be set whenever `STRIPE_API_KEY` is configured — flag if webhook verification is missing or bypassed
+- Express checkout flows must validate email presence before proceeding to payment
+- Non-terminal payment statuses (e.g., "processing", "requires_action") must surface user-facing errors — never silently no-op or swallow the status
+
+### P0 — Correctness
+- Cart mutations must call both `revalidateTag(TAGS.cart, "max")` AND `revalidatePath("/", "layout")` — missing either causes stale UI
+- Cart revalidation must run in `finally` blocks so optimistic state re-syncs even on failure
+- Medusa v2 prices are in major currency units (10 = $10.00) — never divide by 100
+- Cart subtotal for display must use `item_subtotal` not `subtotal` (which includes shipping)
+- API calls fetching product prices or variants must include `region_id` for calculated prices
+- Error handling must use `medusaError()` from `lib/medusa/error.ts` — not raw try/catch with generic messages
+
+### P1 — Architecture
+- Client components must be limited to interactive needs (dialogs, optimistic updates, keyboard shortcuts) — default to RSC
+- Server actions must follow the established pattern in `components/cart/actions.ts`
+- No new `any` types in changed files — existing `any` usage in legacy files (order confirmation, checkout types) is tracked separately
+
+### P1 — Maintainability
+- Functions exceeding 80 lines should be flagged for review — procedural flows like checkout handlers may be acceptable if linear and well-commented
+- Duplicated logic across server actions should use shared helpers
+- Consistent error handling patterns across all server actions
+- TypeScript strict mode compliance — no unchecked index access
