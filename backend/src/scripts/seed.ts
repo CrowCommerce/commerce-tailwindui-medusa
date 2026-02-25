@@ -383,6 +383,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
       collections: seedData.collections.map((c) => ({
         title: c.title,
         handle: c.handle,
+        metadata: {
+          image_url: c.image_url,
+          description: c.description,
+        },
       })),
     },
   });

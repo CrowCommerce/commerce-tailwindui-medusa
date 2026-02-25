@@ -134,6 +134,7 @@
 
 ## Known Limitations
 
+- [ ] Browser back button broken after navigating to a product page — likely caused by URL being appended/rewritten incorrectly during product navigation
 - [ ] `checkoutUrl` on Cart type is always empty string
 - [ ] Image dimensions are 0x0 (Medusa doesn't provide them)
 - [ ] `descriptionHtml` is same as plain description (no HTML from Medusa)
