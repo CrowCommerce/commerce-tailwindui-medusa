@@ -287,7 +287,7 @@ export async function getCollections(): Promise<Collection[]> {
     collections: HttpTypes.StoreCollection[];
   }>("/store/collections", {
     method: "GET",
-    query: { limit: 100 },
+    query: { limit: 100, fields: "+metadata" },
     cache: "force-cache",
   });
 
