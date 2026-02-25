@@ -1,0 +1,1936 @@
+{
+  "collections": [
+    {
+      "title": "Accessories",
+      "handle": "accessories",
+      "products": [
+        "billfold-wallet",
+        "bones",
+        "focus-carry-case",
+        "focus-multi-pack",
+        "fusion",
+        "leather-key-ring-black",
+        "leather-long-wallet",
+        "marketing-icon-pack",
+        "scaffold"
+      ]
+    },
+    {
+      "title": "Bags",
+      "handle": "bags",
+      "products": [
+        "carry-clutch",
+        "flap-stuff-satchel",
+        "focus-carry-pouch",
+        "halfsize-tote",
+        "high-wall-tote",
+        "medium-stuff-satchel",
+        "micro-backpack",
+        "nomad-pouch",
+        "small-stuff-satchel",
+        "throwback-hip-bag",
+        "wrap-clutch",
+        "zip-high-wall-tote",
+        "zip-tote-basket"
+      ]
+    },
+    {
+      "title": "Drinkware",
+      "handle": "drinkware",
+      "products": [
+        "cold-brew-bottle",
+        "earthen-bottle",
+        "earthen-mug",
+        "nomad-tumbler",
+        "out-and-about-bottle"
+      ]
+    },
+    {
+      "title": "Home & Office",
+      "handle": "home-office",
+      "products": [
+        "brass-scissors",
+        "focus-card-holder",
+        "focus-card-tray",
+        "minimalist-wristwatch",
+        "organize-basic-set-maple",
+        "organize-basic-set-walnut",
+        "organize-phone-holder",
+        "organize-set",
+        "organize-small-tray",
+        "organize-sticky-note-holder",
+        "organizer-set"
+      ]
+    },
+    {
+      "title": "Stationery",
+      "handle": "stationery",
+      "products": [
+        "daily-notebook-refill-pack",
+        "focus-paper-refill",
+        "leatherbound-daily-journal",
+        "leatherbound-daily-journal-set",
+        "machined-mechanical-pencil",
+        "machined-pen",
+        "machined-pen-and-pencil-set",
+        "machined-pencil-and-pen-set",
+        "mini-sketchbook-set",
+        "mini-sketchbooks",
+        "organize-pen-holder"
+      ]
+    },
+    {
+      "title": "Tops",
+      "handle": "tops",
+      "products": [
+        "3d-glasses-artwork-tee",
+        "artwork-tee",
+        "artwork-tee-iso-dots",
+        "basic-tee",
+        "basic-tee-8-pack",
+        "black-basic-tee",
+        "distant-mountains-artwork-tee",
+        "fall-basic-tee-3-pack",
+        "kinda-white-basic-tee",
+        "linework-artwork-tee-3-pack",
+        "mountain-mist-artwork-tee",
+        "mountains-artwork-tee",
+        "off-white-basic-tee",
+        "rainfall-artwork-tee",
+        "stone-basic-tee",
+        "swirls-artwork-tee"
+      ]
+    }
+  ],
+  "products": [
+    {
+      "title": "3D Glasses Artwork Tee",
+      "handle": "3d-glasses-artwork-tee",
+      "description": "Front of black tee with red and green curved lines overlapping with 3d effect.",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-form-04-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-form-04-product-03.jpg"
+      ],
+      "collection": "Tops",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Black"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ],
+          "options": {
+            "Color": "Black"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Artwork Tee",
+      "handle": "artwork-tee",
+      "description": "Front side of mint cotton t-shirt with wavey lines pattern.",
+      "price": 3500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg"
+      ],
+      "collection": "Tops",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Iso Dots"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Iso Dots",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3500
+            }
+          ],
+          "options": {
+            "Color": "Iso Dots"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Artwork Tee — Iso Dots",
+      "handle": "artwork-tee-iso-dots",
+      "description": "Model wearing women",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-06-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-06-product-02.jpg"
+      ],
+      "collection": "Tops",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Peach"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Peach",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ],
+          "options": {
+            "Color": "Peach"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Basic Tee",
+      "handle": "basic-tee",
+      "description": "Front side of charcoal cotton t-shirt.",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-06-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-06-product-01.jpg"
+      ],
+      "collection": "Tops",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Charcoal"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Charcoal",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ],
+          "options": {
+            "Color": "Charcoal"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Basic Tee 8-Pack",
+      "handle": "basic-tee-8-pack",
+      "description": "Eight shirts arranged on table in black, olive, grey, blue, white, red, mustard, and green.",
+      "price": 25600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-01.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 25600
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Billfold Wallet",
+      "handle": "billfold-wallet",
+      "description": "Front of Billfold Wallet in natural leather.",
+      "price": 11800,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-01.jpg"
+      ],
+      "collection": "Accessories",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Natural"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Natural",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 11800
+            }
+          ],
+          "options": {
+            "Color": "Natural"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Black Basic Tee",
+      "handle": "black-basic-tee",
+      "description": "Model wearing women",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-01.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Bones",
+      "handle": "bones",
+      "description": "Application screenshot with tiered navigation and account settings form on color red and purple background.",
+      "price": 2900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-04.jpg"
+      ],
+      "collection": "Accessories",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 2900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Brass Scissors",
+      "handle": "brass-scissors",
+      "description": "Brass scissors with geometric design, black steel finger holes, and included upright brass stand.",
+      "price": 5000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-07.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-07.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Carry Clutch",
+      "handle": "carry-clutch",
+      "description": "Folding zipper clutch with white fabric body, synthetic black leather accent strip, and black loop zipper pull.",
+      "price": 7000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-04-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-04-product-03.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "White and Black"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "White and Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 7000
+            }
+          ],
+          "options": {
+            "Color": "White and Black"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Cold Brew Bottle",
+      "handle": "cold-brew-bottle",
+      "description": "Glass bottle with black plastic pour top and mesh insert.",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-05-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-05-product-01.jpg"
+      ],
+      "collection": "Drinkware",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Daily Notebook Refill Pack",
+      "handle": "daily-notebook-refill-pack",
+      "description": "TODO",
+      "price": 1400,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-08.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-08.jpg"
+      ],
+      "collection": "Stationery",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 1400
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Distant Mountains Artwork Tee",
+      "handle": "distant-mountains-artwork-tee",
+      "description": "Off-white t-shirt with circular dot illustration on the front of mountain ridges that fade.",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-04-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-04-product-01.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Earthen Bottle",
+      "handle": "earthen-bottle",
+      "description": "Tall slender porcelain bottle with natural clay textured body and cork stopper.",
+      "price": 4800,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg"
+      ],
+      "collection": "Drinkware",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 4800
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Earthen Mug",
+      "handle": "earthen-mug",
+      "description": "Black porcelain mug with modern square handle and natural clay accents on rim and bottom.",
+      "price": 2800,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-02.jpg"
+      ],
+      "collection": "Drinkware",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Matte Black",
+            "Natural"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Matte Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 2800
+            }
+          ],
+          "options": {
+            "Color": "Matte Black"
+          }
+        },
+        {
+          "title": "Natural",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 2800
+            }
+          ],
+          "options": {
+            "Color": "Natural"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Fall Basic Tee 3-Pack",
+      "handle": "fall-basic-tee-3-pack",
+      "description": "Three shirts arranged on table in mustard, dark gray, and olive.",
+      "price": 9600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-05.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-05.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 9600
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Flap Stuff Satchel",
+      "handle": "flap-stuff-satchel",
+      "description": "Front of satchel with light brown canvas body, flap top, and matching straps and handle.",
+      "price": 33000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-02.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Sand"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Sand",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 33000
+            }
+          ],
+          "options": {
+            "Color": "Sand"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Focus Card Holder",
+      "handle": "focus-card-holder",
+      "description": "Paper card sitting upright in walnut card holder on desk.",
+      "price": 6400,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-01-image-card-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-01-image-card-02.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 6400
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Focus Card Tray",
+      "handle": "focus-card-tray",
+      "description": "Paper card sitting upright in walnut card holder on desk.",
+      "price": 6400,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-05.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-05.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 6400
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Focus Carry Case",
+      "handle": "focus-carry-case",
+      "description": "Textured gray felt pouch for paper cards with snap button flap and elastic pen holder loop.",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-01-image-card-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-01-image-card-03.jpg"
+      ],
+      "collection": "Accessories",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Focus Carry Pouch",
+      "handle": "focus-carry-pouch",
+      "description": "Textured gray felt pouch for paper cards with snap button flap and elastic pen holder loop.",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-08.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-08.jpg"
+      ],
+      "collection": "Bags",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Focus Multi-Pack",
+      "handle": "focus-multi-pack",
+      "description": "Stack of 3 small drab green cardboard paper card refill boxes with white text.",
+      "price": 3900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-06.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-06.jpg"
+      ],
+      "collection": "Accessories",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Focus Paper Refill",
+      "handle": "focus-paper-refill",
+      "description": "Person using a pen to cross a task off a productivity paper card.",
+      "price": 8900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-03.jpg"
+      ],
+      "collection": "Stationery",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 8900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Fusion",
+      "handle": "fusion",
+      "description": "Payment application dashboard screenshot with transaction table, financial highlights, and main clients on colorful purple background.",
+      "price": 4900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-01.jpg"
+      ],
+      "collection": "Accessories",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 4900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Halfsize Tote",
+      "handle": "halfsize-tote",
+      "description": "Front of satchel with light brown canvas body, flap top, and matching straps and handle.",
+      "price": 33000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-02.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Clay"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Clay",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 33000
+            }
+          ],
+          "options": {
+            "Color": "Clay"
+          }
+        }
+      ]
+    },
+    {
+      "title": "High Wall Tote",
+      "handle": "high-wall-tote",
+      "description": "Front of zip tote bag with black canvas, black handles, and orange drawstring top.",
+      "price": 21000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-01.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "White and black"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "White and black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 21000
+            }
+          ],
+          "options": {
+            "Color": "White and black"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Kinda White Basic Tee",
+      "handle": "kinda-white-basic-tee",
+      "description": "Front of plain white t-shirt.",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-03.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Leather Key Ring (Black)",
+      "handle": "leather-key-ring-black",
+      "description": "TODO",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-09.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-09.jpg"
+      ],
+      "collection": "Accessories",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Leather Long Wallet",
+      "handle": "leather-long-wallet",
+      "description": "Hand stitched, orange leather long wallet.",
+      "price": 7500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-02.jpg"
+      ],
+      "collection": "Accessories",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Natural"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Natural",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 7500
+            }
+          ],
+          "options": {
+            "Color": "Natural"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Leatherbound Daily Journal",
+      "handle": "leatherbound-daily-journal",
+      "description": "Black leather journal with brass disc binding.",
+      "price": 5000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-04.jpg"
+      ],
+      "collection": "Stationery",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Black",
+            "Brown",
+            "Natural"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ],
+          "options": {
+            "Color": "Black"
+          }
+        },
+        {
+          "title": "Brown",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ],
+          "options": {
+            "Color": "Brown"
+          }
+        },
+        {
+          "title": "Natural",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ],
+          "options": {
+            "Color": "Natural"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Leatherbound Daily Journal Set",
+      "handle": "leatherbound-daily-journal-set",
+      "description": "Natural leather journal with brass disc binding and three paper refill sets.",
+      "price": 5000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-03.jpg"
+      ],
+      "collection": "Stationery",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Natural",
+            "Black",
+            "Brown"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Natural",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ],
+          "options": {
+            "Color": "Natural"
+          }
+        },
+        {
+          "title": "Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ],
+          "options": {
+            "Color": "Black"
+          }
+        },
+        {
+          "title": "Brown",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ],
+          "options": {
+            "Color": "Brown"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Linework Artwork Tee 3-Pack",
+      "handle": "linework-artwork-tee-3-pack",
+      "description": "Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.",
+      "price": 10800,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-06.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-06.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 10800
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Machined Mechanical Pencil",
+      "handle": "machined-mechanical-pencil",
+      "description": "Hand holding black machined steel mechanical pencil with brass tip and top.",
+      "price": 3500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-04.jpg"
+      ],
+      "collection": "Stationery",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Machined Pen",
+      "handle": "machined-pen",
+      "description": "Black machined steel pen with hexagonal grip and small white logo at top.",
+      "price": 3500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-02-product-01.jpg"
+      ],
+      "collection": "Stationery",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Black",
+            "Brass",
+            "Chrome"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3500
+            }
+          ],
+          "options": {
+            "Color": "Black"
+          }
+        },
+        {
+          "title": "Brass",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3500
+            }
+          ],
+          "options": {
+            "Color": "Brass"
+          }
+        },
+        {
+          "title": "Chrome",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3500
+            }
+          ],
+          "options": {
+            "Color": "Chrome"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Machined Pen and Pencil Set",
+      "handle": "machined-pen-and-pencil-set",
+      "description": "Black machined pen and pencil with hexagonal shaft and small white logo.",
+      "price": 7000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-02.jpg"
+      ],
+      "collection": "Stationery",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Black"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 7000
+            }
+          ],
+          "options": {
+            "Color": "Black"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Machined Pencil and Pen Set",
+      "handle": "machined-pencil-and-pen-set",
+      "description": "12-sided, machined black pencil and pen.",
+      "price": 7000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-03.jpg"
+      ],
+      "collection": "Stationery",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Black"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 7000
+            }
+          ],
+          "options": {
+            "Color": "Black"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Marketing Icon Pack",
+      "handle": "marketing-icon-pack",
+      "description": "Calendar user interface screenshot with icon buttons and orange-yellow theme.",
+      "price": 1900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-02.jpg"
+      ],
+      "collection": "Accessories",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 1900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Medium Stuff Satchel",
+      "handle": "medium-stuff-satchel",
+      "description": "Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.",
+      "price": 22000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-07-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-07-product-03.jpg"
+      ],
+      "collection": "Bags",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 22000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Micro Backpack",
+      "handle": "micro-backpack",
+      "description": "Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.",
+      "price": 7000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-04-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-04-product-01.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Moss"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Moss",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 7000
+            }
+          ],
+          "options": {
+            "Color": "Moss"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Mini Sketchbook Set",
+      "handle": "mini-sketchbook-set",
+      "description": "Three mini sketchbooks with tan and charcoal typography poster covers.",
+      "price": 2800,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-03.jpg"
+      ],
+      "collection": "Stationery",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Tan and Charcoal"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Tan and Charcoal",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 2800
+            }
+          ],
+          "options": {
+            "Color": "Tan and Charcoal"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Mini-Sketchbooks",
+      "handle": "mini-sketchbooks",
+      "description": "Set of three light and dark brown mini sketch books.",
+      "price": 2700,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-04.jpg"
+      ],
+      "collection": "Stationery",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Light Brown"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Light Brown",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 2700
+            }
+          ],
+          "options": {
+            "Color": "Light Brown"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Minimalist Wristwatch",
+      "handle": "minimalist-wristwatch",
+      "description": "Arm modeling wristwatch with black leather band, white watch face, thin watch hands, and fine time markings.",
+      "price": 14900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-03-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-03-product-02.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 14900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Mountain Mist Artwork Tee",
+      "handle": "mountain-mist-artwork-tee",
+      "description": "Off-white t-shirt with circular dot illustration on the front of mountain ridges that fade.",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-form-04-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-form-04-product-01.jpg"
+      ],
+      "collection": "Tops",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Birch"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Birch",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ],
+          "options": {
+            "Color": "Birch"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Mountains Artwork Tee",
+      "handle": "mountains-artwork-tee",
+      "description": "Model wearing women",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-03.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Nomad Pouch",
+      "handle": "nomad-pouch",
+      "description": "White fabric pouch with white zipper, black zipper pull, and black elastic loop.",
+      "price": 5000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-07-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-07-product-01.jpg"
+      ],
+      "collection": "Bags",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 5000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Nomad Tumbler",
+      "handle": "nomad-tumbler",
+      "description": "Olive drab green insulated bottle with flared screw lid and flat top.",
+      "price": 3500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-03-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-03-product-01.jpg"
+      ],
+      "collection": "Drinkware",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Off-White Basic Tee",
+      "handle": "off-white-basic-tee",
+      "description": "Model wearing women",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-02.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Organize Basic Set (Maple)",
+      "handle": "organize-basic-set-maple",
+      "description": "TODO",
+      "price": 14900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-06.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-06.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 14900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Organize Basic Set (Walnut)",
+      "handle": "organize-basic-set-walnut",
+      "description": "TODO",
+      "price": 14900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-01.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 14900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Organize Pen Holder",
+      "handle": "organize-pen-holder",
+      "description": "TODO",
+      "price": 1500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-02.jpg"
+      ],
+      "collection": "Stationery",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 1500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Organize Phone Holder",
+      "handle": "organize-phone-holder",
+      "description": "TODO",
+      "price": 1500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-04.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 1500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Organize Set",
+      "handle": "organize-set",
+      "description": "Grooved walnut desk organizer base with five modular white plastic organizer trays.",
+      "price": 14900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-01-related-product-04.jpg"
+      ],
+      "collection": "Home & Office",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Walnut"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Walnut",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 14900
+            }
+          ],
+          "options": {
+            "Color": "Walnut"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Organize Small Tray",
+      "handle": "organize-small-tray",
+      "description": "TODO",
+      "price": 1500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-05.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-05.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 1500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Organize Sticky Note Holder",
+      "handle": "organize-sticky-note-holder",
+      "description": "TODO",
+      "price": 1500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-03.jpg"
+      ],
+      "collection": "Home & Office",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 1500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Organizer Set",
+      "handle": "organizer-set",
+      "description": "Beautiful walnut organizer set with multiple white compartments",
+      "price": 14900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-04-trending-product-01.jpg"
+      ],
+      "collection": "Home & Office",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Walnut"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Walnut",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 14900
+            }
+          ],
+          "options": {
+            "Color": "Walnut"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Out and About Bottle",
+      "handle": "out-and-about-bottle",
+      "description": "TODO",
+      "price": 2500,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-07.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-05-image-card-07.jpg"
+      ],
+      "collection": "Drinkware",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 2500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Rainfall Artwork Tee",
+      "handle": "rainfall-artwork-tee",
+      "description": "Dark green t-shirt with arched gradient on the front that fades away.",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-04-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/confirmation-page-04-product-02.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Scaffold",
+      "handle": "scaffold",
+      "description": "Pricing page screenshot with tiered plan options and comparison table on colorful blue and green background.",
+      "price": 2900,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-05-related-product-03.jpg"
+      ],
+      "collection": "Accessories",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 2900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Small Stuff Satchel",
+      "handle": "small-stuff-satchel",
+      "description": "Front of satchel with tan canvas body, straps, handle, drawstring top, and front zipper pouch.",
+      "price": 18000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-04-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-04-product-02.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Sand"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Sand",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 18000
+            }
+          ],
+          "options": {
+            "Color": "Sand"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Stone Basic Tee",
+      "handle": "stone-basic-tee",
+      "description": "Front of plain dark gray t-shirt.",
+      "price": 3200,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-04.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-04.jpg"
+      ],
+      "collection": "Tops",
+      "variants": [
+        {
+          "title": "Default",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Swirls Artwork Tee",
+      "handle": "swirls-artwork-tee",
+      "description": "Front of dark clay color tee with black hand drawn circles on chest.",
+      "price": 3600,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-form-04-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-form-04-product-02.jpg"
+      ],
+      "collection": "Tops",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Sienna"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Sienna",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3600
+            }
+          ],
+          "options": {
+            "Color": "Sienna"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Throwback Hip Bag",
+      "handle": "throwback-hip-bag",
+      "description": "Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.",
+      "price": 9000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-01.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Salmon"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Salmon",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 9000
+            }
+          ],
+          "options": {
+            "Color": "Salmon"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Wrap Clutch",
+      "handle": "wrap-clutch",
+      "description": "Light grey canvas pouch with leather wrap strap and fold flap.",
+      "price": 3000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-03.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/checkout-page-07-product-03.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "Light gray"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Light gray",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 3000
+            }
+          ],
+          "options": {
+            "Color": "Light gray"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Zip High Wall Tote",
+      "handle": "zip-high-wall-tote",
+      "description": "Front of zip tote bag with white canvas, blue canvas straps and handle, and front zipper pocket.",
+      "price": 15000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-03-related-product-02.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-03-related-product-02.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "White and blue"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "White and blue",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 15000
+            }
+          ],
+          "options": {
+            "Color": "White and blue"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Zip Tote Basket",
+      "handle": "zip-tote-basket",
+      "description": "Front of tote bag with washed black canvas body, black straps, and tan leather handles and accents.",
+      "price": 14000,
+      "thumbnail": "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-03-related-product-01.jpg",
+      "images": [
+        "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-03-related-product-01.jpg"
+      ],
+      "collection": "Bags",
+      "options": [
+        {
+          "title": "Color",
+          "values": [
+            "White and black"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "White and black",
+          "prices": [
+            {
+              "currency_code": "usd",
+              "amount": 14000
+            }
+          ],
+          "options": {
+            "Color": "White and black"
+          }
+        }
+      ]
+    }
+  ]
+}
