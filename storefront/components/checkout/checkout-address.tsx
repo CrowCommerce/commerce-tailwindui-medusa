@@ -65,9 +65,9 @@ export function CheckoutAddress({
 
   const countries = useMemo(
     (): { iso_2: string; display_name: string }[] =>
-      (cart.region?.countries as any[])?.map((c) => ({
-        iso_2: c.iso_2,
-        display_name: c.display_name ?? c.name ?? c.iso_2.toUpperCase(),
+      cart.region?.countries?.map((c) => ({
+        iso_2: c.iso_2 ?? "",
+        display_name: c.display_name ?? c.name ?? c.iso_2?.toUpperCase() ?? "",
       })) ?? [],
     [cart.region?.countries],
   );

@@ -46,7 +46,8 @@ export function SavedPaymentMethods({
   const fetchedRef = useRef(false);
 
   const accountHolderId =
-    (paymentSession?.context as Record<string, any>)?.account_holder?.id as string | undefined;
+    (paymentSession?.context as { account_holder?: { id: string } } | undefined)
+      ?.account_holder?.id;
 
   // Fetch saved payment methods on mount
   useEffect(() => {

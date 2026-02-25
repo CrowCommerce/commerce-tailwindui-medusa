@@ -18,6 +18,13 @@ function revalidateCheckout(): void {
   revalidatePath("/", "layout");
 }
 
+async function assertSessionCart(cartId: string): Promise<void> {
+  const sessionCartId = await getCartId();
+  if (!sessionCartId || sessionCartId !== cartId) {
+    throw new Error("Cart not found");
+  }
+}
+
 // === Retrieve raw cart (not transformed) for checkout ===
 
 export async function getCheckoutCart(): Promise<HttpTypes.StoreCart | null> {
@@ -52,6 +59,7 @@ export async function setCartEmail(
   const headers = await getAuthHeaders();
 
   try {
+    await assertSessionCart(cartId);
     await sdk.store.cart
       .update(cartId, { email }, {}, headers)
       .catch(medusaError);
@@ -75,6 +83,7 @@ export async function setCartAddresses(
   const billingAddress = billing || shipping;
 
   try {
+    await assertSessionCart(cartId);
     await sdk.store.cart
       .update(
         cartId,
@@ -136,6 +145,7 @@ export async function setShippingMethod(
   const headers = await getAuthHeaders();
 
   try {
+    await assertSessionCart(cartId);
     await sdk.store.cart
       .addShippingMethod(cartId, { option_id: optionId }, {}, headers)
       .catch(medusaError);
@@ -158,13 +168,14 @@ export async function initializePaymentSession(
   const headers = await getAuthHeaders();
 
   try {
+    await assertSessionCart(cartId);
     const { cart } = await sdk.client.fetch<{
       cart: HttpTypes.StoreCart;
     }>(`/store/carts/${cartId}`, {
       method: "GET",
       headers,
       query: { fields: "*payment_collection.payment_sessions" },
-    });
+    }).catch(medusaError);
 
     await sdk.store.payment
       .initiatePaymentSession(cart, { provider_id: providerId, data }, {}, headers)
@@ -206,13 +217,13 @@ export async function completeCart(
   const headers = await getAuthHeaders();
 
   try {
+    await assertSessionCart(cartId);
     const result = await sdk.store.cart
       .complete(cartId, {}, headers)
       .catch(medusaError);
 
     if (result.type === "order") {
       await removeCartId();
-      revalidateCheckout();
       return { type: "order", order: result.order };
     }
 
@@ -228,6 +239,8 @@ export async function completeCart(
       type: "cart",
       error: err instanceof Error ? err.message : "Error completing order",
     };
+  } finally {
+    revalidateCheckout();
   }
 }
 
