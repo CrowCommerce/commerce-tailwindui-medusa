@@ -433,6 +433,9 @@ export default async function seedDemoData({ container }: ExecArgs) {
           Object.keys(variant.options).length > 0
         ) {
           base.options = variant.options;
+        } else {
+          // Medusa v2 requires options for all products
+          base.options = { Default: "Default" };
         }
 
         return base;
@@ -456,6 +459,9 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
       if (hasOptions) {
         result.options = product.options;
+      } else {
+        // Medusa v2 requires options for all products
+        result.options = [{ title: "Default", values: ["Default"] }];
       }
 
       return result;
