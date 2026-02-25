@@ -1,9 +1,25 @@
+import type { HttpTypes } from "@medusajs/types";
 import { sdk } from "lib/medusa";
 import { getAuthHeaders } from "lib/medusa/cookies";
 import { retrieveCustomer } from "lib/medusa/customer";
+import { medusaError } from "lib/medusa/error";
 import { formatMoney } from "lib/medusa/format";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+
+type StoreOrder = HttpTypes.StoreOrder & {
+  payment_collections?: Array<{
+    payments?: Array<{
+      provider_id?: string;
+      data?: {
+        payment_method?: { card?: { brand?: string; last4?: string } };
+        card?: { brand?: string; last4?: string };
+      };
+    }>;
+    payment_sessions?: Array<{ provider_id?: string }>;
+  }>;
+  promotions?: Array<{ code?: string }>;
+};
 
 export const metadata = {
   title: "Order Confirmed",
@@ -12,7 +28,7 @@ export const metadata = {
 async function getOrder(orderId: string) {
   const headers = await getAuthHeaders();
   try {
-    const { order } = await sdk.client.fetch<{ order: any }>(
+    const { order } = await sdk.client.fetch<{ order: StoreOrder }>(
       `/store/orders/${orderId}`,
       {
         method: "GET",
@@ -21,7 +37,7 @@ async function getOrder(orderId: string) {
           fields: "*items,*items.variant,*items.product,*shipping_address,*billing_address,*shipping_methods,*payment_collections,*payment_collections.payments,*payment_collections.payment_sessions,+promotions",
         },
       },
-    );
+    ).catch(medusaError);
     return order;
   } catch (err) {
     console.error("[Order] Failed to retrieve order:", err);
@@ -29,7 +45,7 @@ async function getOrder(orderId: string) {
   }
 }
 
-function getPaymentMethodLabel(order: any): string {
+function getPaymentMethodLabel(order: StoreOrder): string {
   const payment =
     order.payment_collections?.[0]?.payments?.[0] ||
     order.payment_collections?.[0]?.payment_sessions?.[0];
@@ -45,9 +61,9 @@ function capitalizeBrand(brand: string | undefined): string {
   return b.charAt(0).toUpperCase() + b.slice(1);
 }
 
-function getPaymentCardSummary(order: any): string | null {
+function getPaymentCardSummary(order: StoreOrder): string | null {
   const payment = order.payment_collections?.[0]?.payments?.[0];
-  const data = payment?.data as Record<string, any> | undefined;
+  const data = payment?.data;
   if (data?.payment_method?.card) {
     const card = data.payment_method.card;
     return `${capitalizeBrand(card.brand)} ending in ${card.last4}`;
@@ -99,7 +115,7 @@ export default async function OrderConfirmedPage({
 
           {/* Items */}
           <h3 className="sr-only">Items</h3>
-          {(order.items || []).map((item: any) => (
+          {(order.items || []).map((item: NonNullable<StoreOrder["items"]>[number]) => (
             <div
               key={item.id}
               className="flex space-x-6 border-b border-gray-200 py-10"

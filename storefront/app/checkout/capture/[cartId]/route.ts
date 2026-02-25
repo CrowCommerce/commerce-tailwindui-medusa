@@ -29,7 +29,7 @@ export async function GET(
     ]);
   } catch {
     return NextResponse.redirect(
-      `${origin}/checkout?error=${encodeURIComponent("Order completion timed out. Please check your orders or contact support.")}`,
+      `${origin}/checkout?error=payment_failed`,
     );
   }
 
@@ -39,6 +39,8 @@ export async function GET(
     );
   }
 
-  const errorMsg = encodeURIComponent(result.error || "payment_failed");
-  return NextResponse.redirect(`${origin}/checkout?error=${errorMsg}`);
+  if (result.error) {
+    console.error("[Capture] Cart completion failed:", result.error);
+  }
+  return NextResponse.redirect(`${origin}/checkout?error=payment_failed`);
 }

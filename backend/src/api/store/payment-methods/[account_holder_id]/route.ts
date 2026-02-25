@@ -31,7 +31,7 @@ export async function GET(
   }
 
   // Verify the account holder belongs to the authenticated customer
-  const linkedCustomer = (accountHolder as any).customer
+  const linkedCustomer = (accountHolder as { customer?: { id: string } }).customer
   if (!linkedCustomer || linkedCustomer.id !== customerId) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,

@@ -43,6 +43,11 @@
 - [ ] Revoke `URL.createObjectURL` blobs in ReviewForm on file remove and component cleanup
 - [ ] Add explicit `multer` to backend `package.json` dependencies (currently works via transitive dep from `@medusajs/medusa`)
 
+### Code Review Follow-ups (from PR #9)
+
+- [ ] Strip `payment_sessions` from checkout cart serialization — only pass `client_secret` to client via dedicated server action (Finding #1: broad payment-session exposure)
+- [ ] Add Zod schema validation to checkout server actions for `email`, address payloads, `providerId`, and `data` params (Finding #2: no input validation at action boundaries)
+
 ### Phase 3: Verified Purchase & Search
 
 - [ ] Order linking (`order_id`, `order_line_item_id`) for verified purchase badge

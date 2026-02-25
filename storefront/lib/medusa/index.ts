@@ -20,6 +20,15 @@ import {
   transformProduct,
 } from "./transforms";
 
+type ProductFetchQuery = {
+  region_id: string;
+  fields: string;
+  limit: number;
+  q?: string;
+  order?: string;
+  collection_id?: string[];
+};
+
 // --- SDK Client ---
 
 const MEDUSA_BACKEND_URL =
@@ -124,7 +133,7 @@ export async function getProducts({
     order = "-created_at";
   }
 
-  const fetchQuery: Record<string, any> = {
+  const fetchQuery: ProductFetchQuery = {
     region_id: region.id,
     fields: PRODUCT_FIELDS,
     limit: 100,
@@ -242,7 +251,7 @@ export async function getCollectionProducts({
     order = reverse ? "-created_at" : "created_at";
   }
 
-  const fetchQuery: Record<string, any> = {
+  const fetchQuery: ProductFetchQuery = {
     collection_id: [col.id],
     region_id: region.id,
     fields: PRODUCT_FIELDS,
@@ -429,7 +438,7 @@ export async function getCart(): Promise<Cart | undefined> {
       method: "GET",
       headers,
       query: { fields: CART_FIELDS },
-    });
+    }).catch(medusaError);
 
     // Reconcile stale carts created under a different region/currency
     if (rawCart.region_id !== defaultRegion.id) {
@@ -438,7 +447,7 @@ export async function getCart(): Promise<Cart | undefined> {
         { region_id: defaultRegion.id },
         {},
         headers,
-      );
+      ).catch(medusaError);
       return await fetchCart(cartId);
     }
 
