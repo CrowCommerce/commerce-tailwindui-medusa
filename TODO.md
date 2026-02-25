@@ -5,7 +5,7 @@
 - [x] Customer accounts — see [implementation phases](#customer-accounts-implementation) below
 - [x] Checkout flow (5-step: email → address → shipping → payment → review with Stripe Payment Element)
 - [ ] Multi-region / multi-currency support
-- [ ] Product categories (Medusa nested category tree)
+- [ ] Collections/categories (storefront collection pages, Medusa nested category tree, navigation integration)
 - [x] Wishlist / saved items
 - [ ] CMS pages (`getPage`/`getPages` return stubs)
 
@@ -120,6 +120,7 @@
 - [x] Convert monorepo to Turborepo with bun workspaces
 - [x] Shared TypeScript tooling (`@repo/typescript`)
 - [x] Enable React Compiler
+- [ ] React Compiler optimization (audit component boundaries, measure compile rate, fix bailouts)
 - [ ] Set up CI/CD (GitHub Actions)
 - [ ] Configure Medusa webhooks for cache revalidation
 - [ ] Update `DEFAULT_NAVIGATION` with real store categories
