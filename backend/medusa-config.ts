@@ -9,9 +9,9 @@ if (!process.env.STRIPE_API_KEY) {
 }
 
 if (process.env.STRIPE_API_KEY && !process.env.STRIPE_WEBHOOK_SECRET) {
-  throw new Error(
-    "[medusa-config] STRIPE_WEBHOOK_SECRET is required when STRIPE_API_KEY is set. " +
-    "Without it, the webhook endpoint accepts unverified requests."
+  console.warn(
+    "[medusa-config] STRIPE_WEBHOOK_SECRET is not set — Stripe webhooks will not be verified. " +
+    "Set STRIPE_WEBHOOK_SECRET before going live."
   )
 }
 
