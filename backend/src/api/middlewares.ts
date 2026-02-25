@@ -57,7 +57,7 @@ export default defineMiddlewares({
       matcher: "/store/reviews/uploads",
       middlewares: [
         authenticate("customer", ["session", "bearer"]),
-        upload.array("files", 3),
+        upload.array("files", 3) as any,
       ],
     },
     {
