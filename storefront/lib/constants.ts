@@ -50,5 +50,6 @@ export const TAGS = {
 };
 
 export const DEFAULT_LOCALE = "en-US";
+export const STRIPE_PROVIDER_ID = "pp_stripe_stripe";
 export const HIDDEN_PRODUCT_TAG = "nextjs-frontend-hidden";
 export const DEFAULT_OPTION = "Default Title";

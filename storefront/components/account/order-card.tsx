@@ -1,5 +1,6 @@
 import type { HttpTypes } from "@medusajs/types";
 import { DEFAULT_LOCALE } from "lib/constants";
+import { formatMoney } from "lib/medusa/format";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,13 +10,6 @@ function formatDate(dateString: string): string {
     month: "short",
     day: "numeric",
   });
-}
-
-function formatMoney(amount: number, currencyCode: string): string {
-  return new Intl.NumberFormat(DEFAULT_LOCALE, {
-    style: "currency",
-    currency: currencyCode,
-  }).format(amount);
 }
 
 export function OrderCard({ order }: { order: HttpTypes.StoreOrder }) {

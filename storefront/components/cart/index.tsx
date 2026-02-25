@@ -11,7 +11,6 @@ import { redirectToCheckout } from "components/cart/actions";
 import { useCart } from "components/cart/cart-context";
 import { EditItemQuantityButton } from "components/cart/edit-item-quantity-button";
 import CartPrice from "components/price/cart-price";
-import LoadingDots from "components/template-loading-dots";
 import { DEFAULT_OPTION } from "lib/constants";
 import { createUrl } from "lib/utils";
 import Image from "next/image";
@@ -222,10 +221,10 @@ export function Cart() {
                     <div className="flex justify-between text-base font-medium text-gray-900">
                       <p>Subtotal</p>
                       <div className="text-right">
-                        {cart && cart.cost.totalAmount.amount !== "0" ? (
+                        {cart && Number(cart.cost.subtotalAmount.amount) > 0 ? (
                           <CartPrice
-                            amount={cart.cost.totalAmount.amount}
-                            currencyCode={cart.cost.totalAmount.currencyCode}
+                            amount={cart.cost.subtotalAmount.amount}
+                            currencyCode={cart.cost.subtotalAmount.currencyCode}
                           />
                         ) : (
                           <span>$0.00</span>
@@ -269,11 +268,11 @@ function CheckoutButton() {
 
   return (
     <button
-      className="bg-primary-600 hover:bg-primary-700 focus-visible:ring-primary-500 flex w-full items-center justify-center rounded-md px-6 py-3 text-base font-medium text-white shadow-xs focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
+      className="bg-primary-600 hover:bg-primary-700 focus-visible:ring-primary-500 flex w-full items-center justify-center rounded-md px-6 py-3 text-base font-medium text-white shadow-xs focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
       type="submit"
       disabled={pending}
     >
-      {pending ? <LoadingDots className="bg-white" /> : "Checkout"}
+      {pending ? "Processing..." : "Checkout"}
     </button>
   );
 }

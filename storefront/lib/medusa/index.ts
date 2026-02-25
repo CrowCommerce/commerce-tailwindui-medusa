@@ -20,6 +20,15 @@ import {
   transformProduct,
 } from "./transforms";
 
+type ProductFetchQuery = {
+  region_id: string;
+  fields: string;
+  limit: number;
+  q?: string;
+  order?: string;
+  collection_id?: string[];
+};
+
 // --- SDK Client ---
 
 const MEDUSA_BACKEND_URL =
@@ -49,7 +58,16 @@ async function getDefaultRegion(): Promise<HttpTypes.StoreRegion> {
     throw new Error("No regions found in Medusa. Create at least one region.");
   }
 
-  cachedRegion = regions[0]!;
+  // Prefer region specified by env var, then USD region, then first region
+  const preferredId = process.env.NEXT_PUBLIC_DEFAULT_REGION_ID;
+  const preferred = preferredId
+    ? regions.find((r) => r.id === preferredId)
+    : undefined;
+
+  cachedRegion =
+    preferred ??
+    regions.find((r) => r.currency_code === "usd") ??
+    regions[0]!;
   return cachedRegion;
 }
 
@@ -115,7 +133,7 @@ export async function getProducts({
     order = "-created_at";
   }
 
-  const fetchQuery: Record<string, any> = {
+  const fetchQuery: ProductFetchQuery = {
     region_id: region.id,
     fields: PRODUCT_FIELDS,
     limit: 100,
@@ -233,7 +251,7 @@ export async function getCollectionProducts({
     order = reverse ? "-created_at" : "created_at";
   }
 
-  const fetchQuery: Record<string, any> = {
+  const fetchQuery: ProductFetchQuery = {
     collection_id: [col.id],
     region_id: region.id,
     fields: PRODUCT_FIELDS,
@@ -410,7 +428,30 @@ export async function getCart(): Promise<Cart | undefined> {
   if (!cartId) return undefined;
 
   try {
-    return await fetchCart(cartId);
+    const defaultRegion = await getDefaultRegion();
+    const headers = await getAuthHeaders();
+
+    // Fetch the raw cart to check its region
+    const { cart: rawCart } = await sdk.client.fetch<{
+      cart: HttpTypes.StoreCart;
+    }>(`/store/carts/${cartId}`, {
+      method: "GET",
+      headers,
+      query: { fields: CART_FIELDS },
+    }).catch(medusaError);
+
+    // Reconcile stale carts created under a different region/currency
+    if (rawCart.region_id !== defaultRegion.id) {
+      await sdk.store.cart.update(
+        cartId,
+        { region_id: defaultRegion.id },
+        {},
+        headers,
+      ).catch(medusaError);
+      return await fetchCart(cartId);
+    }
+
+    return transformCart(rawCart);
   } catch (error) {
     console.error(
       "[Cart] Failed to retrieve cart, clearing stale cookie:",

@@ -10,6 +10,19 @@ import type {
   ProductVariant,
 } from "lib/types";
 
+type VariantWithCalculatedPrice = HttpTypes.StoreProductVariant & {
+  calculated_price?: {
+    currency_code?: string;
+    calculated_amount?: number;
+  };
+  inventory_quantity?: number;
+};
+
+interface ProductTagValue {
+  value?: string;
+  name?: string;
+}
+
 /**
  * Convert Medusa amount to Money string format.
  * Medusa v2 calculated_price amounts are already in the main currency unit
@@ -26,8 +39,8 @@ function toMoney(
 }
 
 function getCurrencyCode(product: HttpTypes.StoreProduct): string {
-  const variant = product.variants?.[0];
-  return (variant as any)?.calculated_price?.currency_code || "USD";
+  const variant = product.variants?.[0] as VariantWithCalculatedPrice | undefined;
+  return variant?.calculated_price?.currency_code || "USD";
 }
 
 function transformImage(
@@ -43,12 +56,12 @@ function transformImage(
 }
 
 function transformVariant(
-  variant: HttpTypes.StoreProductVariant,
+  variant: VariantWithCalculatedPrice,
   currencyCode: string,
 ): ProductVariant {
-  const calculatedPrice = (variant as any)?.calculated_price;
+  const calculatedPrice = variant.calculated_price;
   const amount = calculatedPrice?.calculated_amount ?? 0;
-  const inventoryQuantity = (variant as any)?.inventory_quantity ?? 0;
+  const inventoryQuantity = variant.inventory_quantity ?? 0;
   const manageInventory = variant.manage_inventory ?? false;
 
   return {
@@ -74,7 +87,7 @@ function transformOption(option: HttpTypes.StoreProductOption): ProductOption {
 export function transformProduct(product: HttpTypes.StoreProduct): Product {
   const currencyCode = getCurrencyCode(product);
   const variants = (product.variants || []).map((v) =>
-    transformVariant(v, currencyCode),
+    transformVariant(v as VariantWithCalculatedPrice, currencyCode),
   );
   const images = (product.images || []).map((img) =>
     transformImage(img, product.title || ""),
@@ -99,7 +112,10 @@ export function transformProduct(product: HttpTypes.StoreProduct): Product {
       };
 
   const tags: string[] = (product.tags || []).map(
-    (t) => (t as any).value || (t as any).name || String(t),
+    (t) => {
+      const tag = t as unknown as ProductTagValue;
+      return tag.value || tag.name || String(t);
+    },
   );
 
   return {
@@ -196,7 +212,7 @@ export function transformCart(cart: HttpTypes.StoreCart): Cart {
     id: cart.id,
     checkoutUrl: "",
     cost: {
-      subtotalAmount: toMoney(cart.subtotal, currencyCode),
+      subtotalAmount: toMoney(cart.item_subtotal, currencyCode),
       totalAmount: toMoney(cart.total, currencyCode),
       totalTaxAmount: toMoney(cart.tax_total, currencyCode),
     },

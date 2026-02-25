@@ -1,3 +1,5 @@
+import type { HttpTypes } from "@medusajs/types";
+
 export type Cart = {
   id: string | undefined;
   checkoutUrl: string;
@@ -199,3 +201,50 @@ export type Wishlist = {
   created_at: string;
   updated_at: string;
 };
+
+// --- Checkout ---
+
+export type CheckoutStep =
+  | "email"
+  | "address"
+  | "shipping"
+  | "payment"
+  | "review";
+
+export type AddressPayload = {
+  first_name: string;
+  last_name: string;
+  address_1: string;
+  address_2?: string;
+  company?: string;
+  city: string;
+  country_code: string;
+  province?: string;
+  postal_code: string;
+  phone?: string;
+};
+
+export type ShippingOption = {
+  id: string;
+  name: string;
+  price_type: "flat" | "calculated";
+  amount: number;
+  currency_code: string;
+};
+
+export type SavedPaymentMethod = {
+  id: string;
+  provider_id: string;
+  data: {
+    card: {
+      brand: string;
+      last4: string;
+      exp_month: number;
+      exp_year: number;
+    };
+  };
+};
+
+export type CartCompletionResult =
+  | { type: "order"; order: HttpTypes.StoreOrder }
+  | { type: "cart"; error: string };

@@ -2,6 +2,42 @@
 
 Comprehensive technical reference for the commerce-tailwindui-medusa storefront. For agent behavior and workflow, see **[CLAUDE.md](./CLAUDE.md)**.
 
+## Review guidelines
+
+### P0 — Security
+- All server actions must validate and sanitize input before processing
+- Cookie operations must use the dedicated functions in `lib/medusa/cookies.ts` — never set cookies directly
+- Cookies must use httpOnly, sameSite strict, and secure (in production) flags
+- No sensitive data (cart IDs, customer info, payment sessions, JWT tokens) exposed in client components or client-side code
+  - **Exception:** Stripe Payment Element requires `client_secret` on the client, and cart IDs in payment callback URLs are needed for redirect-based flows (3D Secure, PayPal). Server actions validate cart ownership via `assertSessionCart()`.
+- No API keys, secrets, or tokens in client bundles — check for `NEXT_PUBLIC_` prefix misuse
+- Server actions handling cart/checkout mutations must enforce authentication where required via `getAuthHeaders()`
+- Payment flows must not be manipulable — no client-controlled pricing, no cart state injection, no replay vectors
+- All customer-facing API routes must validate the requesting user owns the resource (prevent IDOR)
+- Never trust Stripe `redirect_status` or client-side payment intent status — always validate server-side via `completeCart()`
+- `STRIPE_WEBHOOK_SECRET` must be set whenever `STRIPE_API_KEY` is configured — flag if webhook verification is missing or bypassed
+- Express checkout flows must validate email presence before proceeding to payment
+- Non-terminal payment statuses (e.g., "processing", "requires_action") must surface user-facing errors — never silently no-op or swallow the status
+
+### P0 — Correctness
+- Cart mutations must call both `revalidateTag(TAGS.cart, "max")` AND `revalidatePath("/", "layout")` — missing either causes stale UI
+- Cart revalidation must run in `finally` blocks so optimistic state re-syncs even on failure
+- Medusa v2 prices are in major currency units (10 = $10.00) — never divide by 100
+- Cart subtotal for display must use `item_subtotal` not `subtotal` (which includes shipping)
+- API calls fetching product prices or variants must include `region_id` for calculated prices
+- Error handling must use `medusaError()` from `lib/medusa/error.ts` — not raw try/catch with generic messages
+
+### P1 — Architecture
+- Client components must be limited to interactive needs (dialogs, optimistic updates, keyboard shortcuts) — default to RSC
+- Server actions must follow the established pattern in `components/cart/actions.ts`
+- No new `any` types in changed files — existing `any` usage in legacy files (order confirmation, checkout types) is tracked separately
+
+### P1 — Maintainability
+- Functions exceeding 80 lines should be flagged for review — procedural flows like checkout handlers may be acceptable if linear and well-commented
+- Duplicated logic across server actions should use shared helpers
+- Consistent error handling patterns across all server actions
+- TypeScript strict mode compliance — no unchecked index access
+
 ## Project Overview
 
 Next.js 16 ecommerce storefront built on Vercel's Commerce template, enhanced with premium Tailwind UI components. Integrates with a local Medusa.js v2 backend via the Store REST API. Designed for a polished, production-ready shopping experience with static generation, optimistic cart updates, and granular caching.
@@ -214,6 +250,20 @@ export async function getProduct(handle: string) {
 
 **Critical:** Cart updates require **both** tag revalidation **and** path revalidation for UI to update without hard refresh.
 
+### Cart Pricing Fields
+
+Medusa v2 cart total fields — use the right one for each context:
+
+| Field | Meaning | Use for |
+|-------|---------|---------|
+| `item_subtotal` | Sum of line item subtotals (items only, excl. tax) | "Subtotal" label in cart/checkout |
+| `subtotal` | `item_subtotal` + `shipping_subtotal` (excl. tax) | Rarely — includes shipping |
+| `shipping_total` | Shipping after discounts, incl. tax | "Shipping" line item |
+| `tax_total` | Total tax amount | "Tax" line item |
+| `total` | Final total after discounts/credits, incl. tax | "Total" / "Order total" |
+
+**Important:** `transformCart()` in `lib/medusa/transforms.ts` maps `cost.subtotalAmount` → `cart.item_subtotal` (not `cart.subtotal`) so that the internal `Cart` type's subtotal represents items only.
+
 ### Flow
 
 1. **Storage:** Cart ID stored in `_medusa_cart_id` cookie (secure, httpOnly) via `lib/medusa/cookies.ts`
@@ -222,7 +272,7 @@ export async function getProduct(handle: string) {
    - `addItem(prevState, variantId)` — Add to cart
    - `removeItem(prevState, lineItemId)` — Remove from cart (uses line item ID directly)
    - `updateItemQuantity(prevState, {merchandiseId, quantity})` — Update quantity
-   - `redirectToCheckout()` — Stub, redirects to `/cart`
+   - `redirectToCheckout()` — Redirects to `/checkout`
 4. **Optimistic UI:** Cart components use `useOptimistic` for instant feedback
 5. **Revalidation pattern** (every mutation, in `finally` block):
    ```typescript
@@ -380,17 +430,19 @@ psql medusa_db -t -c "SELECT token FROM api_key WHERE type = 'publishable' LIMIT
 
 3. **Prices showing $0.00:** Products need `calculated_price` — ensure `region_id` is passed in API queries.
 
-4. **Price amounts are NOT in cents:** Medusa v2 `calculated_amount` is in the main currency unit (10 = $10.00). The `toMoney()` helper does NOT divide by 100.
+4. **Price amounts are NOT in cents:** Medusa v2 stores all prices in major currency units (10 = $10.00). This applies to product prices, cart totals, and shipping option amounts. Never divide by 100 — `toMoney()`, `formatMoney()`, and `Intl.NumberFormat` receive amounts as-is.
 
-5. **Stale prices after transform changes:** Clear the Next.js cache (`rm -rf .next`) and restart dev.
+5. **Cart subtotal includes shipping:** Medusa v2's `cart.subtotal` = `item_subtotal` + `shipping_subtotal`. For an items-only subtotal (what customers expect to see labeled "Subtotal"), use `cart.item_subtotal`. Our `transformCart()` maps `cost.subtotalAmount` to `cart.item_subtotal` for this reason.
 
-6. **Color variants not displaying:** Variants must have a "Color" option (case-insensitive match).
+6. **Stale prices after transform changes:** Clear the Next.js cache (`rm -rf .next`) and restart dev.
 
-7. **Navigation empty:** Falls back to `DEFAULT_NAVIGATION` from `lib/constants/navigation.ts`. This is expected when no collections exist in Medusa.
+7. **Color variants not displaying:** Variants must have a "Color" option (case-insensitive match).
 
-8. **Build failures:** Usually missing env vars or Medusa backend unreachable.
+8. **Navigation empty:** Falls back to `DEFAULT_NAVIGATION` from `lib/constants/navigation.ts`. This is expected when no collections exist in Medusa.
 
-9. **Pages returning empty:** Medusa has no native CMS. `getPage()` / `getPages()` return stubs.
+9. **Build failures:** Usually missing env vars or Medusa backend unreachable.
+
+10. **Pages returning empty:** Medusa has no native CMS. `getPage()` / `getPages()` return stubs.
 
 ## TypeScript Configuration
 
@@ -415,3 +467,39 @@ Remote patterns configured in `next.config.ts`:
 | `tailwindcss.com`                                 | Tailwind UI demo assets     |
 
 Formats: AVIF and WebP.
+
+## Review Guidelines
+
+### P0 — Security
+- All server actions must validate and sanitize input before processing
+- Cookie operations must use the dedicated functions in `lib/medusa/cookies.ts` — never set cookies directly
+- Cookies must use httpOnly, sameSite strict, and secure (in production) flags
+- No sensitive data (cart IDs, customer info, payment sessions, JWT tokens) exposed in client components or client-side code
+  - **Exception:** Stripe Payment Element requires `client_secret` on the client, and cart IDs in payment callback URLs are needed for redirect-based flows (3D Secure, PayPal). Server actions validate cart ownership via `assertSessionCart()`.
+- No API keys, secrets, or tokens in client bundles — check for `NEXT_PUBLIC_` prefix misuse
+- Server actions handling cart/checkout mutations must enforce authentication where required via `getAuthHeaders()`
+- Payment flows must not be manipulable — no client-controlled pricing, no cart state injection, no replay vectors
+- All customer-facing API routes must validate the requesting user owns the resource (prevent IDOR)
+- Never trust Stripe `redirect_status` or client-side payment intent status — always validate server-side via `completeCart()`
+- `STRIPE_WEBHOOK_SECRET` must be set whenever `STRIPE_API_KEY` is configured — flag if webhook verification is missing or bypassed
+- Express checkout flows must validate email presence before proceeding to payment
+- Non-terminal payment statuses (e.g., "processing", "requires_action") must surface user-facing errors — never silently no-op or swallow the status
+
+### P0 — Correctness
+- Cart mutations must call both `revalidateTag(TAGS.cart, "max")` AND `revalidatePath("/", "layout")` — missing either causes stale UI
+- Cart revalidation must run in `finally` blocks so optimistic state re-syncs even on failure
+- Medusa v2 prices are in major currency units (10 = $10.00) — never divide by 100
+- Cart subtotal for display must use `item_subtotal` not `subtotal` (which includes shipping)
+- API calls fetching product prices or variants must include `region_id` for calculated prices
+- Error handling must use `medusaError()` from `lib/medusa/error.ts` — not raw try/catch with generic messages
+
+### P1 — Architecture
+- Client components must be limited to interactive needs (dialogs, optimistic updates, keyboard shortcuts) — default to RSC
+- Server actions must follow the established pattern in `components/cart/actions.ts`
+- No new `any` types in changed files — existing `any` usage in legacy files (order confirmation, checkout types) is tracked separately
+
+### P1 — Maintainability
+- Functions exceeding 80 lines should be flagged for review — procedural flows like checkout handlers may be acceptable if linear and well-commented
+- Duplicated logic across server actions should use shared helpers
+- Consistent error handling patterns across all server actions
+- TypeScript strict mode compliance — no unchecked index access

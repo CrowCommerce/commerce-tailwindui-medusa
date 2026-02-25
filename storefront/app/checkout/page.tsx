@@ -1,0 +1,37 @@
+import { redirect } from "next/navigation";
+import { getCheckoutCart } from "lib/medusa/checkout";
+import { retrieveCustomer } from "lib/medusa/customer";
+import { CheckoutForm } from "components/checkout/checkout-form";
+import { OrderSummary } from "components/checkout/order-summary";
+
+export const metadata = {
+  title: "Checkout",
+};
+
+export default async function CheckoutPage() {
+  const cart = await getCheckoutCart();
+
+  if (!cart || !cart.items?.length) {
+    redirect("/");
+  }
+
+  const customer = await retrieveCustomer();
+
+  return (
+    <div className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 sm:pb-24 sm:pt-8 lg:px-8 xl:px-2 xl:pt-14">
+        <h1 className="sr-only">Checkout</h1>
+
+        <div className="mx-auto grid max-w-lg grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
+          <div className="mx-auto w-full max-w-lg">
+            <OrderSummary cart={cart} />
+          </div>
+
+          <div className="mx-auto w-full max-w-lg">
+            <CheckoutForm cart={cart} customer={customer} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

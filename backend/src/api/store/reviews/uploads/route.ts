@@ -1,3 +1,4 @@
+import path from "node:path"
 import type {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -21,7 +22,7 @@ export const POST = async (
   const { result } = await uploadFilesWorkflow(req.scope).run({
     input: {
       files: input.map((f) => ({
-        filename: f.originalname,
+        filename: path.basename(f.originalname).replace(/[^a-zA-Z0-9._-]/g, "_") || "upload",
         mimeType: f.mimetype,
         content: f.buffer.toString("base64"),
         access: "public" as const,

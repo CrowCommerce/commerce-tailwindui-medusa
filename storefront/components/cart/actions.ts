@@ -91,7 +91,7 @@ export async function updateItemQuantity(
 }
 
 export async function redirectToCheckout() {
-  redirect("/cart");
+  redirect("/checkout");
 }
 
 export async function createCartAndSetCookie() {

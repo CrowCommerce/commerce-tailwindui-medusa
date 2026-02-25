@@ -3,7 +3,7 @@
 ## Deferred Features (Phase 2+)
 
 - [x] Customer accounts — see [implementation phases](#customer-accounts-implementation) below
-- [ ] Checkout flow (`redirectToCheckout` is a stub — redirects to `/cart`) — cart now fetches promotions + shipping methods
+- [x] Checkout flow (5-step: email → address → shipping → payment → review with Stripe Payment Element)
 - [ ] Multi-region / multi-currency support
 - [ ] Product categories (Medusa nested category tree)
 - [x] Wishlist / saved items
@@ -42,6 +42,11 @@
 - [ ] Rename `prev_img` ID prefix to `revi` on ReviewImage model (requires migration)
 - [ ] Revoke `URL.createObjectURL` blobs in ReviewForm on file remove and component cleanup
 - [ ] Add explicit `multer` to backend `package.json` dependencies (currently works via transitive dep from `@medusajs/medusa`)
+
+### Code Review Follow-ups (from PR #9)
+
+- [ ] Strip `payment_sessions` from checkout cart serialization — only pass `client_secret` to client via dedicated server action (Finding #1: broad payment-session exposure)
+- [ ] Add Zod schema validation to checkout server actions for `email`, address payloads, `providerId`, and `data` params (Finding #2: no input validation at action boundaries)
 
 ### Phase 3: Verified Purchase & Search
 
@@ -100,6 +105,8 @@
 
 ## Testing
 
+- [ ] Testing discounts (apply promo codes, verify discount display in checkout + order confirmation)
+- [ ] Compare checkout page UI to TailwindUI components (ensure all checkout/order pages match TailwindUI patterns)
 - [ ] Create `vitest.config.ts`
 - [x] Create `playwright.config.ts`
 - [ ] Unit tests for `lib/medusa/transforms.ts`
