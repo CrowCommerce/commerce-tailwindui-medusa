@@ -1,5 +1,6 @@
 import { sdk } from "lib/medusa";
 import { getAuthHeaders } from "lib/medusa/cookies";
+import { retrieveCustomer } from "lib/medusa/customer";
 import { formatMoney } from "lib/medusa/format";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -63,9 +64,18 @@ export default async function OrderConfirmedPage({
   params: Promise<{ orderId: string }>;
 }) {
   const { orderId } = await params;
-  const order = await getOrder(orderId);
+  const [order, customer] = await Promise.all([
+    getOrder(orderId),
+    retrieveCustomer(),
+  ]);
 
   if (!order) {
+    redirect("/");
+  }
+
+  // If the viewer is authenticated, verify they own this order.
+  // Guest orders (no customer_id) are accessible by order ID (UUID acts as token).
+  if (customer && order.customer_id && order.customer_id !== customer.id) {
     redirect("/");
   }
 

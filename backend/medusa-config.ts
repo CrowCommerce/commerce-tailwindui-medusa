@@ -6,6 +6,13 @@ if (!process.env.STRIPE_API_KEY) {
   console.warn("[medusa-config] STRIPE_API_KEY is not set — Stripe payments will not work")
 }
 
+if (process.env.STRIPE_API_KEY && !process.env.STRIPE_WEBHOOK_SECRET) {
+  throw new Error(
+    "[medusa-config] STRIPE_WEBHOOK_SECRET is required when STRIPE_API_KEY is set. " +
+    "Without it, the webhook endpoint accepts unverified requests."
+  )
+}
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -35,9 +42,7 @@ module.exports = defineConfig({
                   id: "stripe",
                   options: {
                     apiKey: process.env.STRIPE_API_KEY,
-                    ...(process.env.STRIPE_WEBHOOK_SECRET && {
-                      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-                    }),
+                    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
                     capture: false,
                     automatic_payment_methods: true,
                   },

@@ -4,6 +4,7 @@ import {
   when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
+import { MedusaError } from "@medusajs/framework/utils"
 import { createReviewStep, type CreateReviewStepInput } from "./steps/create-review"
 import { createReviewImagesStep } from "./steps/create-review-images"
 import { refreshReviewStatsStep } from "./steps/refresh-review-stats"
@@ -12,15 +13,23 @@ import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 export const createReviewWorkflow = createWorkflow(
   "create-review",
   function (input: CreateReviewStepInput) {
-    useQueryGraphStep({
+    // Validate product exists — explicit check instead of throwIfKeyNotFound
+    // which can produce misleading errors (see GitHub #11550)
+    const productQuery = useQueryGraphStep({
       entity: "product",
       fields: ["id"],
       filters: {
         id: input.product_id,
       },
-      options: {
-        throwIfKeyNotFound: true,
-      },
+    })
+
+    transform({ productQuery }, ({ productQuery: result }) => {
+      if (!result?.data?.length) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_FOUND,
+          "Product not found"
+        )
+      }
     })
 
     const review = createReviewStep(input)

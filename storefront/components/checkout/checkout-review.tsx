@@ -112,10 +112,18 @@ export function CheckoutReview({
     return status === "requires_capture" || status === "succeeded";
   }
 
-  async function handleOrderComplete() {
+  async function handleOrderComplete(paymentConfirmed = false) {
     const result = await completeCart(cart.id);
     if (result.type === "order") {
       router.push(`/order/confirmed/${result.order.id}`);
+    } else if (paymentConfirmed) {
+      // Payment succeeded at Stripe but order completion failed in Medusa.
+      // The customer has been charged — warn them not to retry.
+      setError(
+        "Your payment was processed but we couldn't confirm your order. " +
+        "Please contact support with your payment reference. " +
+        "Do not retry the payment.",
+      );
     } else {
       setError(result.error);
     }
@@ -141,7 +149,7 @@ export function CheckoutReview({
 
         if (confirmError) {
           if (isPaymentCapturable(confirmError.payment_intent?.status)) {
-            await handleOrderComplete();
+            await handleOrderComplete(true);
             return;
           }
           setError(
@@ -151,7 +159,7 @@ export function CheckoutReview({
         }
 
         if (isPaymentCapturable(paymentIntent?.status)) {
-          await handleOrderComplete();
+          await handleOrderComplete(true);
         }
         return;
       }
@@ -185,7 +193,7 @@ export function CheckoutReview({
 
         if (confirmError) {
           if (isPaymentCapturable(confirmError.payment_intent?.status)) {
-            await handleOrderComplete();
+            await handleOrderComplete(true);
             return;
           }
           setError(
@@ -195,7 +203,7 @@ export function CheckoutReview({
         }
 
         if (isPaymentCapturable(paymentIntent?.status)) {
-          await handleOrderComplete();
+          await handleOrderComplete(true);
         } else if (paymentIntent) {
           setError(`Unexpected payment status: ${paymentIntent.status}. Please try again.`);
         }
