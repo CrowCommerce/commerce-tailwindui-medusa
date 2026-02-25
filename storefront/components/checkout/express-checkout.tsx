@@ -64,7 +64,11 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
       try {
         const { billingDetails, shippingAddress } = event;
 
-        const email = billingDetails?.email || "";
+        const email = billingDetails?.email || cart.email || "";
+        if (!email) {
+          setOrderError("No email address provided. Please try again.");
+          return;
+        }
         const shippingName = splitName(
           shippingAddress?.name || billingDetails?.name,
         );

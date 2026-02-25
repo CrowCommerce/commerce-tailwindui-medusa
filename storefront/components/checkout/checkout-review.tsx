@@ -160,6 +160,8 @@ export function CheckoutReview({
 
         if (isPaymentCapturable(paymentIntent?.status)) {
           await handleOrderComplete(true);
+        } else if (paymentIntent) {
+          setError(`Unexpected payment status: ${paymentIntent.status}. Please try again.`);
         }
         return;
       }
@@ -174,7 +176,7 @@ export function CheckoutReview({
               return_url: `${window.location.origin}/checkout/capture/${cart.id}`,
               payment_method_data: {
                 billing_details: {
-                  name: [cart.billing_address?.first_name, cart.billing_address?.last_name].filter(Boolean).join(" "),
+                  name: [cart.billing_address?.first_name, cart.billing_address?.last_name].filter(Boolean).join(" ") || undefined,
                   address: {
                     city: cart.billing_address?.city ?? "",
                     country: cart.billing_address?.country_code ?? "",
