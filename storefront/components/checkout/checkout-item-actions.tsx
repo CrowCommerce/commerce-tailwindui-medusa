@@ -15,7 +15,7 @@ export function RemoveItemButton({ lineItemId }: { lineItemId: string }) {
       >
         {isPending ? "Removing..." : "Remove"}
       </button>
-      {message && <p className="mt-1 text-xs text-red-600">{message}</p>}
+      {message && <p role="status" aria-live="polite" className="mt-1 text-xs text-red-600">{message}</p>}
     </form>
   );
 }

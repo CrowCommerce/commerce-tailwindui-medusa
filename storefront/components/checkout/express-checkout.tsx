@@ -126,7 +126,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         );
 
         // Confirm payment with Stripe
-        const { error } = await stripe.confirmPayment({
+        const { error, paymentIntent } = await stripe.confirmPayment({
           elements,
           clientSecret,
           confirmParams: {
@@ -138,6 +138,17 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         if (error) {
           console.error("[Express Checkout] Payment confirmation error:", error);
           setOrderError(error.message || "Payment confirmation failed. Please try again.");
+          return;
+        }
+
+        // Only complete cart if payment reached a terminal status
+        if (
+          paymentIntent?.status !== "requires_capture" &&
+          paymentIntent?.status !== "succeeded"
+        ) {
+          setOrderError(
+            `Unexpected payment status: ${paymentIntent?.status}. Please try again.`,
+          );
           return;
         }
 

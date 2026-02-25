@@ -24,24 +24,28 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/wishlist",
     },
-    {
-      resolve: "@medusajs/medusa/payment",
-      options: {
-        providers: [
+    ...(process.env.STRIPE_API_KEY
+      ? [
           {
-            resolve: "@medusajs/medusa/payment-stripe",
-            id: "stripe",
+            resolve: "@medusajs/medusa/payment",
             options: {
-              apiKey: process.env.STRIPE_API_KEY,
-              ...(process.env.STRIPE_WEBHOOK_SECRET && {
-                webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-              }),
-              capture: false,
-              automatic_payment_methods: true,
+              providers: [
+                {
+                  resolve: "@medusajs/medusa/payment-stripe",
+                  id: "stripe",
+                  options: {
+                    apiKey: process.env.STRIPE_API_KEY,
+                    ...(process.env.STRIPE_WEBHOOK_SECRET && {
+                      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+                    }),
+                    capture: false,
+                    automatic_payment_methods: true,
+                  },
+                },
+              ],
             },
           },
-        ],
-      },
-    },
+        ]
+      : []),
   ],
 })

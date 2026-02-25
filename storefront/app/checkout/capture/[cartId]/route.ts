@@ -36,8 +36,20 @@ export async function GET(
     return NextResponse.redirect(`${origin}/checkout?error=payment_failed`);
   }
 
-  // Complete the cart — Medusa validates payment status server-side with Stripe
-  const result = await completeCart(cartId);
+  // Complete the cart with a timeout guard — Medusa validates payment status server-side
+  let result;
+  try {
+    result = await Promise.race([
+      completeCart(cartId),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("timeout")), 30_000),
+      ),
+    ]);
+  } catch {
+    return NextResponse.redirect(
+      `${origin}/checkout?error=${encodeURIComponent("Order completion timed out. Please check your orders or contact support.")}`,
+    );
+  }
 
   if (result.type === "order") {
     return NextResponse.redirect(

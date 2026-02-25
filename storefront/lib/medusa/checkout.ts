@@ -268,10 +268,12 @@ export async function applyExpressCheckoutData(
   );
   if (paymentError) throw new Error(paymentError);
 
-  // Fetch updated cart for the client secret
+  // Fetch updated cart and find the Stripe session by provider_id
   const updatedCart = await getCheckoutCart();
-  const secret = updatedCart?.payment_collection?.payment_sessions?.[0]
-    ?.data?.client_secret as string | undefined;
+  const stripeSession = updatedCart?.payment_collection?.payment_sessions?.find(
+    (s) => s.provider_id === STRIPE_PROVIDER_ID,
+  );
+  const secret = stripeSession?.data?.client_secret as string | undefined;
   if (!secret) throw new Error("Payment session created but no client secret found");
   return secret;
 }

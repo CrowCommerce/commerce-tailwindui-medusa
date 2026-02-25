@@ -169,10 +169,10 @@ export function CheckoutForm({
         const isFuture = !isCompleted && !isActive;
 
         // Payment step needs a persistent render to keep Stripe Elements mounted.
-        // Instead of unmounting when leaving the step and remounting in a hidden div,
-        // we render the content ONCE and toggle visibility via className.
+        // Once Stripe refs are captured, keep the payment DOM alive (hidden) on
+        // any step so refs remain valid when the user returns or proceeds to review.
         const isPaymentPersisted =
-          step === "payment" && (isActive || activeStep === "review");
+          step === "payment" && (isActive || stripeInstance !== null);
 
         const isCollapsed = isCompleted && !isActive;
 

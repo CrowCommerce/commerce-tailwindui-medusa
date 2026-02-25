@@ -39,7 +39,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Upload failed";
-    return NextResponse.json({ error: message }, { status: 502 });
+    const isTimeout =
+      err instanceof DOMException && err.name === "TimeoutError";
+    const message = isTimeout
+      ? "Upload timed out"
+      : err instanceof Error
+        ? err.message
+        : "Upload failed";
+    return NextResponse.json(
+      { error: message },
+      { status: isTimeout ? 504 : 502 },
+    );
   }
 }
