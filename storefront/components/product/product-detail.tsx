@@ -18,15 +18,12 @@ import ProductDetailPrice from "components/price/product-detail-price";
 import { useProduct, useUpdateURL } from "components/product/product-context";
 import { WishlistButton } from "components/wishlist/wishlist-button";
 import { WishlistCount } from "components/wishlist/wishlist-count";
+import clsx from "clsx";
 import type { Product, ProductOption, ProductVariant } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
 
 type Combination = {
   id: string;
@@ -220,7 +217,7 @@ export function ProductDetail({
                     <StarIcon
                       key={rating}
                       aria-hidden="true"
-                      className={classNames(
+                      className={clsx(
                         product.rating > rating
                           ? "text-primary-500"
                           : "text-gray-300",
@@ -261,7 +258,7 @@ export function ProductDetail({
                       return (
                         <label
                           key={value}
-                          className={classNames(
+                          className={clsx(
                             "flex cursor-pointer items-center",
                             !isOptionAvailable
                               ? "cursor-not-allowed opacity-40"
