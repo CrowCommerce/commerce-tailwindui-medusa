@@ -9,7 +9,8 @@
     "clean": "rm -rf .next node_modules",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "test": "bun run prettier:check && bun run test:unit",
+    "test": "bun run test:unit",
+    "test:all": "bun run prettier:check && bun run test:unit",
     "test:unit": "vitest run --passWithNoTests",
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
@@ -25,6 +26,7 @@
     "@vercel/speed-insights": "^1.2.0",
     "clsx": "^2.1.1",
     "geist": "^1.3.1",
+    "isomorphic-dompurify": "^3.0.0",
     "next": "16.0.7",
     "react": "19.0.0",
     "react-dom": "19.0.0"

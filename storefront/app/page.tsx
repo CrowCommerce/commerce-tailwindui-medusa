@@ -22,6 +22,7 @@ export default async function HomePage() {
   const allProducts = await getProducts({
     sortKey: "CREATED_AT",
     reverse: true,
+    limit: 4,
   });
 
   // Transform and limit to 4 products for trending section

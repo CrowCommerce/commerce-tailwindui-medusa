@@ -11,9 +11,10 @@ export async function searchProducts(
       query,
       sortKey: "RELEVANCE",
       reverse: false,
+      limit: 8,
     });
     return {
-      results: products.slice(0, 8), // Limit to 8 results in modal
+      results: products,
       totalCount: products.length,
     };
   } catch (error) {

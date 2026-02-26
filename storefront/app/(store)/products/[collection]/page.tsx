@@ -5,6 +5,7 @@ import {
   getCollectionProducts,
   getCollections,
 } from "lib/medusa";
+import { safeJsonLd } from "lib/sanitize";
 import { baseUrl } from "lib/utils";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -60,7 +61,7 @@ export default async function ProductsCollectionPage(props: {
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
@@ -90,7 +91,7 @@ export default async function ProductsCollectionPage(props: {
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "ItemList",
             itemListElement: products.map((p, i) => ({

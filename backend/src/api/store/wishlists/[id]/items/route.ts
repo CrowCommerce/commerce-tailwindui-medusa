@@ -2,13 +2,13 @@ import type { MedusaStoreRequest, MedusaResponse } from "@medusajs/framework/htt
 import { z } from "@medusajs/framework/zod"
 import { createWishlistItemWorkflow } from "../../../../../workflows/create-wishlist-item"
 import { PostGuestCreateWishlistItemSchema } from "../../validators"
-import { requireSalesChannelId, requireGuestWishlist } from "../../helpers"
+import { requireSalesChannelId, requireGuestWishlistOwnership } from "../../helpers"
 
 type PostReq = z.infer<typeof PostGuestCreateWishlistItemSchema>
 
 export async function POST(req: MedusaStoreRequest<PostReq>, res: MedusaResponse) {
   const salesChannelId = requireSalesChannelId(req)
-  await requireGuestWishlist(req, req.params.id)
+  await requireGuestWishlistOwnership(req, req.params.id)
 
   const { result } = await createWishlistItemWorkflow(req.scope).run({
     input: {

@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 import { validateWishlistExistsStep } from "./steps/validate-wishlist-exists"
+import { validateWishlistIsGuestStep } from "./steps/validate-wishlist-is-guest"
 import { validateWishlistSalesChannelStep } from "./steps/validate-wishlist-sales-channel"
 import { transferWishlistStep } from "./steps/transfer-wishlist"
 
@@ -24,6 +25,7 @@ export const transferWishlistWorkflow = createWorkflow(
     })
 
     validateWishlistExistsStep({ wishlists })
+    validateWishlistIsGuestStep({ wishlists })
 
     const salesChannelInput = transform({ wishlists, input }, (data) => ({
       wishlist_sales_channel_id: data.wishlists[0]!.sales_channel_id,

@@ -53,7 +53,8 @@ export async function getProductReviews(
         order: "-created_at",
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("[reviews] Failed to fetch product reviews:", error);
     return emptyResult;
   }
 

@@ -2,6 +2,27 @@ import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+const isProd = process.env.NODE_ENV === "production"
+
+if (isProd && (!process.env.JWT_SECRET || process.env.JWT_SECRET === "supersecret")) {
+  throw new Error("JWT_SECRET must be set to a secure value in production")
+}
+if (isProd && (!process.env.COOKIE_SECRET || process.env.COOKIE_SECRET === "supersecret")) {
+  throw new Error("COOKIE_SECRET must be set to a secure value in production")
+}
+if (isProd && process.env.STRIPE_API_KEY && !process.env.STRIPE_WEBHOOK_SECRET) {
+  throw new Error("STRIPE_WEBHOOK_SECRET must be set when Stripe is enabled in production")
+}
+
+if (!isProd) {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === "supersecret") {
+    console.warn("[medusa-config] JWT_SECRET is using default value — set a secure secret before deploying")
+  }
+  if (!process.env.COOKIE_SECRET || process.env.COOKIE_SECRET === "supersecret") {
+    console.warn("[medusa-config] COOKIE_SECRET is using default value — set a secure secret before deploying")
+  }
+}
+
 const redisUrl = process.env.REDIS_URL
 
 if (!process.env.STRIPE_API_KEY) {

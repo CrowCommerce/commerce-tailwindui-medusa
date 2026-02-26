@@ -1,6 +1,7 @@
 import ProductGrid from "components/layout/product-grid";
 import { defaultSort, sorting } from "lib/constants";
 import { getProducts } from "lib/medusa";
+import { safeJsonLd } from "lib/sanitize";
 import { baseUrl } from "lib/utils";
 import { Metadata } from "next";
 
@@ -27,7 +28,7 @@ export default async function ProductsPage(props: {
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "ItemList",
             itemListElement: products.map((p, i) => ({

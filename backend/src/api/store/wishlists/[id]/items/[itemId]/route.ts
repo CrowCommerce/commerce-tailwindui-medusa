@@ -1,9 +1,9 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { deleteWishlistItemWorkflow } from "../../../../../../workflows/delete-wishlist-item"
-import { requireGuestWishlist } from "../../../helpers"
+import { requireGuestWishlistOwnership } from "../../../helpers"
 
 export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
-  await requireGuestWishlist(req, req.params.id)
+  await requireGuestWishlistOwnership(req, req.params.id)
 
   const { result } = await deleteWishlistItemWorkflow(req.scope).run({
     input: {
