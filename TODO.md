@@ -83,6 +83,19 @@
 - [x] JWT security — explicit `jwtSecret` guard on all 3 JWT-using routes (share, shared view, import)
 - [x] Code simplification — extracted shared helpers (`verifyShareToken`, `requireGuestWishlist`, `requireSalesChannelId`), merged duplicate Zod schemas, consolidated auth middleware, added `wishlistMutation` helper on storefront. Net -179 lines.
 
+## Content & Communications
+
+- [ ] Integrate Payload CMS — product content management (descriptions, rich media, landing pages)
+- [ ] Abandoned cart recovery emails (Resend)
+- [ ] Generate and send invoices (Resend)
+- [ ] Newsletter signup and campaigns (Resend)
+
+## Commerce Features
+
+- [ ] Re-order — allow customers to re-order previous purchases
+- [ ] Personalized products — custom text, images, or options per product
+- [ ] Add product category images (beyond collection images)
+
 ## Agentic Commerce
 
 - [ ] AI-powered product recommendations (conversational shopping assistant)
@@ -134,6 +147,7 @@
 
 ## Known Limitations
 
+- [x] Browser back button broken after navigating to a product page — fixed by using `router.replace` for variant URL updates to prevent back button cycling
 - [ ] `checkoutUrl` on Cart type is always empty string
 - [ ] Image dimensions are 0x0 (Medusa doesn't provide them)
 - [ ] `descriptionHtml` is same as plain description (no HTML from Medusa)

@@ -67,9 +67,11 @@ function SubmitButton({
 export function AddToCart({
   product,
   className,
+  formClassName,
 }: {
   product: Product;
   className?: string;
+  formClassName?: string;
 }) {
   const { variants, availableForSale } = product;
   const { addCartItem } = useCart();
@@ -90,7 +92,7 @@ export function AddToCart({
 
   return (
     <form
-      className="w-full"
+      className={formClassName || "w-full"}
       action={async () => {
         addCartItem(finalVariant, product);
         addItemAction();

@@ -18,15 +18,12 @@ import ProductDetailPrice from "components/price/product-detail-price";
 import { useProduct, useUpdateURL } from "components/product/product-context";
 import { WishlistButton } from "components/wishlist/wishlist-button";
 import { WishlistCount } from "components/wishlist/wishlist-count";
+import clsx from "clsx";
 import type { Product, ProductOption, ProductVariant } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
 
 type Combination = {
   id: string;
@@ -220,7 +217,7 @@ export function ProductDetail({
                     <StarIcon
                       key={rating}
                       aria-hidden="true"
-                      className={classNames(
+                      className={clsx(
                         product.rating > rating
                           ? "text-primary-500"
                           : "text-gray-300",
@@ -261,7 +258,7 @@ export function ProductDetail({
                       return (
                         <label
                           key={value}
-                          className={classNames(
+                          className={clsx(
                             "flex cursor-pointer items-center",
                             !isOptionAvailable
                               ? "cursor-not-allowed opacity-40"
@@ -342,15 +339,16 @@ export function ProductDetail({
               </div>
             )}
 
-            <div className="mt-10 flex items-center gap-4">
+            <div className="mt-10 flex">
               <AddToCart
                 product={sourceProduct}
-                className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 mt-8 flex flex-1 cursor-pointer items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
+                formClassName="max-w-xs flex-1"
+                className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 flex w-full cursor-pointer items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
               />
               <WishlistButton
                 variantId={selectedVariantId}
                 size="md"
-                className="mt-8"
+                className="ml-4"
               />
             </div>
 
