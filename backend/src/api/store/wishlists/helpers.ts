@@ -1,6 +1,6 @@
 import type { MedusaRequest, MedusaResponse, MedusaStoreRequest } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
-import { createHmac } from "crypto"
+import { createHmac, timingSafeEqual } from "crypto"
 import jwt, { TokenExpiredError } from "jsonwebtoken"
 
 /**
@@ -97,13 +97,20 @@ export async function requireGuestWishlistOwnership(
     throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Guest wishlist access denied")
   }
 
-  const [cookieWishlistId, signature] = cookieValue.split(".")
+  const parts = cookieValue.split(".")
+  if (parts.length !== 2) {
+    throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Guest wishlist access denied")
+  }
+
+  const [cookieWishlistId, signature] = parts
   if (cookieWishlistId !== wishlistId) {
     throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Guest wishlist access denied")
   }
 
   const expectedSignature = signWishlistId(wishlistId, secret)
-  if (signature !== expectedSignature) {
+  const sigBuf = Buffer.from(signature)
+  const expectedBuf = Buffer.from(expectedSignature)
+  if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
     throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Guest wishlist access denied")
   }
 

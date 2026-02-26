@@ -197,7 +197,7 @@ export async function getProductRecommendations(
   });
 
   return products
-    .filter((p) => p.id !== productId)
+    .filter((p) => p.id !== productId && !isHiddenProduct(p))
     .slice(0, 4)
     .map(transformProduct);
 }
