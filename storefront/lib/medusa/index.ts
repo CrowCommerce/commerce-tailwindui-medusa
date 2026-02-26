@@ -79,6 +79,31 @@ const PRODUCT_FIELDS =
 const CART_FIELDS =
   "*items,*items.product,*items.variant,*items.thumbnail,+items.total,*promotions,+shipping_methods.name";
 
+// --- Shared Helpers ---
+
+function buildSortOrder(
+  sortKey?: string,
+  reverse?: boolean,
+): string | undefined {
+  if (sortKey === "PRICE") {
+    return reverse
+      ? "-variants.calculated_price.calculated_amount"
+      : "variants.calculated_price.calculated_amount";
+  }
+  if (sortKey === "CREATED_AT" || sortKey === "CREATED") {
+    return reverse ? "-created_at" : "created_at";
+  }
+  if (sortKey === "BEST_SELLING") {
+    return "-created_at";
+  }
+  return undefined;
+}
+
+function isHiddenProduct(product: HttpTypes.StoreProduct): boolean {
+  const tags = (product.tags || []).map((t) => t.value ?? String(t));
+  return tags.includes(HIDDEN_PRODUCT_TAG);
+}
+
 // --- Products ---
 
 export async function getProduct(handle: string): Promise<Product | undefined> {
@@ -111,32 +136,24 @@ export async function getProducts({
   query,
   reverse,
   sortKey,
+  limit = 100,
 }: {
   query?: string;
   reverse?: boolean;
   sortKey?: string;
+  limit?: number;
 }): Promise<Product[]> {
   "use cache";
   cacheTag(TAGS.products);
   cacheLife("days");
 
   const region = await getDefaultRegion();
-
-  let order: string | undefined;
-  if (sortKey === "PRICE") {
-    order = reverse
-      ? "-variants.calculated_price.calculated_amount"
-      : "variants.calculated_price.calculated_amount";
-  } else if (sortKey === "CREATED_AT") {
-    order = reverse ? "-created_at" : "created_at";
-  } else if (sortKey === "BEST_SELLING") {
-    order = "-created_at";
-  }
+  const order = buildSortOrder(sortKey, reverse);
 
   const fetchQuery: ProductFetchQuery = {
     region_id: region.id,
     fields: PRODUCT_FIELDS,
-    limit: 100,
+    limit,
   };
 
   if (query) fetchQuery.q = query;
@@ -151,12 +168,7 @@ export async function getProducts({
   });
 
   return products
-    .filter((p) => {
-      const tags = (p.tags || []).map(
-        (t: any) => t.value || t.name || String(t),
-      );
-      return !tags.includes(HIDDEN_PRODUCT_TAG);
-    })
+    .filter((p) => !isHiddenProduct(p))
     .map(transformProduct);
 }
 
@@ -185,7 +197,7 @@ export async function getProductRecommendations(
   });
 
   return products
-    .filter((p) => p.id !== productId)
+    .filter((p) => p.id !== productId && !isHiddenProduct(p))
     .slice(0, 4)
     .map(transformProduct);
 }
@@ -241,15 +253,7 @@ export async function getCollectionProducts({
   }
 
   const region = await getDefaultRegion();
-
-  let order: string | undefined;
-  if (sortKey === "PRICE") {
-    order = reverse
-      ? "-variants.calculated_price.calculated_amount"
-      : "variants.calculated_price.calculated_amount";
-  } else if (sortKey === "CREATED_AT" || sortKey === "CREATED") {
-    order = reverse ? "-created_at" : "created_at";
-  }
+  const order = buildSortOrder(sortKey, reverse);
 
   const fetchQuery: ProductFetchQuery = {
     collection_id: [col.id],
@@ -269,12 +273,7 @@ export async function getCollectionProducts({
   });
 
   return products
-    .filter((p) => {
-      const tags = (p.tags || []).map(
-        (t: any) => t.value || t.name || String(t),
-      );
-      return !tags.includes(HIDDEN_PRODUCT_TAG);
-    })
+    .filter((p) => !isHiddenProduct(p))
     .map(transformProduct);
 }
 
@@ -558,7 +557,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
 
   if (!secret || secret !== process.env.REVALIDATE_SECRET) {
     console.error("Invalid revalidation secret.");
-    return NextResponse.json({ status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   revalidateTag(TAGS.collections, "max");

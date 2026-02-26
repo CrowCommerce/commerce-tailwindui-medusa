@@ -2,6 +2,7 @@
 
 import { ProductProvider } from "components/product/product-context";
 import ProductWrapper from "components/product/product-wrapper";
+import { safeJsonLd } from "lib/sanitize";
 import { Product, ProductReviews } from "lib/types";
 import { baseUrl, transformProductToTailwindDetail } from "lib/utils";
 import { notFound } from "next/navigation";
@@ -70,13 +71,13 @@ export function ProductPageContent({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productJsonLd),
+          __html: safeJsonLd(productJsonLd),
         }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd),
+          __html: safeJsonLd(breadcrumbJsonLd),
         }}
       />
       <Suspense fallback={null}>

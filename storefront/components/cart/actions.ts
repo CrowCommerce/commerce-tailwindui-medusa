@@ -11,21 +11,24 @@ import {
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
+export type CartActionState = string | null;
+
 function revalidateCart(): void {
   revalidateTag(TAGS.cart, "max");
   revalidatePath("/", "layout");
 }
 
 export async function addItem(
-  prevState: any,
+  prevState: CartActionState,
   selectedVariantId: string | undefined,
-) {
+): Promise<CartActionState> {
   if (!selectedVariantId) {
     return "Please select a product variant";
   }
 
   try {
     await addToCart([{ merchandiseId: selectedVariantId, quantity: 1 }]);
+    return null;
   } catch (e) {
     return e instanceof Error ? e.message : "Error adding item to cart";
   } finally {
@@ -33,13 +36,17 @@ export async function addItem(
   }
 }
 
-export async function removeItem(prevState: any, lineItemId: string) {
+export async function removeItem(
+  prevState: CartActionState,
+  lineItemId: string,
+): Promise<CartActionState> {
   if (!lineItemId) {
     return "Missing item ID — please try again";
   }
 
   try {
     await removeFromCart([lineItemId]);
+    return null;
   } catch (e) {
     return e instanceof Error ? e.message : "Error removing item from cart";
   } finally {
@@ -48,12 +55,12 @@ export async function removeItem(prevState: any, lineItemId: string) {
 }
 
 export async function updateItemQuantity(
-  prevState: any,
+  prevState: CartActionState,
   payload: {
     merchandiseId: string;
     quantity: number;
   },
-) {
+): Promise<CartActionState> {
   const { merchandiseId, quantity } = payload;
 
   if (!merchandiseId) {
@@ -83,6 +90,8 @@ export async function updateItemQuantity(
     } else if (quantity > 0) {
       await addToCart([{ merchandiseId, quantity }]);
     }
+
+    return null;
   } catch (e) {
     return e instanceof Error ? e.message : "Error updating item quantity";
   } finally {

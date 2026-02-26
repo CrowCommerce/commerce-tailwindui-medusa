@@ -1,6 +1,9 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { requireGuestWishlistOwnership } from "../helpers"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  await requireGuestWishlistOwnership(req, req.params.id)
+
   const query = req.scope.resolve("query")
 
   const { data } = await query.graph({

@@ -1,6 +1,6 @@
 import type { MedusaStoreRequest, MedusaResponse } from "@medusajs/framework/http"
 import { createWishlistWorkflow } from "../../../workflows/create-wishlist"
-import { requireSalesChannelId } from "./helpers"
+import { requireSalesChannelId, setGuestWishlistCookie } from "./helpers"
 
 export async function POST(req: MedusaStoreRequest, res: MedusaResponse) {
   const salesChannelId = requireSalesChannelId(req)
@@ -12,5 +12,6 @@ export async function POST(req: MedusaStoreRequest, res: MedusaResponse) {
     },
   })
 
+  setGuestWishlistCookie(req, res, result.wishlist.id)
   res.status(201).json({ wishlist: result.wishlist })
 }

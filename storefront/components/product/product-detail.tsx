@@ -19,6 +19,7 @@ import { useProduct, useUpdateURL } from "components/product/product-context";
 import { WishlistButton } from "components/wishlist/wishlist-button";
 import { WishlistCount } from "components/wishlist/wishlist-count";
 import clsx from "clsx";
+import { sanitizeHtml } from "lib/sanitize";
 import type { Product, ProductOption, ProductVariant } from "lib/types";
 import type { TailwindProductDetail } from "lib/utils";
 import Image from "next/image";
@@ -237,7 +238,9 @@ export function ProductDetail({
               <h3 className="sr-only">Description</h3>
 
               <div
-                dangerouslySetInnerHTML={{ __html: product.description }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(product.description),
+                }}
                 className="space-y-6 text-base text-gray-700"
               />
             </div>

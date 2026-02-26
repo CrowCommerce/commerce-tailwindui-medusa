@@ -45,7 +45,8 @@ export async function getCheckoutCart(): Promise<HttpTypes.StoreCart | null> {
       },
     }).catch(medusaError);
     return cart;
-  } catch {
+  } catch (error) {
+    console.error("[checkout] Failed to fetch cart:", error);
     return null;
   }
 }
@@ -133,7 +134,8 @@ export async function getShippingOptions(
       amount: opt.amount ?? 0,
       currency_code: opt.currency_code || "USD",
     }));
-  } catch {
+  } catch (error) {
+    console.error("[checkout] Failed to fetch shipping options:", error);
     return [];
   }
 }
@@ -204,7 +206,8 @@ export async function getSavedPaymentMethods(
       headers,
     }).catch(medusaError);
     return payment_methods;
-  } catch {
+  } catch (error) {
+    console.error("[checkout] Failed to fetch saved payment methods:", error);
     return [];
   }
 }
@@ -304,7 +307,8 @@ export async function getCustomerAddresses(): Promise<
       headers,
     }).catch(medusaError);
     return addresses;
-  } catch {
+  } catch (error) {
+    console.error("[checkout] Failed to fetch customer addresses:", error);
     return [];
   }
 }
