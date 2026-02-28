@@ -44,13 +44,13 @@ export function ProductCardWithQuickView({
         </Link>
 
         {/* Quick View overlay button */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-center p-4">
           <button
             type="button"
             onClick={() => setQuickViewOpen(true)}
-            className="pointer-events-auto cursor-pointer rounded-md bg-white/90 px-4 py-2 text-sm font-medium text-gray-900 opacity-0 shadow-sm backdrop-blur-sm transition-opacity duration-200 hover:bg-white group-hover:opacity-100"
+            className="pointer-events-auto relative flex cursor-pointer items-center justify-center rounded-md border border-transparent bg-gray-900/75 px-8 py-2 text-sm font-medium text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
           >
-            Quick View
+            Quick view
           </button>
         </div>
 
