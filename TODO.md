@@ -115,6 +115,7 @@
 - [x] Clear stale cart cookies on retrieval failure
 - [x] Expand `CART_FIELDS` with `*promotions,+shipping_methods.name`
 - [x] Fix global input focus styling — removed `outline: none !important` override in `globals.css` breaking all TailwindUI outline/ring utilities; standardized all inputs to TailwindUI v4 outline pattern
+- [x] Product Quick View modal (hover overlay on product grid, TailwindPlus dialog with color/size pickers, add-to-cart, wishlist heart)
 
 ## Testing
 
