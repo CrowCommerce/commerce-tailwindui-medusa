@@ -107,7 +107,7 @@ export const transformCollectionToTailwind = (
 // Helper function to convert color names to hex codes
 // NOTE: These color values are also defined in tailwind.config.ts under theme.extend.colors.variants
 // Keep both locations in sync when adding new product variant colors
-const getColorHex = (colorName: string): string => {
+export const getColorHex = (colorName: string): string => {
   const colorMap: Record<string, string> = {
     black: "#111827",
     white: "#FFFFFF",
