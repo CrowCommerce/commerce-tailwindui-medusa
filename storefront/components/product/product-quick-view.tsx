@@ -276,22 +276,34 @@ export function ProductQuickView({
                         <p className="mt-4 text-sm text-red-600">{message}</p>
                       )}
 
-                      <div className="mt-6 flex items-center gap-x-3">
-                        <button
-                          type="submit"
-                          disabled={
-                            !product.availableForSale ||
-                            !selectedVariantId ||
-                            isPending
-                          }
-                          className="flex flex-1 items-center justify-center rounded-md border border-transparent bg-primary-600 px-8 py-3 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {!product.availableForSale
-                            ? "Out of stock"
-                            : isPending
-                              ? "Adding..."
-                              : "Add to cart"}
-                        </button>
+                      <div className="mt-6 flex items-start gap-x-3">
+                        <div className="flex-1">
+                          <button
+                            type="submit"
+                            disabled={
+                              !product.availableForSale ||
+                              !selectedVariantId ||
+                              isPending
+                            }
+                            className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-8 py-3 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {!product.availableForSale
+                              ? "Out of stock"
+                              : isPending
+                                ? "Adding..."
+                                : "Add to cart"}
+                          </button>
+
+                          <p className="absolute left-4 top-4 sm:static sm:mt-6 sm:text-center">
+                            <Link
+                              href={`/product/${product.handle}`}
+                              className="font-medium text-primary-600 hover:text-primary-500"
+                              onClick={onClose}
+                            >
+                              View full details
+                            </Link>
+                          </p>
+                        </div>
                         {selectedVariantId && (
                           <WishlistButton
                             variantId={selectedVariantId}
@@ -302,16 +314,6 @@ export function ProductQuickView({
                           />
                         )}
                       </div>
-
-                      <p className="absolute left-4 top-4 text-center sm:static sm:mt-6">
-                        <Link
-                          href={`/product/${product.handle}`}
-                          className="font-medium text-primary-600 hover:text-primary-500"
-                          onClick={onClose}
-                        >
-                          View full details
-                        </Link>
-                      </p>
                     </form>
                   </section>
                 </div>
