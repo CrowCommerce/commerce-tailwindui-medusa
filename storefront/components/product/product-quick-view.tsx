@@ -1,18 +1,17 @@
 "use client";
 
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import { StarIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { addItem } from "components/cart/actions";
 import { useCart } from "components/cart/cart-context";
 import ProductGridPrice from "components/price/product-grid-price";
 import { WishlistButton } from "components/wishlist/wishlist-button";
-import type { Product, ProductVariant } from "lib/types";
+import type { Product } from "lib/types";
 import { getColorHex } from "lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useState, useTransition } from "react";
 
 type WishlistState = {
   isInWishlist?: boolean;
@@ -34,7 +33,8 @@ export function ProductQuickView({
   onClose,
 }: ProductQuickViewProps) {
   const { addCartItem } = useCart();
-  const [message, formAction] = useActionState(addItem, null);
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState<string | null>(null);
 
   // Local variant selection state
   const colorOption = product.options.find(
@@ -62,9 +62,7 @@ export function ProductQuickView({
   );
   const defaultVariantId =
     product.variants.length === 1 ? product.variants[0]?.id : undefined;
-  const selectedVariantId = selectedVariant?.id ?? defaultVariantId ?? "";
-
-  const addItemAction = formAction.bind(null, selectedVariantId);
+  const selectedVariantId = selectedVariant?.id ?? defaultVariantId;
 
   // Check variant availability
   const isVariantAvailable = (optionName: string, value: string): boolean => {
@@ -144,25 +142,6 @@ export function ProductQuickView({
                       }
                     />
 
-                    {/* Reviews */}
-                    <div className="mt-3">
-                      <h4 className="sr-only">Reviews</h4>
-                      <div className="flex items-center">
-                        <div className="flex items-center">
-                          {[0, 1, 2, 3, 4].map((rating) => (
-                            <StarIcon
-                              key={rating}
-                              aria-hidden="true"
-                              className={clsx(
-                                "size-5 shrink-0",
-                                "text-gray-200",
-                              )}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
                     <div className="mt-6">
                       <h4 className="sr-only">Description</h4>
                       <p className="text-sm text-gray-700">
@@ -177,14 +156,21 @@ export function ProductQuickView({
                     </h3>
 
                     <form
-                      action={async () => {
+                      action={() => {
                         const variant = product.variants.find(
                           (v) => v.id === selectedVariantId,
                         );
                         if (!variant) return;
                         addCartItem(variant, product);
-                        addItemAction();
-                        onClose();
+                        startTransition(async () => {
+                          const result = await addItem(null, selectedVariantId);
+                          if (result) {
+                            setMessage(result);
+                          } else {
+                            setMessage(null);
+                            onClose();
+                          }
+                        });
                       }}
                     >
                       {/* Colors */}
@@ -286,25 +272,35 @@ export function ProductQuickView({
                         </div>
                       )}
 
+                      {message && (
+                        <p className="mt-4 text-sm text-red-600">{message}</p>
+                      )}
+
                       <div className="mt-6 flex items-center gap-x-3">
                         <button
                           type="submit"
                           disabled={
-                            !product.availableForSale || !selectedVariantId
+                            !product.availableForSale ||
+                            !selectedVariantId ||
+                            isPending
                           }
                           className="flex flex-1 items-center justify-center rounded-md border border-transparent bg-primary-600 px-8 py-3 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {product.availableForSale
-                            ? "Add to cart"
-                            : "Out of stock"}
+                          {!product.availableForSale
+                            ? "Out of stock"
+                            : isPending
+                              ? "Adding..."
+                              : "Add to cart"}
                         </button>
-                        <WishlistButton
-                          variantId={selectedVariantId}
-                          isInWishlist={wishlistState?.isInWishlist}
-                          wishlistId={wishlistState?.wishlistId}
-                          wishlistItemId={wishlistState?.wishlistItemId}
-                          size="md"
-                        />
+                        {selectedVariantId && (
+                          <WishlistButton
+                            variantId={selectedVariantId}
+                            isInWishlist={wishlistState?.isInWishlist}
+                            wishlistId={wishlistState?.wishlistId}
+                            wishlistItemId={wishlistState?.wishlistItemId}
+                            size="md"
+                          />
+                        )}
                       </div>
 
                       <p className="absolute left-4 top-4 text-center sm:static sm:mt-6">
