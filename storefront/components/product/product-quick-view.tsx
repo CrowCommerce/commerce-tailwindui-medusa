@@ -1,0 +1,333 @@
+"use client";
+
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import { StarIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
+import { addItem } from "components/cart/actions";
+import { useCart } from "components/cart/cart-context";
+import ProductGridPrice from "components/price/product-grid-price";
+import { WishlistButton } from "components/wishlist/wishlist-button";
+import type { Product, ProductVariant } from "lib/types";
+import { getColorHex } from "lib/utils";
+import Image from "next/image";
+import Link from "next/link";
+import { useActionState, useState } from "react";
+
+type WishlistState = {
+  isInWishlist?: boolean;
+  wishlistId?: string;
+  wishlistItemId?: string;
+};
+
+interface ProductQuickViewProps {
+  product: Product;
+  wishlistState?: WishlistState;
+  open: boolean;
+  onClose: () => void;
+}
+
+export function ProductQuickView({
+  product,
+  wishlistState,
+  open,
+  onClose,
+}: ProductQuickViewProps) {
+  const { addCartItem } = useCart();
+  const [message, formAction] = useActionState(addItem, null);
+
+  // Local variant selection state
+  const colorOption = product.options.find(
+    (o) => o.name.toLowerCase() === "color",
+  );
+  const sizeOption = product.options.find(
+    (o) => o.name.toLowerCase() === "size",
+  );
+
+  const [selectedColor, setSelectedColor] = useState<string>(
+    colorOption?.values[0] ?? "",
+  );
+  const [selectedSize, setSelectedSize] = useState<string>(
+    sizeOption?.values[0] ?? "",
+  );
+
+  // Derive selected variant from local state
+  const selectedVariant = product.variants.find((variant) =>
+    variant.selectedOptions.every((opt) => {
+      const key = opt.name.toLowerCase();
+      if (key === "color") return opt.value === selectedColor;
+      if (key === "size") return opt.value === selectedSize;
+      return true;
+    }),
+  );
+  const defaultVariantId =
+    product.variants.length === 1 ? product.variants[0]?.id : undefined;
+  const selectedVariantId = selectedVariant?.id ?? defaultVariantId ?? "";
+
+  const addItemAction = formAction.bind(null, selectedVariantId);
+
+  // Check variant availability
+  const isVariantAvailable = (optionName: string, value: string): boolean => {
+    const testState: Record<string, string> = {};
+    if (optionName === "color") {
+      testState["color"] = value;
+      if (selectedSize) testState["size"] = selectedSize;
+    } else if (optionName === "size") {
+      testState["size"] = value;
+      if (selectedColor) testState["color"] = selectedColor;
+    }
+
+    return product.variants.some(
+      (variant) =>
+        variant.availableForSale &&
+        variant.selectedOptions.every((opt) => {
+          const key = opt.name.toLowerCase();
+          return !testState[key] || testState[key] === opt.value;
+        }),
+    );
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 hidden bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in md:block"
+      />
+
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-stretch justify-center text-center md:items-center md:px-2 lg:px-4">
+          <DialogPanel
+            transition
+            className="flex w-full transform text-left text-base transition data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in md:my-8 md:max-w-2xl md:px-4 data-[closed]:md:translate-y-0 data-[closed]:md:scale-95 lg:max-w-4xl"
+          >
+            <div className="relative flex w-full items-center overflow-hidden bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
+              <button
+                type="button"
+                onClick={onClose}
+                className="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-6 sm:top-8 md:right-6 md:top-6 lg:right-8 lg:top-8"
+              >
+                <span className="sr-only">Close</span>
+                <XMarkIcon aria-hidden="true" className="size-6" />
+              </button>
+
+              <div className="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
+                <div className="sm:col-span-4 lg:col-span-5">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      alt={
+                        product.featuredImage?.altText || product.title
+                      }
+                      src={
+                        product.featuredImage?.url ||
+                        "https://via.placeholder.com/400"
+                      }
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="sm:col-span-8 lg:col-span-7">
+                  <h2 className="text-2xl font-bold text-gray-900 sm:pr-12">
+                    {product.title}
+                  </h2>
+
+                  <section aria-labelledby="information-heading" className="mt-3">
+                    <h3 id="information-heading" className="sr-only">
+                      Product information
+                    </h3>
+
+                    <ProductGridPrice
+                      amount={product.priceRange.maxVariantPrice.amount}
+                      currencyCode={
+                        product.priceRange.maxVariantPrice.currencyCode
+                      }
+                    />
+
+                    {/* Reviews */}
+                    <div className="mt-3">
+                      <h4 className="sr-only">Reviews</h4>
+                      <div className="flex items-center">
+                        <div className="flex items-center">
+                          {[0, 1, 2, 3, 4].map((rating) => (
+                            <StarIcon
+                              key={rating}
+                              aria-hidden="true"
+                              className={clsx(
+                                "size-5 shrink-0",
+                                "text-gray-200",
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <h4 className="sr-only">Description</h4>
+                      <p className="text-sm text-gray-700">
+                        {product.description}
+                      </p>
+                    </div>
+                  </section>
+
+                  <section aria-labelledby="options-heading" className="mt-6">
+                    <h3 id="options-heading" className="sr-only">
+                      Product options
+                    </h3>
+
+                    <form
+                      action={async () => {
+                        const variant = product.variants.find(
+                          (v) => v.id === selectedVariantId,
+                        );
+                        if (!variant) return;
+                        addCartItem(variant, product);
+                        addItemAction();
+                        onClose();
+                      }}
+                    >
+                      {/* Colors */}
+                      {colorOption && colorOption.values.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-600">
+                            Color
+                          </h4>
+
+                          <fieldset
+                            aria-label="Choose a color"
+                            className="mt-2"
+                          >
+                            <div className="flex items-center gap-x-3">
+                              {colorOption.values.map((colorName) => {
+                                const hex = getColorHex(colorName);
+                                const isSelected = selectedColor === colorName;
+                                const isAvailable = isVariantAvailable(
+                                  "color",
+                                  colorName,
+                                );
+                                return (
+                                  <div
+                                    key={colorName}
+                                    className={clsx(
+                                      "flex rounded-full outline outline-1 -outline-offset-1 outline-black/10",
+                                      !isAvailable && "opacity-40",
+                                    )}
+                                  >
+                                    <input
+                                      value={colorName}
+                                      checked={isSelected}
+                                      onChange={() =>
+                                        setSelectedColor(colorName)
+                                      }
+                                      disabled={!isAvailable}
+                                      name="color"
+                                      type="radio"
+                                      aria-label={colorName}
+                                      className="size-8 cursor-pointer appearance-none rounded-full checked:outline checked:outline-2 checked:outline-offset-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] disabled:cursor-not-allowed"
+                                      style={{
+                                        backgroundColor: hex,
+                                        outlineColor: isSelected ? hex : undefined,
+                                      }}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </fieldset>
+                        </div>
+                      )}
+
+                      {/* Sizes */}
+                      {sizeOption && sizeOption.values.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="text-sm font-medium text-gray-600">
+                            Size
+                          </h4>
+
+                          <fieldset
+                            aria-label="Choose a size"
+                            className="mt-2"
+                          >
+                            <div className="flex items-center gap-x-3">
+                              {sizeOption.values.map((size) => {
+                                const isSelected = selectedSize === size;
+                                const isAvailable = isVariantAvailable(
+                                  "size",
+                                  size,
+                                );
+                                return (
+                                  <label
+                                    key={size}
+                                    className={clsx(
+                                      "flex cursor-pointer items-center justify-center rounded-md border px-3 py-2 text-sm font-medium",
+                                      isSelected
+                                        ? "border-primary-600 bg-primary-600 text-white"
+                                        : "border-gray-300 bg-white text-gray-900 hover:bg-gray-50",
+                                      !isAvailable &&
+                                        "cursor-not-allowed opacity-40",
+                                    )}
+                                  >
+                                    <input
+                                      value={size}
+                                      checked={isSelected}
+                                      onChange={() => setSelectedSize(size)}
+                                      disabled={!isAvailable}
+                                      name="size"
+                                      type="radio"
+                                      className="sr-only"
+                                    />
+                                    {size}
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </fieldset>
+                        </div>
+                      )}
+
+                      <div className="mt-6 flex items-center gap-x-3">
+                        <button
+                          type="submit"
+                          disabled={
+                            !product.availableForSale || !selectedVariantId
+                          }
+                          className="flex flex-1 items-center justify-center rounded-md border border-transparent bg-primary-600 px-8 py-3 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {product.availableForSale
+                            ? "Add to cart"
+                            : "Out of stock"}
+                        </button>
+                        <WishlistButton
+                          variantId={selectedVariantId}
+                          isInWishlist={wishlistState?.isInWishlist}
+                          wishlistId={wishlistState?.wishlistId}
+                          wishlistItemId={wishlistState?.wishlistItemId}
+                          size="md"
+                        />
+                      </div>
+
+                      <p className="absolute left-4 top-4 text-center sm:static sm:mt-6">
+                        <Link
+                          href={`/product/${product.handle}`}
+                          className="font-medium text-primary-600 hover:text-primary-500"
+                          onClick={onClose}
+                        >
+                          View full details
+                        </Link>
+                      </p>
+                    </form>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+
+      <p aria-live="polite" className="sr-only" role="status">
+        {message}
+      </p>
+    </Dialog>
+  );
+}
