@@ -9,6 +9,11 @@
  * Vercel's serverless runtime. Content is admin-controlled (Medusa product
  * descriptions), not user-provided. If untrusted user HTML is ever needed,
  * switch to a full DOM-based sanitizer (e.g. sanitize-html).
+ *
+ * Known limitations (acceptable for trusted admin content):
+ * - Entity-encoded URLs (e.g. &#x6A;avascript:) are not decoded before matching
+ * - data: URLs are not stripped
+ * - Nested/malformed tags may partially survive
  */
 export function sanitizeHtml(dirty: string): string {
   let clean = dirty;

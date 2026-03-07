@@ -48,7 +48,7 @@ export function ProductCardWithQuickView({
           <button
             type="button"
             onClick={() => setQuickViewOpen(true)}
-            className="pointer-events-auto cursor-pointer rounded-md bg-white/90 px-4 py-2 text-sm font-medium text-gray-900 opacity-0 shadow-sm backdrop-blur-sm transition-opacity duration-200 hover:bg-white group-hover:opacity-100"
+            className="pointer-events-auto cursor-pointer rounded-md bg-white/90 px-4 py-2 text-sm font-medium text-gray-900 opacity-100 shadow-sm backdrop-blur-sm transition-opacity duration-200 hover:bg-white sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
           >
             Quick View
           </button>

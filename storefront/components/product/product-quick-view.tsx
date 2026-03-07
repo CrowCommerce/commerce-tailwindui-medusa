@@ -51,15 +51,22 @@ export function ProductQuickView({
     sizeOption?.values[0] ?? "",
   );
 
-  // Derive selected variant from local state
-  const selectedVariant = product.variants.find((variant) =>
-    variant.selectedOptions.every((opt) => {
-      const key = opt.name.toLowerCase();
-      if (key === "color") return opt.value === selectedColor;
-      if (key === "size") return opt.value === selectedSize;
-      return true;
-    }),
-  );
+  // Derive selected variant from local state (fail-closed for unsupported option dimensions)
+  const hasUnsupportedOptions = product.options.some((o) => {
+    const name = o.name.toLowerCase();
+    return name !== "color" && name !== "size";
+  });
+
+  const selectedVariant = hasUnsupportedOptions
+    ? undefined
+    : product.variants.find((variant) =>
+        variant.selectedOptions.every((opt) => {
+          const key = opt.name.toLowerCase();
+          if (key === "color") return opt.value === selectedColor;
+          if (key === "size") return opt.value === selectedSize;
+          return false;
+        }),
+      );
   const defaultVariantId =
     product.variants.length === 1 ? product.variants[0]?.id : undefined;
   const selectedVariantId = selectedVariant?.id ?? defaultVariantId;
@@ -157,13 +164,13 @@ export function ProductQuickView({
 
                     <form
                       action={() => {
-                        const variant = product.variants.find(
-                          (v) => v.id === selectedVariantId,
-                        );
-                        if (!variant) return;
-                        addCartItem(variant, product);
+                        if (!selectedVariant || !selectedVariant.availableForSale) {
+                          setMessage("Selected variant is out of stock");
+                          return;
+                        }
+                        addCartItem(selectedVariant, product);
                         startTransition(async () => {
-                          const result = await addItem(null, selectedVariantId);
+                          const result = await addItem(null, selectedVariant.id);
                           if (result) {
                             setMessage(result);
                           } else {
@@ -280,14 +287,10 @@ export function ProductQuickView({
                         <div className="flex-1">
                           <button
                             type="submit"
-                            disabled={
-                              !product.availableForSale ||
-                              !selectedVariantId ||
-                              isPending
-                            }
+                            disabled={!selectedVariant?.availableForSale || isPending}
                             className="flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-8 py-3 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {!product.availableForSale
+                            {!selectedVariant?.availableForSale
                               ? "Out of stock"
                               : isPending
                                 ? "Adding..."
@@ -306,10 +309,23 @@ export function ProductQuickView({
                         </div>
                         {selectedVariantId && (
                           <WishlistButton
+                            key={selectedVariantId}
                             variantId={selectedVariantId}
-                            isInWishlist={wishlistState?.isInWishlist}
-                            wishlistId={wishlistState?.wishlistId}
-                            wishlistItemId={wishlistState?.wishlistItemId}
+                            isInWishlist={
+                              selectedVariantId === product.variants?.[0]?.id
+                                ? wishlistState?.isInWishlist
+                                : undefined
+                            }
+                            wishlistId={
+                              selectedVariantId === product.variants?.[0]?.id
+                                ? wishlistState?.wishlistId
+                                : undefined
+                            }
+                            wishlistItemId={
+                              selectedVariantId === product.variants?.[0]?.id
+                                ? wishlistState?.wishlistItemId
+                                : undefined
+                            }
                             size="md"
                           />
                         )}
