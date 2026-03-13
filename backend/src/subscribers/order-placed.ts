@@ -5,12 +5,13 @@ export default async function orderPlacedHandler({
   event: { data },
   container,
 }: SubscriberArgs<{ id: string }>) {
-  const query = container.resolve("query")
-  const notificationModuleService = container.resolve(Modules.NOTIFICATION)
   const logger = container.resolve("logger")
 
   try {
-  const {
+    const query = container.resolve("query")
+    const notificationModuleService = container.resolve(Modules.NOTIFICATION)
+
+    const {
     data: [order],
   } = await query.graph({
     entity: "order",
