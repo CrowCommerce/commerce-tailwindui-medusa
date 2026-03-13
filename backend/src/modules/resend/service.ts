@@ -9,6 +9,7 @@ import type {
 import React from "react"
 import { Resend } from "resend"
 import { render } from "@react-email/render"
+import { OrderConfirmation } from "./templates/order-confirmation"
 
 type ResendOptions = {
   api_key: string
@@ -27,7 +28,9 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
   // Template map — templates are registered here as they're built.
   // Each key matches the `template` string passed via createNotifications().
-  private templates: Record<string, React.FC<any>> = {}
+  private templates: Record<string, React.FC<any>> = {
+    "order-confirmation": OrderConfirmation,
+  }
 
   constructor(
     { logger }: InjectedDependencies,
