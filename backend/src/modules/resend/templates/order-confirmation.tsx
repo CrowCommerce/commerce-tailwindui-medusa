@@ -210,4 +210,30 @@ export const OrderConfirmation = ({
   );
 };
 
+OrderConfirmation.PreviewProps = {
+  customerName: "Sarah",
+  orderNumber: "1042",
+  orderDate: "March 14, 2026",
+  items: [
+    { name: "Leather Crossbody Bag", variant: "Tan / One Size", quantity: 1, price: "$128.00" },
+    { name: "Merino Wool Scarf", variant: "Charcoal", quantity: 2, price: "$98.00" },
+  ],
+  subtotal: "$226.00",
+  shipping: "$8.00",
+  tax: "$18.72",
+  total: "$252.72",
+  paymentMethod: "Card",
+  cardLast4: "4242",
+  shippingAddress: {
+    name: "Sarah Chen",
+    line1: "123 Market Street",
+    line2: "Apt 4B",
+    city: "San Francisco",
+    state: "CA",
+    postalCode: "94105",
+    country: "US",
+  },
+  orderStatusUrl: "http://localhost:3000/account/orders/order_01ABC",
+} satisfies OrderConfirmationProps;
+
 export default OrderConfirmation;
