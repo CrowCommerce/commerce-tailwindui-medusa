@@ -10,6 +10,7 @@ import React from "react"
 import { Resend } from "resend"
 import { render } from "@react-email/render"
 import { OrderConfirmation } from "./templates/order-confirmation"
+import { PasswordReset } from "./templates/password-reset"
 
 type ResendOptions = {
   api_key: string
@@ -30,6 +31,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
   // Each key matches the `template` string passed via createNotifications().
   private templates: Record<string, React.FC<any>> = {
     "order-confirmation": OrderConfirmation,
+    "password-reset": PasswordReset,
   }
 
   constructor(
