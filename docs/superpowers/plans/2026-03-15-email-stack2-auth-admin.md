@@ -10,45 +10,13 @@
 
 **Spec:** `docs/superpowers/specs/2026-03-15-email-stack2-auth-admin-design.md`
 
-**Important:** Stack 1 source files live on branch `remotes/origin/03-13-feat_email_add_order_confirmation_template_and_subscriber` — they have NOT been merged to `main` yet. This plan must be built on top of that branch. Before starting, merge or rebase onto it.
+**Prerequisite:** Stack 1 source files are on `main` (merged 2026-03-15). Verify with `ls backend/src/modules/resend/service.ts`.
 
 ---
 
-## Chunk 1: Prerequisites & Password Reset Email
+## Chunk 1: Password Reset Email
 
-### Task 1: Ensure Stack 1 branch is available locally
-
-**Files:** None (git operations only)
-
-- [ ] **Step 1: Fetch and check out the Stack 1 branch**
-
-```bash
-git fetch origin
-gt create -m "feat(email): add Stack 2 auth and admin emails" --on-top-of origin/03-13-feat_email_add_order_confirmation_template_and_subscriber
-```
-
-If Graphite stacking on a remote branch is problematic, alternatively:
-
-```bash
-git fetch origin 03-13-feat_email_add_order_confirmation_template_and_subscriber
-git checkout 03-13-feat_email_add_order_confirmation_template_and_subscriber
-gt create -m "feat(email): add Stack 2 auth and admin emails"
-```
-
-- [ ] **Step 2: Verify Stack 1 files exist**
-
-```bash
-ls backend/src/modules/resend/service.ts
-ls backend/src/modules/resend/templates/order-confirmation.tsx
-ls backend/src/modules/resend/templates/_components/header.tsx
-ls backend/src/subscribers/order-placed.ts
-```
-
-All four files must exist. If not, you're on the wrong branch.
-
----
-
-### Task 2: Password Reset Template
+### Task 1: Password Reset Template
 
 **Files:**
 - Create: `backend/src/modules/resend/templates/password-reset.tsx`
@@ -165,7 +133,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ---
 
-### Task 3: Password Reset Subscriber
+### Task 2: Password Reset Subscriber
 
 **Files:**
 - Create: `backend/src/subscribers/password-reset.ts`
@@ -288,7 +256,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ## Chunk 2: Admin Invite Email
 
-### Task 4: Admin Invite Template
+### Task 3: Admin Invite Template
 
 **Files:**
 - Create: `backend/src/modules/resend/templates/invite-user.tsx`
@@ -400,7 +368,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ---
 
-### Task 5: Admin Invite Subscriber
+### Task 4: Admin Invite Subscriber
 
 **Files:**
 - Create: `backend/src/subscribers/invite-created.ts`
@@ -514,7 +482,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ## Chunk 3: Customer Welcome Email & Final Wiring
 
-### Task 6: Customer Welcome Template
+### Task 5: Customer Welcome Template
 
 **Files:**
 - Create: `backend/src/modules/resend/templates/welcome.tsx`
@@ -659,7 +627,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ---
 
-### Task 7: Customer Welcome Subscriber
+### Task 6: Customer Welcome Subscriber
 
 **Files:**
 - Create: `backend/src/subscribers/customer-created.ts`
@@ -770,7 +738,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ---
 
-### Task 8: Final Verification & Submit
+### Task 7: Final Verification & Submit
 
 **Files:** None (verification only)
 
