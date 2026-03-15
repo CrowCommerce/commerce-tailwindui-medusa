@@ -12,6 +12,7 @@ import { render } from "@react-email/render"
 import { OrderConfirmation } from "./templates/order-confirmation"
 import { PasswordReset } from "./templates/password-reset"
 import { InviteUser } from "./templates/invite-user"
+import { Welcome } from "./templates/welcome"
 
 type ResendOptions = {
   api_key: string
@@ -34,6 +35,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     "order-confirmation": OrderConfirmation,
     "password-reset": PasswordReset,
     "invite-user": InviteUser,
+    "welcome": Welcome,
   }
 
   constructor(
