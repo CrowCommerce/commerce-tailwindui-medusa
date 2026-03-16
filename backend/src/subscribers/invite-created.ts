@@ -1,6 +1,7 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { Modules } from "@medusajs/framework/utils"
 import { defaultEmailConfig } from "../modules/resend/templates/_config/email-config"
+import { resolveAdminUrl } from "./_helpers/resolve-urls"
 
 export default async function inviteCreatedHandler({
   event: { data },
@@ -9,7 +10,6 @@ export default async function inviteCreatedHandler({
   const logger = container.resolve("logger")
 
   try {
-    // Fetch invite record — always fresh (invite.resent regenerates the token)
     const userModuleService = container.resolve(Modules.USER)
     const invite = await userModuleService.retrieveInvite(data.id)
 
@@ -23,17 +23,13 @@ export default async function inviteCreatedHandler({
       return
     }
 
-    // Build admin invite URL from configModule (canonical source for admin URL)
-    const configModule = container.resolve("configModule")
-    const rawBackendUrl = configModule.admin?.backendUrl
-    if (!rawBackendUrl || rawBackendUrl === "/") {
+    const adminUrl = resolveAdminUrl(container)
+    if (!adminUrl) {
       logger.error("admin.backendUrl is not configured, skipping invite email")
       return
     }
-    const backendUrl = rawBackendUrl.replace(/\/$/, "")
-    const adminPath = configModule.admin?.path || "/app"
-    const inviteUrl = `${backendUrl}${adminPath}/invite?token=${encodeURIComponent(invite.token)}`
 
+    const inviteUrl = `${adminUrl}/invite?token=${encodeURIComponent(invite.token)}`
     const storeName = defaultEmailConfig.companyName
     const notificationService = container.resolve(Modules.NOTIFICATION)
 

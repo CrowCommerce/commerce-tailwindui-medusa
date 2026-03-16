@@ -1,6 +1,7 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { Modules } from "@medusajs/framework/utils"
 import { defaultEmailConfig } from "../modules/resend/templates/_config/email-config"
+import { resolveStorefrontUrl } from "./_helpers/resolve-urls"
 
 export default async function customerCreatedHandler({
   event: { data },
@@ -17,14 +18,12 @@ export default async function customerCreatedHandler({
       return
     }
 
-    const rawStorefrontUrl = process.env.STOREFRONT_URL
-    if (!rawStorefrontUrl) {
+    const storefrontUrl = resolveStorefrontUrl()
+    if (!storefrontUrl) {
       logger.error("STOREFRONT_URL is not configured, skipping welcome email")
       return
     }
-    const storefrontUrl = rawStorefrontUrl.replace(/\/$/, "")
 
-    // Build customer name, or null if neither first nor last name exists
     const customerName = [customer.first_name, customer.last_name]
       .filter(Boolean)
       .join(" ") || null

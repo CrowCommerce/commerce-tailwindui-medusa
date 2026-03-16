@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { Modules } from "@medusajs/framework/utils"
+import { resolveAdminUrl, resolveStorefrontUrl } from "./_helpers/resolve-urls"
 
 type PasswordResetPayload = {
   entity_id: string  // This IS the email address (renamed from `email` after v2.0.7)
@@ -29,27 +30,23 @@ export default async function passwordResetHandler({
     }
 
     // Build reset URL based on actor type
+    const params = `token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
     let resetUrl: string
 
     if (actorType === "customer") {
-      const rawStorefrontUrl = process.env.STOREFRONT_URL
-      if (!rawStorefrontUrl) {
+      const storefrontUrl = resolveStorefrontUrl()
+      if (!storefrontUrl) {
         logger.error("STOREFRONT_URL is not configured, skipping password reset email")
         return
       }
-      const storefrontUrl = rawStorefrontUrl.replace(/\/$/, "")
-      resetUrl = `${storefrontUrl}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
+      resetUrl = `${storefrontUrl}/reset-password?${params}`
     } else {
-      // Admin user — resolve URL from configModule (canonical source)
-      const configModule = container.resolve("configModule")
-      const rawBackendUrl = configModule.admin?.backendUrl
-      if (!rawBackendUrl || rawBackendUrl === "/") {
+      const adminUrl = resolveAdminUrl(container)
+      if (!adminUrl) {
         logger.error("admin.backendUrl is not configured, skipping password reset email")
         return
       }
-      const backendUrl = rawBackendUrl.replace(/\/$/, "")
-      const adminPath = configModule.admin?.path || "/app"
-      resetUrl = `${backendUrl}${adminPath}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
+      resetUrl = `${adminUrl}/reset-password?${params}`
     }
 
     const notificationService = container.resolve(Modules.NOTIFICATION)
