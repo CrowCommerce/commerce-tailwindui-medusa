@@ -219,6 +219,9 @@ export async function requestPasswordReset(
     if (isRateLimited(e)) {
       return { error: "Too many attempts. Please try again in 15 minutes." }
     }
+    // Log infrastructure errors (network/5xx) for debugging, but still return
+    // success to the user to prevent email enumeration.
+    console.error("[requestPasswordReset]", e)
   }
   return { success: true }
 }

@@ -31,7 +31,7 @@ Build the complete forgot/reset password flow: three storefront changes and one 
 
 **User journey:**
 
-```
+```text
 Login Page → "Forgot password?" → Forgot Password Page → Email Sent → (email link) → Reset Password Page → Login Page (success)
 ```
 
