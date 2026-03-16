@@ -1,0 +1,121 @@
+<h2>Rate Limiting — Failed-Attempt Tracking</h2>
+<p class="subtitle">Redis-backed middleware counting only failed auth attempts per IP</p>
+
+<div class="section">
+  <h3>Why Not a Simple Rate Limiter?</h3>
+  <p style="font-size: 13px; color: #4b5563; line-height: 1.6;">
+    You asked for "5 failed attempts → 15-minute lockout." A naive rate limiter counts ALL requests (including successes), which locks out legitimate users who typo once then succeed. Instead, we'll track <strong>failed attempts only</strong> using response status interception.
+  </p>
+</div>
+
+<div class="section">
+  <h3>How It Works</h3>
+  <div class="mockup">
+    <div class="mockup-header">Request Lifecycle</div>
+    <div class="mockup-body" style="padding: 24px;">
+      <div style="display: grid; gap: 16px; max-width: 600px; margin: 0 auto;">
+
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <div style="background: #6366f1; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">1</div>
+          <div>
+            <div style="font-weight: 600; font-size: 13px;">Pre-check: Is IP locked out?</div>
+            <div style="font-size: 12px; color: #6b7280;">Read <code>auth_fail:{ip}</code> from Redis. If count ≥ 5, return <strong>HTTP 429</strong> with <code>Retry-After</code> header (TTL of key in seconds).</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <div style="background: #6366f1; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">2</div>
+          <div>
+            <div style="font-weight: 600; font-size: 13px;">Let request proceed to Medusa auth handler</div>
+            <div style="font-size: 12px; color: #6b7280;">Call <code>next()</code> — Medusa handles the actual login/signup/reset logic.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <div style="background: #ef4444; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">3a</div>
+          <div>
+            <div style="font-weight: 600; font-size: 13px;">On 401 response → increment counter</div>
+            <div style="font-size: 12px; color: #6b7280;">Redis <code>INCR auth_fail:{ip}</code> + <code>EXPIRE 900</code> (15 min). Uses <code>res.on('finish')</code> hook to inspect status after handler completes.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <div style="background: #22c55e; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">3b</div>
+          <div>
+            <div style="font-weight: 600; font-size: 13px;">On 200 response → clear counter</div>
+            <div style="font-size: 12px; color: #6b7280;">Redis <code>DEL auth_fail:{ip}</code>. Successful login resets the lockout window.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Files</h3>
+  <div style="display: grid; gap: 12px;">
+    <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+      <div style="font-weight: 600; color: #166534; font-size: 13px;">NEW — Rate Limit Middleware</div>
+      <code style="font-size: 12px; color: #4b5563;">backend/src/api/middlewares/rate-limit.ts</code>
+      <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">~50 lines. Creates ioredis client from <code>REDIS_URL</code>, exports <code>authRateLimit()</code> middleware function.</div>
+    </div>
+
+    <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+      <div style="font-weight: 600; color: #1e40af; font-size: 13px;">EDIT — Middlewares Config</div>
+      <code style="font-size: 12px; color: #4b5563;">backend/src/api/middlewares.ts</code>
+      <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Add rate limit middleware to auth routes</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Configuration</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <div style="background: #f9fafb; padding: 12px 16px; border-radius: 8px;">
+      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.05em;">Max Attempts</div>
+      <div style="font-size: 20px; font-weight: 700; color: #111827;">5</div>
+    </div>
+    <div style="background: #f9fafb; padding: 12px 16px; border-radius: 8px;">
+      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.05em;">Lockout Window</div>
+      <div style="font-size: 20px; font-weight: 700; color: #111827;">15 min</div>
+    </div>
+    <div style="background: #f9fafb; padding: 12px 16px; border-radius: 8px;">
+      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.05em;">Redis Key</div>
+      <div style="font-size: 14px; font-weight: 600; color: #111827; font-family: monospace;">auth_fail:{ip}</div>
+    </div>
+    <div style="background: #f9fafb; padding: 12px 16px; border-radius: 8px;">
+      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.05em;">HTTP Response</div>
+      <div style="font-size: 20px; font-weight: 700; color: #111827;">429</div>
+      <div style="font-size: 11px; color: #6b7280;">+ Retry-After header</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Routes Protected</h3>
+  <div style="display: grid; gap: 8px;">
+    <div style="background: #fef3c7; padding: 10px 16px; border-radius: 8px; font-family: monospace; font-size: 13px;">
+      <span style="color: #92400e; font-weight: 600;">POST</span> <span style="color: #4b5563;">/auth/customer/emailpass/*</span>
+      <span style="color: #9ca3af; font-size: 11px; margin-left: 8px;">(login, register, reset-password, update)</span>
+    </div>
+    <div style="background: #fef3c7; padding: 10px 16px; border-radius: 8px; font-family: monospace; font-size: 13px;">
+      <span style="color: #92400e; font-weight: 600;">POST</span> <span style="color: #4b5563;">/auth/user/emailpass/*</span>
+      <span style="color: #9ca3af; font-size: 11px; margin-left: 8px;">(admin login, reset)</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Graceful Degradation</h3>
+  <p style="font-size: 13px; color: #4b5563; line-height: 1.6;">
+    If Redis is unavailable (no <code>REDIS_URL</code>, or connection fails), the middleware <strong>passes through</strong> — auth works normally without rate limiting. Logs a warning on startup. This ensures local dev without Redis is unaffected.
+  </p>
+</div>
+
+<div class="section">
+  <h3>Storefront Error Handling</h3>
+  <p style="font-size: 13px; color: #4b5563; line-height: 1.6;">
+    The existing <code>login</code> and <code>signup</code> server actions catch errors generically. When the backend returns 429, the Medusa SDK will throw a <code>FetchError</code> with status 429. We'll add a check in the catch block to surface a user-friendly message: <em>"Too many login attempts. Please try again in 15 minutes."</em>
+  </p>
+</div>
