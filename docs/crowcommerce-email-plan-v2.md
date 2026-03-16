@@ -357,7 +357,24 @@ Commit message: feat(email): add order confirmation template and subscriber
 
 ---
 
-### Stack 2: Core Auth & Admin Emails
+### Stack 2: Core Auth & Admin Emails ✅ COMPLETED
+
+> **Status:** PR #17 merged (2026-03-15). Single PR with 3 templates + 3 subscribers.
+>
+> **Implementation notes:**
+> - Subscriber-only pattern (no workflows) — simpler than Stack 1 since no complex data fetching needed
+> - Shared `_helpers/resolve-urls.ts` extracted for DRY URL resolution across subscribers
+> - Fail-fast guards: subscribers skip sending when `STOREFRONT_URL` or `admin.backendUrl` is not configured (prevents broken links)
+> - Password reset: `entity_id` IS the email (renamed from `email` after Medusa v2.0.7), token expires in 15 minutes
+> - Admin invite: subscribes to both `invite.created` and `invite.resent` via array config, always fetches fresh token
+> - Customer welcome: fires for both self-service signups and admin-created customers, degrades greeting to "Hi there," when no name
+> - PII masking: raw emails removed from log messages
+> - Trailing slash normalization on URL bases
+> - Email case-sensitivity bug found and fixed: added `.toLowerCase()` to login, signup, and checkout email handling
+> - `storeName` resolved from `EmailBrandConfig.companyName` (no extra service call)
+>
+> **Spec:** `docs/superpowers/specs/2026-03-15-email-stack2-auth-admin-design.md`
+> **Plan:** `docs/superpowers/plans/2026-03-15-email-stack2-auth-admin.md`
 
 **Session 2: Superpowers Brainstorm (quick)**
 
@@ -1172,13 +1189,13 @@ Ship incrementally. Each row is independently deployable once its dependencies a
 | Priority | PR(s) | Feature | Status | Why |
 |----------|-------|---------|--------|-----|
 | P0 | 1–3 | Resend module + components + order confirmation | ✅ Done | Can't launch without order emails |
-| P0 | 4 | Password reset | | Can't have accounts without recovery |
+| P0 | 4 | Password reset | ✅ Done | Can't have accounts without recovery |
 | P0 | 7 | Shipping confirmation | | Most-checked email after purchase |
-| P1 | 5 | Admin invite | | Needed before onboarding store staff |
+| P1 | 5 | Admin invite | ✅ Done | Needed before onboarding store staff |
 | P1 | 8 | Order canceled + refund + payment failed | | Customer trust, reduces support load |
 | P1 | 9 | Admin new order alert | | Operations essential |
 | P1 | 10 | Abandoned cart | | Direct revenue recovery (~5–10% of abandoned carts convert) |
-| P2 | 6 | Customer welcome | | Brand polish, 3× engagement vs promo emails |
+| P2 | 6 | Customer welcome | ✅ Done | Brand polish, 3× engagement vs promo emails |
 | P2 | 11–12 | Invoice generator | | Professional, may be legally required in some jurisdictions |
 | P2 | 13 | Return flow emails | | High-anxiety moment, impacts repeat purchases |
 | P3 | 14 | Gift card delivery | | Only needed if selling gift cards |
@@ -1196,10 +1213,10 @@ These IDs are what subscribers pass to `notificationModuleService.createNotifica
 # Stack 1: Foundation ✅
 order-confirmation          # ✅ implemented
 
-# Stack 2: Auth & Admin
-password-reset
-invite-user
-welcome
+# Stack 2: Auth & Admin ✅
+password-reset              # ✅ implemented
+invite-user                 # ✅ implemented
+welcome                     # ✅ implemented
 
 # Stack 3: Order Lifecycle
 shipping-confirmation
