@@ -1,8 +1,8 @@
-import { retrieveCustomer } from "lib/medusa/customer";
-import { redirect } from "next/navigation";
-import { ForgotPasswordForm } from "components/account/forgot-password-form";
-import { AuthLayout } from "components/account/auth-layout";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { AuthLayout } from "components/account/auth-layout";
+import { ForgotPasswordForm } from "components/account/forgot-password-form";
+import { retrieveCustomer } from "lib/medusa/customer";
 
 export const metadata = { title: "Forgot Password" };
 

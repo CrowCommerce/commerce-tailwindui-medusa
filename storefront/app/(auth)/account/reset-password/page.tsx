@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { AuthLayout } from "components/account/auth-layout";
 import { ResetPasswordForm } from "components/account/reset-password-form";
-import Link from "next/link";
 
 export const metadata = { title: "Reset Password" };
 

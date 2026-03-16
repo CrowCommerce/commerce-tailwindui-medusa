@@ -1,7 +1,7 @@
 "use client";
 
-import { requestPasswordReset } from "lib/medusa/customer";
 import { useState, useTransition } from "react";
+import { requestPasswordReset } from "lib/medusa/customer";
 
 export function ForgotPasswordForm() {
   const [error, setError] = useState<string | null>(null);

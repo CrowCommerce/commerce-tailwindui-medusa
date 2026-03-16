@@ -1,11 +1,11 @@
 "use server";
 
-import { sdk } from "lib/medusa";
-import { validatePassword } from "lib/validation";
-import { TAGS } from "lib/constants";
 import type { HttpTypes } from "@medusajs/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { TAGS } from "lib/constants";
+import { sdk } from "lib/medusa";
+import { validatePassword } from "lib/validation";
 import {
   getAuthHeaders,
   getAuthToken,
@@ -20,11 +20,7 @@ import { transferWishlist } from "lib/medusa/wishlist";
 export type ActionResult = { error?: string; success?: boolean } | null;
 
 function isRateLimited(e: unknown): boolean {
-  return (
-    e instanceof Error &&
-    "status" in e &&
-    (e as Record<string, unknown>).status === 429
-  );
+  return e instanceof Object && "status" in e && e.status === 429;
 }
 
 function revalidateCustomer(): void {

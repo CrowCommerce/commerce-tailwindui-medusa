@@ -58,20 +58,15 @@ export function authRateLimit(): RequestHandler {
 
     // Intercept response to track failures
     res.on("finish", () => {
-      if (!client) return
-      try {
-        if (res.statusCode === 401) {
-          client
-            .multi()
-            .incr(key)
-            .expire(key, WINDOW_SECONDS)
-            .exec()
-            .catch(() => {})
-        } else if (res.statusCode >= 200 && res.statusCode < 300) {
-          client.del(key).catch(() => {})
-        }
-      } catch {
-        // Swallow — rate limiting is best-effort
+      if (res.statusCode === 401) {
+        client
+          .multi()
+          .incr(key)
+          .expire(key, WINDOW_SECONDS)
+          .exec()
+          .catch(() => {})
+      } else if (res.statusCode >= 200 && res.statusCode < 300) {
+        client.del(key).catch(() => {})
       }
     })
 

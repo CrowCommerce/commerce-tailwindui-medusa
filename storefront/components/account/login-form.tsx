@@ -1,8 +1,8 @@
 "use client";
 
-import { login } from "lib/medusa/customer";
 import Link from "next/link";
 import { useActionState } from "react";
+import { login } from "lib/medusa/customer";
 
 export function LoginForm() {
   const [error, formAction, isPending] = useActionState(login, null);
