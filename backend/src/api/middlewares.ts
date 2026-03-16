@@ -6,6 +6,7 @@ import {
 } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
 import multer from "multer"
+import { authRateLimit } from "./middlewares/rate-limit"
 import { PostStoreReviewSchema } from "./store/reviews/route"
 import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route"
 import { PostAdminReviewResponseSchema } from "./admin/reviews/[id]/response/route"
@@ -35,6 +36,27 @@ const upload = multer({
 
 export default defineMiddlewares({
   routes: [
+    // --- Trust proxy for correct IP detection behind reverse proxy ---
+    {
+      matcher: "/auth*",
+      middlewares: [
+        (req, _res, next) => {
+          req.app.set("trust proxy", true)
+          next()
+        },
+      ],
+    },
+    // --- Auth rate limiting ---
+    {
+      matcher: "/auth/customer/emailpass*",
+      method: ["POST"],
+      middlewares: [authRateLimit()],
+    },
+    {
+      matcher: "/auth/user/emailpass*",
+      method: ["POST"],
+      middlewares: [authRateLimit()],
+    },
     // --- Saved payment methods — auth required ---
     {
       matcher: "/store/payment-methods/:account_holder_id",
