@@ -4,6 +4,11 @@
 /node_modules
 **/node_modules
 
+# superpowers runtime artifacts
+.superpowers/brainstorm/**/.server-info
+.superpowers/brainstorm/**/.events
+.superpowers/brainstorm/**/.server-stopped
+
 # testing
 /coverage
 .playwright

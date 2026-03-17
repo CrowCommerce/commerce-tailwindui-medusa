@@ -1,10 +1,11 @@
 "use server";
 
-import { sdk } from "lib/medusa";
-import { TAGS } from "lib/constants";
 import type { HttpTypes } from "@medusajs/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { TAGS } from "lib/constants";
+import { sdk } from "lib/medusa";
+import { validatePassword } from "lib/validation";
 import {
   getAuthHeaders,
   getAuthToken,
@@ -17,6 +18,10 @@ import {
 import { transferWishlist } from "lib/medusa/wishlist";
 
 export type ActionResult = { error?: string; success?: boolean } | null;
+
+function isRateLimited(e: unknown): boolean {
+  return e instanceof Object && "status" in e && e.status === 429;
+}
 
 function revalidateCustomer(): void {
   revalidateTag(TAGS.customers, "max");
@@ -69,6 +74,9 @@ export async function login(
     });
     await setAuthToken(token as string);
   } catch (e) {
+    if (isRateLimited(e)) {
+      return "Too many login attempts. Please try again in 15 minutes.";
+    }
     return e instanceof Error ? e.message : "Invalid email or password";
   }
 
@@ -101,6 +109,9 @@ export async function signup(
   if (!password) return "Password is required";
   if (!firstName) return "First name is required";
   if (!lastName) return "Last name is required";
+
+  const passwordError = validatePassword(password)
+  if (passwordError) return passwordError
 
   const customerForm = {
     email,
@@ -152,6 +163,9 @@ export async function signup(
     await setAuthToken(loginToken as string);
   } catch (e) {
     if (tokenSet) await removeAuthToken();
+    if (isRateLimited(e)) {
+      return "Too many attempts. Please try again in 15 minutes.";
+    }
     return e instanceof Error ? e.message : "Error creating account";
   }
 
@@ -188,6 +202,57 @@ export async function signout(): Promise<void> {
   revalidatePath("/", "layout");
 
   redirect("/");
+}
+
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ error?: string; success?: boolean }> {
+  const normalizedEmail = email?.trim().toLowerCase()
+  if (!normalizedEmail) {
+    return { error: "Email is required" }
+  }
+  try {
+    await sdk.auth.resetPassword("customer", "emailpass", {
+      identifier: normalizedEmail,
+    })
+  } catch (e) {
+    if (isRateLimited(e)) {
+      return { error: "Too many attempts. Please try again in 15 minutes." }
+    }
+    // Log infrastructure errors (network/5xx) for debugging, but still return
+    // success to the user to prevent email enumeration.
+    console.error("[requestPasswordReset]", e)
+  }
+  return { success: true }
+}
+
+export async function completePasswordReset(
+  token: string,
+  email: string,
+  password: string,
+): Promise<{ error?: string; success?: boolean }> {
+  const normalizedEmail = email?.trim().toLowerCase()
+  if (!token) return { error: "Reset token is missing" }
+  if (!normalizedEmail) return { error: "Email is missing" }
+  if (!password) return { error: "Password is required" }
+  const passwordError = validatePassword(password)
+  if (passwordError) return { error: passwordError }
+  try {
+    await sdk.auth.updateProvider(
+      "customer",
+      "emailpass",
+      { email: normalizedEmail, password },
+      token,
+    )
+  } catch (e) {
+    if (isRateLimited(e)) {
+      return { error: "Too many attempts. Please try again in 15 minutes." }
+    }
+    return {
+      error: e instanceof Error ? e.message : "Unable to reset password. The link may have expired.",
+    }
+  }
+  return { success: true }
 }
 
 export async function updateCustomer(

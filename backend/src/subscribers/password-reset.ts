@@ -39,7 +39,7 @@ export default async function passwordResetHandler({
         logger.error("STOREFRONT_URL is not configured, skipping password reset email")
         return
       }
-      resetUrl = `${storefrontUrl}/reset-password?${params}`
+      resetUrl = `${storefrontUrl}/account/reset-password?${params}`
     } else {
       const adminUrl = resolveAdminUrl(container)
       if (!adminUrl) {
