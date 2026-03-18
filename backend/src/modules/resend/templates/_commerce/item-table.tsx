@@ -1,5 +1,5 @@
 // backend/src/modules/resend/templates/_commerce/item-table.tsx
-import { Column, Row, Section } from "@react-email/components";
+import { Column, Img, Row, Section } from "@react-email/components";
 import { Text } from "../_components/text";
 import type { CommerceLineItem } from "../types";
 
@@ -37,14 +37,37 @@ export const ItemTable = ({ items }: ItemTableProps) => {
           }`}
         >
           <Column className="w-[50%]">
-            <Text className="m-0 text-sm text-primary">
-              {item.name}
-            </Text>
-            {item.variant && (
-              <Text className="m-0 text-xs text-tertiary">
-                {item.variant}
-              </Text>
-            )}
+            <table cellPadding="0" cellSpacing="0" border={0}>
+              <tbody>
+                <tr>
+                  {item.imageUrl && (
+                    <td style={{ verticalAlign: "top", paddingRight: 12, width: 64 }}>
+                      <Img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        width="64"
+                        height="64"
+                        style={{
+                          borderRadius: 8,
+                          objectFit: "cover",
+                          display: "block",
+                        }}
+                      />
+                    </td>
+                  )}
+                  <td style={{ verticalAlign: "top" }}>
+                    <Text className="m-0 text-sm text-primary">
+                      {item.name}
+                    </Text>
+                    {item.variant && (
+                      <Text className="m-0 text-xs text-tertiary">
+                        {item.variant}
+                      </Text>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Column>
           <Column className="w-[15%]" align="center">
             <Text className="m-0 text-sm text-tertiary">
