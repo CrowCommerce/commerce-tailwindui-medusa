@@ -89,6 +89,7 @@
 - [x] Order canceled email with refund status (`order.canceled`)
 - [x] Refund confirmation email (`payment.refunded`)
 - [x] Admin new order alert (dual subscriber on `order.placed`, `ADMIN_ORDER_EMAILS` env var)
+- [ ] Add product thumbnail images to email templates (item table rows currently show name/variant/qty/price but no images — data is available via `item.thumbnail` from `formatOrderForEmailStep`)
 - [ ] Order detail page — `/account/orders/[id]` storefront route (email "View your order" link currently 404s)
 - [ ] Integrate Payload CMS — product content management (descriptions, rich media, landing pages)
 - [ ] Abandoned cart recovery emails (Resend)
