@@ -496,7 +496,19 @@ Commit message: feat(email): add customer welcome template and subscriber
 
 ---
 
-### Stack 3: Order Lifecycle Emails
+### Stack 3: Order Lifecycle Emails ✅ COMPLETED
+
+> **Status:** PR #19 merged (2026-03-16). Shipping confirmation, order canceled, refund confirmation, and admin new order alert templates + subscribers/workflows.
+>
+> **Implementation notes:**
+> - Shared `formatOrderForEmailStep` reused across all order lifecycle emails
+> - `formatRefundForEmailStep` added for refund-specific formatting
+> - Shipping confirmation includes tracking number/carrier/URL (optional)
+> - Order canceled shows refund status messaging
+> - Admin new order alert sends to `ADMIN_ORDER_EMAILS` env var (comma-separated list)
+> - Payment failed template deferred — requires Stripe webhook handler not yet built
+>
+> **Cross-cutting enhancement (PR #21, 2026-03-18):** Added 64px product thumbnail images to all email templates via `ItemTable` component. `item.thumbnail` data was already flowing through `formatOrderForEmailStep`; the component now renders it.
 
 **Session 3: Superpowers Brainstorm (quick)**
 
@@ -643,7 +655,16 @@ Commit message: feat(email): add admin new order alert
 
 ---
 
-### Stack 4: Abandoned Cart Recovery
+### Stack 4: Abandoned Cart Recovery ✅ COMPLETED
+
+> **Status:** Merged (2026-03-18). Abandoned cart email template, scheduled job (every 15 min), HMAC-signed recovery links, storefront cart recovery route.
+>
+> **Implementation notes:**
+> - Scheduled job runs every 15 minutes, queries carts with email + items that haven't been notified
+> - HMAC token generation step for secure recovery URLs (not raw cart IDs)
+> - Storefront `/cart/recovery` route verifies HMAC signature before restoring cart session
+> - `formatCartForEmailStep` for cart-specific email formatting
+> - Cart metadata `abandoned_cart_notified` timestamp prevents re-sending
 
 **Session 4: Superpowers Brainstorm**
 
@@ -1190,11 +1211,11 @@ Ship incrementally. Each row is independently deployable once its dependencies a
 |----------|-------|---------|--------|-----|
 | P0 | 1–3 | Resend module + components + order confirmation | ✅ Done | Can't launch without order emails |
 | P0 | 4 | Password reset | ✅ Done | Can't have accounts without recovery |
-| P0 | 7 | Shipping confirmation | | Most-checked email after purchase |
+| P0 | 7 | Shipping confirmation | ✅ Done | Most-checked email after purchase |
 | P1 | 5 | Admin invite | ✅ Done | Needed before onboarding store staff |
-| P1 | 8 | Order canceled + refund + payment failed | | Customer trust, reduces support load |
-| P1 | 9 | Admin new order alert | | Operations essential |
-| P1 | 10 | Abandoned cart | | Direct revenue recovery (~5–10% of abandoned carts convert) |
+| P1 | 8 | Order canceled + refund + payment failed | ✅ Done (payment-failed deferred) | Customer trust, reduces support load |
+| P1 | 9 | Admin new order alert | ✅ Done | Operations essential |
+| P1 | 10 | Abandoned cart | ✅ Done | Direct revenue recovery (~5–10% of abandoned carts convert) |
 | P2 | 6 | Customer welcome | ✅ Done | Brand polish, 3× engagement vs promo emails |
 | P2 | 11–12 | Invoice generator | | Professional, may be legally required in some jurisdictions |
 | P2 | 13 | Return flow emails | | High-anxiety moment, impacts repeat purchases |
@@ -1218,15 +1239,15 @@ password-reset              # ✅ implemented
 invite-user                 # ✅ implemented
 welcome                     # ✅ implemented
 
-# Stack 3: Order Lifecycle
-shipping-confirmation
-order-canceled
-refund-confirmation
-payment-failed
-admin-new-order
+# Stack 3: Order Lifecycle ✅
+shipping-confirmation       # ✅ implemented
+order-canceled              # ✅ implemented
+refund-confirmation         # ✅ implemented
+payment-failed              # ⏳ deferred (needs Stripe webhook handler)
+admin-new-order             # ✅ implemented (admin-order-alert)
 
-# Stack 4: Recovery
-abandoned-cart
+# Stack 4: Recovery ✅
+abandoned-cart              # ✅ implemented
 
 # Stack 5: Invoicing
 invoice-ready (if separate email, otherwise attached to order-confirmation)
