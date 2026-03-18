@@ -13,6 +13,10 @@ import { OrderConfirmation } from "./templates/order-confirmation"
 import { PasswordReset } from "./templates/password-reset"
 import { InviteUser } from "./templates/invite-user"
 import { Welcome } from "./templates/welcome"
+import { ShippingConfirmation } from "./templates/shipping-confirmation"
+import { OrderCanceled } from "./templates/order-canceled"
+import { RefundConfirmation } from "./templates/refund-confirmation"
+import { AdminOrderAlert } from "./templates/admin-order-alert"
 
 type ResendOptions = {
   api_key: string
@@ -36,6 +40,10 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     "password-reset": PasswordReset,
     "invite-user": InviteUser,
     "welcome": Welcome,
+    "shipping-confirmation": ShippingConfirmation,
+    "order-canceled": OrderCanceled,
+    "refund-confirmation": RefundConfirmation,
+    "admin-order-alert": AdminOrderAlert,
   }
 
   constructor(

@@ -1,4 +1,4 @@
-// backend/src/modules/resend/templates/order-confirmation.tsx
+// backend/src/modules/resend/templates/shipping-confirmation.tsx
 import { Container, Html, Preview, Row, Section, Column } from "@react-email/components";
 import { Body } from "./_components/body";
 import { Button } from "./_components/button";
@@ -7,14 +7,13 @@ import { Head } from "./_components/head";
 import { LeftAligned as Header } from "./_components/header";
 import { Tailwind } from "./_components/tailwind";
 import { Text } from "./_components/text";
-import { PaymentDetails } from "./_components/line-items";
 import { AddressBlock } from "./_commerce/address-block";
 import { ItemTable } from "./_commerce/item-table";
 import { OrderSummary } from "./_commerce/order-summary";
 import { getEmailConfig } from "./_config/email-config";
 import type { CommerceLineItem, Address, BaseTemplateProps } from "./types";
 
-export interface OrderConfirmationProps extends BaseTemplateProps {
+export interface ShippingConfirmationProps extends BaseTemplateProps {
   customerName?: string;
   orderNumber: string;
   orderDate: string;
@@ -24,14 +23,13 @@ export interface OrderConfirmationProps extends BaseTemplateProps {
   tax?: string;
   discount?: string;
   total: string;
-  paymentMethod: string;
-  cardLast4?: string;
   shippingAddress: Address;
-  billingAddress?: Address;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
   orderStatusUrl?: string;
 }
 
-export const OrderConfirmation = ({
+export const ShippingConfirmation = ({
   theme,
   customerName,
   orderNumber,
@@ -40,15 +38,14 @@ export const OrderConfirmation = ({
   subtotal,
   shipping,
   tax,
-  total,
-  paymentMethod,
-  cardLast4,
-  shippingAddress,
-  billingAddress,
-  orderStatusUrl,
   discount,
+  total,
+  shippingAddress,
+  trackingNumber,
+  trackingUrl,
+  orderStatusUrl,
   brandConfig,
-}: OrderConfirmationProps) => {
+}: ShippingConfirmationProps) => {
   const config = getEmailConfig(brandConfig);
   const greeting = customerName ? `Hi ${customerName},` : "Hi there,";
 
@@ -56,16 +53,14 @@ export const OrderConfirmation = ({
     <Html>
       <Tailwind theme={theme}>
         <Head />
-        <Preview>
-          Order #{orderNumber} confirmed - {total}
-        </Preview>
+        <Preview>Your order #{orderNumber} has shipped</Preview>
         <Body>
           <Container align="center" className="w-full max-w-160 bg-primary md:p-8">
             <Header logoUrl={config.logoUrl} logoAlt={config.logoAlt} />
             <Section align="left" className="max-w-full px-6 py-8">
               <Row className="mb-6">
                 <Text className="text-display-xs font-semibold text-primary">
-                  Order Confirmed
+                  Your order is on its way!
                 </Text>
               </Row>
               <Row className="mb-6">
@@ -73,10 +68,28 @@ export const OrderConfirmation = ({
                   {greeting}
                   <br />
                   <br />
-                  Thank you for your order! We've received your order and
-                  will begin processing it shortly.
+                  Great news — your order has shipped and is headed your way.
                 </Text>
               </Row>
+
+              {trackingNumber && (
+                <Section className="mb-6 rounded-lg border border-solid border-secondary bg-secondary p-4">
+                  <Row>
+                    <Text className="m-0 text-xs font-medium uppercase text-tertiary">
+                      Tracking Number
+                    </Text>
+                    <Text className="m-0 mt-1 text-sm font-semibold text-primary">
+                      {trackingUrl ? (
+                        <a href={trackingUrl} className="text-brand-secondary">
+                          {trackingNumber}
+                        </a>
+                      ) : (
+                        trackingNumber
+                      )}
+                    </Text>
+                  </Row>
+                </Section>
+              )}
 
               <Row className="mb-2">
                 <Column>
@@ -107,29 +120,15 @@ export const OrderConfirmation = ({
                 total={total}
               />
 
-              <PaymentDetails
-                method={paymentMethod}
-                cardLast4={cardLast4}
-              />
+              <AddressBlock label="Shipping Address" address={shippingAddress} />
 
-              <Row>
-                <Column className="w-1/2">
-                  <AddressBlock label="Shipping Address" address={shippingAddress} />
-                </Column>
-                {billingAddress && (
-                  <Column className="w-1/2">
-                    <AddressBlock label="Billing Address" address={billingAddress} />
-                  </Column>
-                )}
+              <Row className="mt-6 mb-6">
+                <Button href={trackingUrl || orderStatusUrl || config.appUrl || config.websiteUrl}>
+                  <Text className="text-md font-semibold">
+                    {trackingUrl ? "Track your order" : "View your order"}
+                  </Text>
+                </Button>
               </Row>
-
-              {orderStatusUrl && (
-                <Row className="mt-6 mb-6">
-                  <Button href={orderStatusUrl}>
-                    <Text className="text-md font-semibold">View your order</Text>
-                  </Button>
-                </Row>
-              )}
 
               <Row>
                 <Text className="text-md text-tertiary">
@@ -161,7 +160,7 @@ export const OrderConfirmation = ({
   );
 };
 
-OrderConfirmation.PreviewProps = {
+ShippingConfirmation.PreviewProps = {
   customerName: "Sarah",
   orderNumber: "1042",
   orderDate: "March 14, 2026",
@@ -173,8 +172,6 @@ OrderConfirmation.PreviewProps = {
   shipping: "$8.00",
   tax: "$18.72",
   total: "$252.72",
-  paymentMethod: "Card",
-  cardLast4: "4242",
   shippingAddress: {
     name: "Sarah Chen",
     line1: "123 Market Street",
@@ -184,7 +181,9 @@ OrderConfirmation.PreviewProps = {
     postalCode: "94105",
     country: "US",
   },
+  trackingNumber: "1Z999AA10123456784",
+  trackingUrl: "https://www.ups.com/track?tracknum=1Z999AA10123456784",
   orderStatusUrl: "http://localhost:3000/account/orders/order_01ABC",
-} satisfies OrderConfirmationProps;
+} satisfies ShippingConfirmationProps;
 
-export default OrderConfirmation;
+export default ShippingConfirmation;
