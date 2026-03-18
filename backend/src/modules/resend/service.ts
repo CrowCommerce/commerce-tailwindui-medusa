@@ -17,6 +17,7 @@ import { ShippingConfirmation } from "./templates/shipping-confirmation"
 import { OrderCanceled } from "./templates/order-canceled"
 import { RefundConfirmation } from "./templates/refund-confirmation"
 import { AdminOrderAlert } from "./templates/admin-order-alert"
+import { AbandonedCart } from "./templates/abandoned-cart"
 
 type ResendOptions = {
   api_key: string
@@ -44,6 +45,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     "order-canceled": OrderCanceled,
     "refund-confirmation": RefundConfirmation,
     "admin-order-alert": AdminOrderAlert,
+    "abandoned-cart": AbandonedCart,
   }
 
   constructor(
