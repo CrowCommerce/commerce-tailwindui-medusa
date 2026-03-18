@@ -104,8 +104,8 @@ export const AbandonedCart = ({
 AbandonedCart.PreviewProps = {
   customerName: "Sarah",
   items: [
-    { name: "Leather Crossbody Bag", variant: "Tan / One Size", quantity: 1, price: "$128.00" },
-    { name: "Merino Wool Scarf", variant: "Charcoal", quantity: 2, price: "$98.00" },
+    { name: "Leather Crossbody Bag", variant: "Tan / One Size", quantity: 1, price: "$128.00", imageUrl: "https://placehold.co/128x128?text=Product" },
+    { name: "Merino Wool Scarf", variant: "Charcoal", quantity: 2, price: "$98.00", imageUrl: "https://placehold.co/128x128?text=Product" },
   ],
   subtotal: "$226.00",
   recoveryUrl: "http://localhost:3000/cart/recover/cart_01ABC?token=abc123",
