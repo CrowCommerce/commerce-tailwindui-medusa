@@ -10,6 +10,7 @@ import {
 } from "@medusajs/medusa/core-flows"
 import { formatOrderForEmailStep } from "../steps/format-order-for-email"
 import { createCurrencyFormatter } from "./_format-helpers"
+import { EmailTemplates } from "../../modules/resend/templates/template-registry"
 
 type SendOrderCanceledInput = {
   orderId: string
@@ -88,7 +89,7 @@ export const sendOrderCanceledWorkflow = createWorkflow(
           {
             to: data.email,
             channel: "email" as const,
-            template: "order-canceled",
+            template: EmailTemplates.ORDER_CANCELED,
             data: {
               subject: `Your order #${data.orderNumber} has been canceled`,
               customerName: data.customerName,

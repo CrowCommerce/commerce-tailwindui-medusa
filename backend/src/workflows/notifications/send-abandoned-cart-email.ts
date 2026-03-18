@@ -11,6 +11,7 @@ import {
 } from "@medusajs/medusa/core-flows"
 import { generateCartRecoveryTokenStep } from "../steps/generate-cart-recovery-token"
 import { formatCartForEmailStep } from "../steps/format-cart-for-email"
+import { EmailTemplates } from "../../modules/resend/templates/template-registry"
 
 type SendAbandonedCartEmailInput = {
   cart_id: string
@@ -84,7 +85,7 @@ export const sendAbandonedCartEmailWorkflow = createWorkflow(
         {
           to: c.email.toLowerCase(),
           channel: "email" as const,
-          template: "abandoned-cart",
+          template: EmailTemplates.ABANDONED_CART,
           data,
           trigger_type: "cart.abandoned",
           resource_id: c.id,

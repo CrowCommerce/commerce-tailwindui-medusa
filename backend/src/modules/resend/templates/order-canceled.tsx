@@ -26,6 +26,19 @@ export interface OrderCanceledProps extends BaseTemplateProps {
   shopUrl?: string;
 }
 
+export function isValidOrderCanceledData(data: unknown): data is OrderCanceledProps {
+  const d = data as Record<string, any>
+  return (
+    typeof d?.orderNumber === "string" &&
+    typeof d?.orderDate === "string" &&
+    Array.isArray(d?.items) &&
+    typeof d?.subtotal === "string" &&
+    typeof d?.shipping === "string" &&
+    typeof d?.total === "string" &&
+    typeof d?.refundMessage === "string"
+  )
+}
+
 export const OrderCanceled = ({
   theme,
   customerName,

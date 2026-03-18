@@ -9,6 +9,7 @@ import {
   sendNotificationsStep,
 } from "@medusajs/medusa/core-flows"
 import { formatRefundForEmailStep } from "../steps/format-refund-for-email"
+import { EmailTemplates } from "../../modules/resend/templates/template-registry"
 
 type SendRefundConfirmationInput = {
   paymentId: string
@@ -64,7 +65,7 @@ export const sendRefundConfirmationWorkflow = createWorkflow(
           {
             to: data.email,
             channel: "email" as const,
-            template: "refund-confirmation",
+            template: EmailTemplates.REFUND_CONFIRMATION,
             data: {
               subject: `Refund issued for order #${data.orderNumber}`,
               orderNumber: data.orderNumber,

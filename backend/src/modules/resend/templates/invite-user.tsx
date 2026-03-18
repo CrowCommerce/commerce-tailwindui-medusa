@@ -14,6 +14,14 @@ export interface InviteUserProps extends BaseTemplateProps {
   storeName: string;
 }
 
+export function isValidInviteUserData(data: unknown): data is InviteUserProps {
+  const d = data as Record<string, any>
+  return (
+    typeof d?.inviteUrl === "string" &&
+    typeof d?.storeName === "string"
+  )
+}
+
 export const InviteUser = ({
   theme,
   inviteUrl,

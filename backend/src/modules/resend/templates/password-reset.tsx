@@ -15,6 +15,15 @@ export interface PasswordResetProps extends BaseTemplateProps {
   actorType: "customer" | "user";
 }
 
+export function isValidPasswordResetData(data: unknown): data is PasswordResetProps {
+  const d = data as Record<string, any>
+  return (
+    typeof d?.resetUrl === "string" &&
+    typeof d?.email === "string" &&
+    (d?.actorType === "customer" || d?.actorType === "user")
+  )
+}
+
 export const PasswordReset = ({
   theme,
   resetUrl,

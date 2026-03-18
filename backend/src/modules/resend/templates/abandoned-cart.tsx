@@ -18,6 +18,15 @@ export interface AbandonedCartProps extends BaseTemplateProps {
   currencyCode?: string;
 }
 
+export function isValidAbandonedCartData(data: unknown): data is AbandonedCartProps {
+  const d = data as Record<string, any>
+  return (
+    Array.isArray(d?.items) &&
+    typeof d?.subtotal === "string" &&
+    typeof d?.recoveryUrl === "string"
+  )
+}
+
 export const AbandonedCart = ({
   theme,
   customerName,

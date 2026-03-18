@@ -18,6 +18,15 @@ export interface RefundConfirmationProps extends BaseTemplateProps {
   orderUrl?: string;
 }
 
+export function isValidRefundConfirmationData(data: unknown): data is RefundConfirmationProps {
+  const d = data as Record<string, any>
+  return (
+    typeof d?.orderNumber === "string" &&
+    typeof d?.refundAmount === "string" &&
+    typeof d?.refundDate === "string"
+  )
+}
+
 export const RefundConfirmation = ({
   theme,
   orderNumber,

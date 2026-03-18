@@ -28,6 +28,21 @@ export interface AdminOrderAlertProps extends BaseTemplateProps {
   adminOrderUrl?: string;
 }
 
+export function isValidAdminOrderAlertData(data: unknown): data is AdminOrderAlertProps {
+  const d = data as Record<string, any>
+  return (
+    typeof d?.orderNumber === "string" &&
+    typeof d?.orderDate === "string" &&
+    typeof d?.customerEmail === "string" &&
+    Array.isArray(d?.items) &&
+    typeof d?.subtotal === "string" &&
+    typeof d?.shipping === "string" &&
+    typeof d?.total === "string" &&
+    typeof d?.shippingAddress === "object" &&
+    d?.shippingAddress !== null
+  )
+}
+
 export const AdminOrderAlert = ({
   theme,
   orderNumber,

@@ -10,15 +10,43 @@ import type {
 import React from "react"
 import { Resend } from "resend"
 import { render } from "@react-email/render"
-import { OrderConfirmation } from "./templates/order-confirmation"
-import { PasswordReset } from "./templates/password-reset"
-import { InviteUser } from "./templates/invite-user"
-import { Welcome } from "./templates/welcome"
-import { ShippingConfirmation } from "./templates/shipping-confirmation"
-import { OrderCanceled } from "./templates/order-canceled"
-import { RefundConfirmation } from "./templates/refund-confirmation"
-import { AdminOrderAlert } from "./templates/admin-order-alert"
-import { AbandonedCart } from "./templates/abandoned-cart"
+import {
+  OrderConfirmation,
+  isValidOrderConfirmationData,
+} from "./templates/order-confirmation"
+import {
+  PasswordReset,
+  isValidPasswordResetData,
+} from "./templates/password-reset"
+import {
+  InviteUser,
+  isValidInviteUserData,
+} from "./templates/invite-user"
+import {
+  Welcome,
+  isValidWelcomeData,
+} from "./templates/welcome"
+import {
+  ShippingConfirmation,
+  isValidShippingConfirmationData,
+} from "./templates/shipping-confirmation"
+import {
+  OrderCanceled,
+  isValidOrderCanceledData,
+} from "./templates/order-canceled"
+import {
+  RefundConfirmation,
+  isValidRefundConfirmationData,
+} from "./templates/refund-confirmation"
+import {
+  AdminOrderAlert,
+  isValidAdminOrderAlertData,
+} from "./templates/admin-order-alert"
+import {
+  AbandonedCart,
+  isValidAbandonedCartData,
+} from "./templates/abandoned-cart"
+import { EmailTemplates } from "./templates/template-registry"
 
 type ResendOptions = {
   api_key: string
@@ -49,35 +77,64 @@ type EmailAttachment = {
   content_type?: string
 }
 
+type TemplateEntry = {
+  component: React.FC<any>
+  validate: (data: unknown) => boolean
+  defaultSubject: string
+}
+
 class ResendNotificationProviderService extends AbstractNotificationProviderService {
   static identifier = "notification-resend"
   private resendClient: Resend
   private options: ResendOptions
   private logger: Logger
 
-  private templates: Record<string, React.FC<any>> = {
-    "order-confirmation": OrderConfirmation,
-    "password-reset": PasswordReset,
-    "invite-user": InviteUser,
-    "welcome": Welcome,
-    "shipping-confirmation": ShippingConfirmation,
-    "order-canceled": OrderCanceled,
-    "refund-confirmation": RefundConfirmation,
-    "admin-order-alert": AdminOrderAlert,
-    "abandoned-cart": AbandonedCart,
-  }
-
-  /** Default subjects per template — callers can override via notification.data.subject */
-  private templateSubjects: Record<string, string> = {
-    "order-confirmation": "Order Confirmed",
-    "password-reset": "Reset Your Password",
-    "invite-user": "You've Been Invited",
-    "welcome": "Welcome!",
-    "shipping-confirmation": "Your Order Has Shipped",
-    "order-canceled": "Order Canceled",
-    "refund-confirmation": "Refund Processed",
-    "admin-order-alert": "New Order Received",
-    "abandoned-cart": "You Left Something Behind",
+  private templateRegistry: Record<string, TemplateEntry> = {
+    [EmailTemplates.ORDER_CONFIRMATION]: {
+      component: OrderConfirmation,
+      validate: isValidOrderConfirmationData,
+      defaultSubject: "Order Confirmed",
+    },
+    [EmailTemplates.PASSWORD_RESET]: {
+      component: PasswordReset,
+      validate: isValidPasswordResetData,
+      defaultSubject: "Reset Your Password",
+    },
+    [EmailTemplates.INVITE_USER]: {
+      component: InviteUser,
+      validate: isValidInviteUserData,
+      defaultSubject: "You've Been Invited",
+    },
+    [EmailTemplates.WELCOME]: {
+      component: Welcome,
+      validate: isValidWelcomeData,
+      defaultSubject: "Welcome!",
+    },
+    [EmailTemplates.SHIPPING_CONFIRMATION]: {
+      component: ShippingConfirmation,
+      validate: isValidShippingConfirmationData,
+      defaultSubject: "Your Order Has Shipped",
+    },
+    [EmailTemplates.ORDER_CANCELED]: {
+      component: OrderCanceled,
+      validate: isValidOrderCanceledData,
+      defaultSubject: "Order Canceled",
+    },
+    [EmailTemplates.REFUND_CONFIRMATION]: {
+      component: RefundConfirmation,
+      validate: isValidRefundConfirmationData,
+      defaultSubject: "Refund Processed",
+    },
+    [EmailTemplates.ADMIN_ORDER_ALERT]: {
+      component: AdminOrderAlert,
+      validate: isValidAdminOrderAlertData,
+      defaultSubject: "New Order Received",
+    },
+    [EmailTemplates.ABANDONED_CART]: {
+      component: AbandonedCart,
+      validate: isValidAbandonedCartData,
+      defaultSubject: "You Left Something Behind",
+    },
   }
 
   constructor(
@@ -109,12 +166,12 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     notification: ProviderSendNotificationDTO
   ): Promise<ProviderSendNotificationResultsDTO> {
     const templateId = notification.template
-    const Template = this.templates[templateId]
+    const entry = this.templateRegistry[templateId]
 
-    if (!Template) {
+    if (!entry) {
       this.logger.error(
         `Email template "${templateId}" not found. ` +
-        `Available: ${Object.keys(this.templates).join(", ") || "(none)"}`
+        `Available: ${Object.keys(this.templateRegistry).join(", ") || "(none)"}`
       )
       return {}
     }
@@ -127,14 +184,22 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
       ...templateData
     } = (notification.data || {}) as Record<string, any>
 
+    if (!entry.validate(templateData)) {
+      this.logger.error(
+        `Invalid data for template "${templateId}". ` +
+        `Received keys: ${Object.keys(templateData).join(", ")}`
+      )
+      return {}
+    }
+
     const html = await render(
-      React.createElement(Template, templateData)
+      React.createElement(entry.component, templateData)
     )
 
     // Subject precedence: caller > centralized default > auto-generated from ID
     const subject =
       callerSubject ??
-      this.templateSubjects[templateId] ??
+      entry.defaultSubject ??
       templateId.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
 
     const emailOptions = (rawEmailOptions as EmailOptions) ?? {}

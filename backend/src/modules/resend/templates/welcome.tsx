@@ -16,6 +16,15 @@ export interface WelcomeProps extends BaseTemplateProps {
   storeName: string;
 }
 
+export function isValidWelcomeData(data: unknown): data is WelcomeProps {
+  const d = data as Record<string, any>
+  return (
+    typeof d?.shopUrl === "string" &&
+    typeof d?.accountUrl === "string" &&
+    typeof d?.storeName === "string"
+  )
+}
+
 export const Welcome = ({
   theme,
   customerName,

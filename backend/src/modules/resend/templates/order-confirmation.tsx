@@ -31,6 +31,21 @@ export interface OrderConfirmationProps extends BaseTemplateProps {
   orderStatusUrl?: string;
 }
 
+export function isValidOrderConfirmationData(data: unknown): data is OrderConfirmationProps {
+  const d = data as Record<string, any>
+  return (
+    typeof d?.orderNumber === "string" &&
+    typeof d?.orderDate === "string" &&
+    Array.isArray(d?.items) &&
+    typeof d?.subtotal === "string" &&
+    typeof d?.shipping === "string" &&
+    typeof d?.total === "string" &&
+    typeof d?.paymentMethod === "string" &&
+    typeof d?.shippingAddress === "object" &&
+    d?.shippingAddress !== null
+  )
+}
+
 export const OrderConfirmation = ({
   theme,
   customerName,

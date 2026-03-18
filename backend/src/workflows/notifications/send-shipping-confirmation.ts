@@ -9,6 +9,7 @@ import {
   sendNotificationsStep,
 } from "@medusajs/medusa/core-flows"
 import { formatOrderForEmailStep } from "../steps/format-order-for-email"
+import { EmailTemplates } from "../../modules/resend/templates/template-registry"
 
 type SendShippingConfirmationInput = {
   fulfillmentId: string
@@ -82,7 +83,7 @@ export const sendShippingConfirmationWorkflow = createWorkflow(
           {
             to: data.email,
             channel: "email" as const,
-            template: "shipping-confirmation",
+            template: EmailTemplates.SHIPPING_CONFIRMATION,
             data: {
               subject: `Your order #${data.orderNumber} has shipped`,
               customerName: data.customerName,

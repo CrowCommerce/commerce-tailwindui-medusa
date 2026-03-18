@@ -14,6 +14,7 @@ import {
   formatItem,
   formatOrderDate,
 } from "./_format-helpers"
+import { EmailTemplates } from "../../modules/resend/templates/template-registry"
 
 type SendAdminOrderAlertInput = {
   orderId: string
@@ -77,7 +78,7 @@ export const sendAdminOrderAlertWorkflow = createWorkflow(
         return inp.adminEmails.map((adminEmail) => ({
           to: adminEmail,
           channel: "email" as const,
-          template: "admin-order-alert",
+          template: EmailTemplates.ADMIN_ORDER_ALERT,
           data: {
             subject: `New order #${orderNumber} — ${total}`,
             orderNumber,
