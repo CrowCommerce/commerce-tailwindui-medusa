@@ -2,6 +2,14 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { sendAbandonedCartEmailWorkflow } from "../workflows/notifications/send-abandoned-cart-email"
 
+type AbandonedCartRow = {
+  id: string
+  email: string
+  items: unknown[]
+  metadata: Record<string, unknown> | null
+  updated_at: string
+}
+
 export default async function abandonedCartJob(
   container: MedusaContainer
 ) {
@@ -11,7 +19,6 @@ export default async function abandonedCartJob(
   const startTime = Date.now()
   const limit = 100
   let offset = 0
-  let totalCount = 0
   let totalSent = 0
   let totalErrors = 0
 
@@ -22,7 +29,7 @@ export default async function abandonedCartJob(
 
   try {
     do {
-      const { data: carts, metadata: paginationMeta } = await query.graph({
+      const { data: carts } = await query.graph({
         entity: "cart",
         fields: [
           "id",
@@ -42,34 +49,30 @@ export default async function abandonedCartJob(
         pagination: { skip: offset, take: limit },
       })
 
-      totalCount = (paginationMeta as any)?.count ?? 0
-
-      const eligibleCarts = carts.filter(
-        (cart: any) =>
+      const eligibleCarts = (carts as AbandonedCartRow[]).filter(
+        (cart) =>
           cart.items?.length > 0 &&
-          !(cart.metadata as any)?.abandoned_cart_notified
+          !cart.metadata?.abandoned_cart_notified
       )
 
       for (const cart of eligibleCarts) {
         try {
           await sendAbandonedCartEmailWorkflow(container).run({
-            input: {
-              cart_id: (cart as any).id,
-              email: ((cart as any).email as string).toLowerCase(),
-            },
+            input: { cart_id: cart.id },
           })
           totalSent++
-          logger.info(`Sent abandoned cart email for cart ${(cart as any).id}`)
+          logger.info(`Sent abandoned cart email for cart ${cart.id}`)
         } catch (error: any) {
           totalErrors++
           logger.error(
-            `Failed to send abandoned cart email for cart ${(cart as any).id}: ${error?.message}`
+            `Failed to send abandoned cart email for cart ${cart.id}: ${error?.message}`
           )
         }
       }
 
       offset += limit
-    } while (offset < totalCount)
+      if (carts.length < limit) break // No more pages
+    } while (true)
 
     const duration = Date.now() - startTime
     logger.info(

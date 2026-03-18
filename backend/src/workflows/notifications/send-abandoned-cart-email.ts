@@ -14,7 +14,17 @@ import { formatCartForEmailStep } from "../steps/format-cart-for-email"
 
 type SendAbandonedCartEmailInput = {
   cart_id: string
+}
+
+// Explicit cart shape used throughout the workflow to avoid TS2590 union explosion
+type CartData = {
+  id: string
   email: string
+  currency_code: string
+  item_subtotal: number
+  metadata: Record<string, unknown> | null
+  customer?: { first_name?: string }
+  items: Record<string, unknown>[]
 }
 
 export const sendAbandonedCartEmailWorkflow = createWorkflow(
@@ -36,8 +46,9 @@ export const sendAbandonedCartEmailWorkflow = createWorkflow(
       filters: { id: input.cart_id },
     })
 
-    const cart = transform({ carts }, ({ carts: result }) => {
-      const c = result[0]
+    // Cast to CartData immediately to avoid TS2590 from the deep Medusa query union
+    const cart = transform({ carts }, ({ carts: result }): CartData => {
+      const c = result[0] as unknown as CartData
       if (!c?.email) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
@@ -51,11 +62,17 @@ export const sendAbandonedCartEmailWorkflow = createWorkflow(
       cart_id: input.cart_id,
     })
 
+    // Extract just the URL string to avoid TS2590 from deep union types
+    const recoveryUrl = transform(
+      { recoveryToken },
+      ({ recoveryToken: rt }) => rt.recoveryUrl
+    )
+
     const formatInput = transform(
-      { cart, recoveryToken },
-      ({ cart: c, recoveryToken: rt }) => ({
-        cart: c,
-        recoveryUrl: rt.recoveryUrl,
+      { cart, recoveryUrl },
+      ({ cart: c, recoveryUrl: url }) => ({
+        cart: c as Record<string, unknown>,
+        recoveryUrl: url,
       })
     )
 
@@ -65,12 +82,12 @@ export const sendAbandonedCartEmailWorkflow = createWorkflow(
       { formatted, cart },
       ({ formatted: data, cart: c }) => [
         {
-          to: (c.email as string).toLowerCase(),
+          to: c.email.toLowerCase(),
           channel: "email" as const,
           template: "abandoned-cart",
           data,
           trigger_type: "cart.abandoned",
-          resource_id: c.id as string,
+          resource_id: c.id,
           resource_type: "cart",
         },
       ]
@@ -80,9 +97,9 @@ export const sendAbandonedCartEmailWorkflow = createWorkflow(
 
     const cartUpdate = transform({ cart }, ({ cart: c }) => [
       {
-        id: c.id as string,
+        id: c.id,
         metadata: {
-          ...((c.metadata as Record<string, unknown>) || {}),
+          ...(c.metadata || {}),
           abandoned_cart_notified: new Date().toISOString(),
         },
       },
