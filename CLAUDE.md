@@ -134,12 +134,15 @@ gt create -m "feat: add product filtering"    # Create stacked branch + commit
 gt submit --stack                              # Push all stacked PRs
 ```
 
-| Do                           | Don't                             |
-| ---------------------------- | --------------------------------- |
-| `gt create` for new branches | `git checkout -b` then `git push` |
-| `gt submit --stack` for PRs  | `gh pr create` manually           |
-| Keep stacks under 5 PRs      | Create mega-stacks                |
-| One concern per stack level  | Mix features in one PR            |
+| Do                                          | Don't                             |
+| ------------------------------------------- | --------------------------------- |
+| `gt create` for new branches                | `git checkout -b` then `git push` |
+| `gt submit --stack` for PRs                 | `gh pr create` manually           |
+| `gh pr ready <number>` after submit         | Leave PRs in draft mode           |
+| Keep stacks under 5 PRs                     | Create mega-stacks                |
+| One concern per stack level                 | Mix features in one PR            |
+
+**Always mark PRs as ready for review** after `gt submit --stack`. Graphite's `--no-interactive` mode creates PRs in draft — immediately follow up with `gh pr ready <number>` so PRs are visible for review.
 
 ## Never Do
 
