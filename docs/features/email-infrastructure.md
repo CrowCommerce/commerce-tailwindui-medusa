@@ -68,6 +68,5 @@ Complete email notification system for the CrowCommerce storefront — transacti
 
 ## Key references
 
-- Architecture: [email-template-architecture.md](../architecture/email-template-architecture.md)
-- Full plan: [email-plan-v2.md](../architecture/email-plan-v2.md)
+- Architecture: [email-infrastructure.md](../architecture/email-infrastructure.md)
 - Superpowers specs/plans: [docs/archive/superpowers/](../archive/superpowers/)

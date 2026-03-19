@@ -38,8 +38,7 @@ These are features identified but not yet planned in detail:
 
 ## Architecture References
 
-- [Email template architecture](architecture/email-template-architecture.md)
-- [Email plan v2](architecture/email-plan-v2.md)
+- [Email infrastructure](architecture/email-infrastructure.md)
 - [Medusa integration design](architecture/medusa-integration.md)
 
 ## Archive
