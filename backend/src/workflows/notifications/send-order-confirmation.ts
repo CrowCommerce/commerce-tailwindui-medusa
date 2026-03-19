@@ -92,7 +92,7 @@ export const sendOrderConfirmationWorkflow = createWorkflow(
         const storefrontUrl =
           process.env.STOREFRONT_URL || "http://localhost:3000"
 
-        const invoiceDownloadUrl = `${storefrontUrl}/store/orders/${data.orderId}/invoice`
+        const invoiceDownloadUrl = `${storefrontUrl}/api/orders/${data.orderId}/invoice`
 
         // Determine invoice mode based on whether we have a PDF buffer
         const hasPdf = shouldAttach && pdfResult?.buffer != null

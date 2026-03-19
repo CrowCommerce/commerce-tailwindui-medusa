@@ -222,7 +222,7 @@ OrderConfirmation.PreviewProps = {
   },
   orderStatusUrl: "http://localhost:3000/account/orders/order_01ABC",
   invoiceMode: "link",
-  invoiceDownloadUrl: "http://localhost:3000/store/orders/order_01ABC/invoice",
+  invoiceDownloadUrl: "http://localhost:3000/api/orders/order_01ABC/invoice",
 } satisfies OrderConfirmationProps;
 
 export default OrderConfirmation;
