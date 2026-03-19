@@ -1,8 +1,10 @@
 export default {
   cacheComponents: true,
   reactCompiler: true,
-  serverActions: {
-    bodySizeLimit: "15mb",
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "15mb",
+    },
   },
   images: {
     formats: ["image/avif", "image/webp"],
