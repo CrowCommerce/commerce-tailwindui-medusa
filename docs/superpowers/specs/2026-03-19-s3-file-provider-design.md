@@ -89,42 +89,66 @@ These are set in `backend/.env` for local dev and in Railway for production.
 
 ### `medusa-config.ts` — file module config
 
+The file module is conditional on `S3_BUCKET` being set — matching the project's existing pattern for Stripe and Resend. When unset, Medusa falls back to its default in-memory provider (preserving current dev behavior).
+
 ```ts
-{
-  resolve: "@medusajs/medusa/file",
-  options: {
-    providers: [
-      {
-        resolve: "@medusajs/medusa/file-s3",
-        id: "s3",
-        options: {
-          file_url: process.env.S3_FILE_URL,
-          access_key_id: process.env.S3_ACCESS_KEY_ID,
-          secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
-          region: process.env.S3_REGION,
-          bucket: process.env.S3_BUCKET,
-          endpoint: process.env.S3_ENDPOINT,
-        },
+...(process.env.S3_BUCKET
+  ? [{
+      resolve: "@medusajs/medusa/file",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/file-s3",
+            id: "s3",
+            options: {
+              file_url: process.env.S3_FILE_URL,
+              access_key_id: process.env.S3_ACCESS_KEY_ID,
+              secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+              region: process.env.S3_REGION,
+              bucket: process.env.S3_BUCKET,
+              endpoint: process.env.S3_ENDPOINT,
+              additional_client_config: {
+                forcePathStyle: true,
+              },
+            },
+          },
+        ],
       },
-    ],
-  },
-}
+    }]
+  : []),
 ```
+
+`forcePathStyle: true` is required for Cloudflare R2 (and other non-AWS S3-compatible services). Without it, the AWS SDK attempts virtual-hosted-style URLs which R2 does not support on the storage endpoint.
 
 No new packages needed — `@medusajs/medusa/file-s3` is bundled with Medusa.
 
 ### `storefront/next.config.ts` — image optimization
 
-Add R2.dev to `remotePatterns` so `next/image` can optimize R2-hosted images:
+Add the R2.dev hostname to `remotePatterns` so `next/image` can optimize R2-hosted images. Use the exact bucket-specific hostname (known after bucket creation):
 
 ```ts
 {
   protocol: "https",
-  hostname: "pub-*.r2.dev",
+  hostname: "pub-abc123deadbeef.r2.dev",  // replace with actual R2.dev subdomain
 }
 ```
 
-The exact hostname will be known after bucket creation. Use a wildcard pattern or the specific `pub-xxx.r2.dev` subdomain.
+Note: Next.js `hostname` wildcards only work at segment boundaries (`*.r2.dev`), not as partial-label patterns (`pub-*.r2.dev`). Use either the exact hostname or the broader `*.r2.dev` pattern.
+
+### `backend/.env.example` — S3 section
+
+```bash
+# --- S3 / Cloudflare R2 (file storage) ----------------------------------------
+# Optional. When S3_BUCKET is set, the S3 file provider loads for persistent storage.
+# Without this, files are stored in memory and lost on every backend restart.
+# Create a bucket and API token at: https://developers.cloudflare.com/r2/
+# S3_FILE_URL=https://pub-abc123.r2.dev
+# S3_ACCESS_KEY_ID=
+# S3_SECRET_ACCESS_KEY=
+# S3_BUCKET=crowcommerce-assets
+# S3_REGION=auto
+# S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+```
 
 ## Production Changes (Railway)
 
