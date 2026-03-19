@@ -6,6 +6,11 @@ class InvoiceModuleService extends MedusaService({
   Invoice,
   InvoiceConfig,
 }) {
+  /**
+   * Get the next sequential display_id for the given year.
+   * Concurrent calls may return the same value — callers must handle
+   * unique constraint violations on [year, display_id] with retry logic.
+   */
   async getNextDisplayId(year: number): Promise<number> {
     const invoices = await this.listInvoices(
       { year },
