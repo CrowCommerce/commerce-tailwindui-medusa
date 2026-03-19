@@ -14,6 +14,7 @@ Last updated: 2026-03-18
 | [Email infrastructure](features/email-infrastructure.md) | 🟡 Partial | Stacks 1-4 (8 templates) | Stacks 5-7 (invoices, premium, quotes) |
 | [Product reviews](features/product-reviews.md) | 🟡 Partial | Phases 1-2 (core + images) | Phase 3 (verified purchase, search) |
 | [Wishlist](features/wishlist.md) | ✅ Shipped | Full feature + E2E tests | Code review follow-ups only |
+| Invoice generation | ✅ Shipped | On-demand PDF, admin config, email toggle, customer + admin download | Code review follow-ups only |
 
 ## Infrastructure & Tooling
 
