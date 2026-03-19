@@ -32,6 +32,10 @@ export default {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "pub-6b18a9dbd30947bfa6d741e12923588d.r2.dev",
+      },
       ...(process.env.NODE_ENV !== "production"
         ? [{ protocol: "https" as const, hostname: "placehold.co" }]
         : []),
