@@ -225,6 +225,7 @@ export async function addToWishlist(
   formData: FormData,
 ): Promise<WishlistActionResult> {
   const variantId = formData.get("variant_id") as string;
+  const productId = formData.get("product_id") as string | null;
   let wishlistId = formData.get("wishlist_id") as string | null;
 
   if (!variantId) return { error: "Variant ID is required" };
@@ -261,8 +262,8 @@ export async function addToWishlist(
         ).then(() => undefined),
       "Error adding to wishlist",
     );
-    if (authResult?.success) {
-      try { await trackServer("wishlist_item_added", { product_id: "", variant_id: variantId, wishlist_id: wishlistId }) } catch {}
+    if (authResult?.success && productId) {
+      try { await trackServer("wishlist_item_added", { product_id: productId, variant_id: variantId, wishlist_id: wishlistId }) } catch {}
     }
     return authResult;
   }
@@ -291,8 +292,8 @@ export async function addToWishlist(
       ).then(() => undefined),
     "Error adding to wishlist",
   );
-  if (guestResult?.success) {
-    try { await trackServer("wishlist_item_added", { product_id: "", variant_id: variantId, wishlist_id: guestWishlistId }) } catch {}
+  if (guestResult?.success && productId) {
+    try { await trackServer("wishlist_item_added", { product_id: productId, variant_id: variantId, wishlist_id: guestWishlistId }) } catch {}
   }
   return guestResult;
 }
@@ -303,6 +304,8 @@ export async function removeFromWishlist(
 ): Promise<WishlistActionResult> {
   const wishlistId = formData.get("wishlist_id") as string;
   const itemId = formData.get("item_id") as string;
+  const productId = formData.get("product_id") as string | null;
+  const variantId = formData.get("variant_id") as string | null;
 
   if (!wishlistId || !itemId) return { error: "Missing wishlist or item ID" };
 
@@ -318,7 +321,9 @@ export async function removeFromWishlist(
     "Error removing item",
   );
   if (removeResult?.success) {
-    try { await trackServer("wishlist_item_removed", { product_id: "", variant_id: "", wishlist_id: wishlistId }) } catch {}
+    if (productId && variantId) {
+      try { await trackServer("wishlist_item_removed", { product_id: productId, variant_id: variantId, wishlist_id: wishlistId }) } catch {}
+    }
   }
   return removeResult;
 }

@@ -63,6 +63,7 @@ export function ProductCardWithQuickView({
           <div className="absolute right-2 top-2 z-10">
             <WishlistButton
               variantId={variantId}
+              productId={product.id}
               isInWishlist={wishlistState?.isInWishlist}
               wishlistId={wishlistState?.wishlistId}
               wishlistItemId={wishlistState?.wishlistItemId}

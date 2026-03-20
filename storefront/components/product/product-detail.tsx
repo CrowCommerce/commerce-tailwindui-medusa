@@ -369,6 +369,7 @@ export function ProductDetail({
               />
               <WishlistButton
                 variantId={selectedVariantId}
+                productId={sourceProduct.id}
                 size="md"
                 className="ml-4"
               />

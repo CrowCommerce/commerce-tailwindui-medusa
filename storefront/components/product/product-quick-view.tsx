@@ -324,6 +324,7 @@ export function ProductQuickView({
                           <WishlistButton
                             key={selectedVariantId}
                             variantId={selectedVariantId}
+                            productId={product.id}
                             isInWishlist={
                               selectedVariantId === product.variants?.[0]?.id
                                 ? wishlistState?.isInWishlist
