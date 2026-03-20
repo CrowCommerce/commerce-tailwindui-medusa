@@ -3,10 +3,19 @@ import type { AnalyticsEvents } from "./analytics"
 import { getPostHogServer } from "./posthog-server"
 import { getPostHogAnonId } from "./posthog-cookies"
 import { getAuthToken } from "lib/medusa/cookies"
+import { retrieveCustomer } from "lib/medusa/customer"
 
 async function resolveDistinctId(): Promise<string | undefined> {
   const token = await getAuthToken()
-  if (token) return undefined // Caller passes explicit customer ID for auth events
+  if (token) {
+    // Authenticated: resolve customer ID for tracking
+    try {
+      const customer = await retrieveCustomer()
+      return customer?.id
+    } catch {
+      return undefined
+    }
+  }
 
   return await getPostHogAnonId()
 }
