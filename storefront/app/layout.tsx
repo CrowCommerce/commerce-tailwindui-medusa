@@ -13,6 +13,7 @@ import {
 } from "components/notifications";
 import { PostHogProvider } from "components/providers/posthog-provider";
 import { SearchDialog, SearchProvider } from "components/search-command";
+import { getFeatureFlags } from "lib/feature-flags";
 import { WebVitals } from "./web-vitals";
 import { getCart } from "lib/medusa";
 import { retrieveCustomer } from "lib/medusa/customer";
@@ -37,10 +38,11 @@ async function AppProviders({ children }: { children: ReactNode }) {
   const customer = await retrieveCustomer();
   const anonId = await getPostHogAnonId();
   const distinctId = customer?.id || anonId || null;
+  const bootstrapFlags = distinctId ? await getFeatureFlags(distinctId) : {};
 
   return (
     <CartProvider cartPromise={cartPromise}>
-      <PostHogProvider bootstrapDistinctId={distinctId}>
+      <PostHogProvider bootstrapDistinctId={distinctId} bootstrapFlags={bootstrapFlags}>
         <WebVitals />
         <NotificationProvider>
           <SearchProvider>

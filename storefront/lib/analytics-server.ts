@@ -28,3 +28,23 @@ export async function trackServer<E extends keyof AnalyticsEvents>(
     properties: properties as Record<string, unknown>,
   })
 }
+
+export async function trackGoal<E extends keyof AnalyticsEvents>(
+  event: E,
+  value?: number,
+  distinctId?: string,
+): Promise<void> {
+  const posthog = getPostHogServer()
+  if (!posthog) return
+
+  const id = distinctId || (await resolveDistinctId())
+  if (!id) return
+
+  posthog.capture({
+    distinctId: id,
+    event,
+    properties: {
+      ...(value !== undefined ? { value } : {}),
+    },
+  })
+}
