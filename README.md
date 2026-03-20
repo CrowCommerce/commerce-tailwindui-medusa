@@ -1,6 +1,6 @@
 # CrowCommerce — Project Status
 
-Last updated: 2026-03-19
+Last updated: 2026-03-20
 
 **[Setup Guide](SETUP.md)** — local dev through production deployment
 
@@ -23,7 +23,8 @@ Last updated: 2026-03-19
 | Item | Status | Notes |
 |------|--------|-------|
 | S3 file provider (Cloudflare R2) | ✅ Shipped | Persistent file storage via R2, E2E tests |
-| Sentry error monitoring | ✅ Shipped | Backend + storefront, performance tracing, session replay |
+| Sentry error monitoring | ✅ Shipped | Backend + storefront, performance tracing, error-only replay |
+| PostHog analytics | ✅ Shipped | 45 typed events, session replay, web vitals, feature flags, experiments |
 | CI/CD (GitHub Actions) | ⏳ Not started | |
 | Medusa webhooks for cache revalidation | ⏳ Not started | |
 | Vitest unit tests | ⏳ Not started | Config exists, no tests written |
@@ -44,6 +45,7 @@ These are features identified but not yet planned in detail:
 
 - [Email infrastructure](docs/architecture/email-infrastructure.md)
 - [Medusa integration design](docs/architecture/medusa-integration.md)
+- [PostHog analytics ADR](docs/decisions/2026-03-20-posthog-unified-analytics.md)
 
 ## Archive
 
