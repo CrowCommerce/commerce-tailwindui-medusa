@@ -15,7 +15,10 @@ import {
   removeWishlistId,
   setAuthToken,
 } from "lib/medusa/cookies";
-import { transferWishlist } from "lib/medusa/wishlist";
+import { transferWishlist } from "lib/medusa/wishlist"
+import { getPostHogServer } from "lib/posthog-server"
+import { getPostHogAnonId, removePostHogAnonId } from "lib/posthog-cookies"
+import { trackServer } from "lib/analytics-server";
 
 export type ActionResult = { error?: string; success?: boolean } | null;
 
@@ -90,6 +93,21 @@ export async function login(
     await transferWishlist();
   } catch {
     // Wishlist transfer is best-effort — don't block login
+  }
+
+  // PostHog: merge anonymous → customer identity
+  try {
+    const customer = await retrieveCustomer()
+    if (customer) {
+      const anonId = await getPostHogAnonId()
+      const posthog = getPostHogServer()
+      if (posthog && anonId) {
+        posthog.alias({ distinctId: customer.id, alias: anonId })
+      }
+      await trackServer("customer_logged_in", { method: "email" }, customer.id)
+    }
+  } catch {
+    // Analytics is best-effort — don't block login
   }
 
   revalidateCustomer();
@@ -181,11 +199,36 @@ export async function signup(
     // Wishlist transfer is best-effort
   }
 
+  // PostHog: merge anonymous → customer identity
+  try {
+    const customer = await retrieveCustomer()
+    if (customer) {
+      const anonId = await getPostHogAnonId()
+      const posthog = getPostHogServer()
+      if (posthog && anonId) {
+        posthog.alias({ distinctId: customer.id, alias: anonId })
+      }
+      await trackServer("customer_signed_up", { method: "email" }, customer.id)
+    }
+  } catch {
+    // Analytics is best-effort — don't block signup
+  }
+
   revalidateCustomer();
   redirect("/account");
 }
 
 export async function signout(): Promise<void> {
+  // Track logout BEFORE clearing cookies (need customer context)
+  try {
+    const customer = await retrieveCustomer()
+    if (customer) {
+      await trackServer("customer_logged_out", {}, customer.id)
+    }
+  } catch {
+    // Analytics is best-effort
+  }
+
   try {
     await sdk.auth.logout();
   } catch {
@@ -195,6 +238,7 @@ export async function signout(): Promise<void> {
   await removeAuthToken();
   await removeCartId();
   await removeWishlistId();
+  await removePostHogAnonId() // Force new anonymous ID on next request
 
   revalidateTag(TAGS.customers, "max");
   revalidateTag(TAGS.cart, "max");
