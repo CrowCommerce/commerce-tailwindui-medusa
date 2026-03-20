@@ -78,6 +78,7 @@ export async function login(
     await setAuthToken(token as string);
   } catch (e) {
     if (isRateLimited(e)) {
+      try { await trackServer("auth_rate_limited", { action: "login" }) } catch {}
       return "Too many login attempts. Please try again in 15 minutes.";
     }
     return e instanceof Error ? e.message : "Invalid email or password";
@@ -182,6 +183,7 @@ export async function signup(
   } catch (e) {
     if (tokenSet) await removeAuthToken();
     if (isRateLimited(e)) {
+      try { await trackServer("auth_rate_limited", { action: "signup" }) } catch {}
       return "Too many attempts. Please try again in 15 minutes.";
     }
     return e instanceof Error ? e.message : "Error creating account";
@@ -259,8 +261,10 @@ export async function requestPasswordReset(
     await sdk.auth.resetPassword("customer", "emailpass", {
       identifier: normalizedEmail,
     })
+    try { await trackServer("password_reset_requested", { email: normalizedEmail }) } catch {}
   } catch (e) {
     if (isRateLimited(e)) {
+      try { await trackServer("auth_rate_limited", { action: "password-reset" }) } catch {}
       return { error: "Too many attempts. Please try again in 15 minutes." }
     }
     // Log infrastructure errors (network/5xx) for debugging, but still return
@@ -288,8 +292,10 @@ export async function completePasswordReset(
       { email: normalizedEmail, password },
       token,
     )
+    try { await trackServer("password_reset_completed", {}) } catch {}
   } catch (e) {
     if (isRateLimited(e)) {
+      try { await trackServer("auth_rate_limited", { action: "password-reset" }) } catch {}
       return { error: "Too many attempts. Please try again in 15 minutes." }
     }
     return {
@@ -313,6 +319,10 @@ export async function updateCustomer(
 
   try {
     await sdk.store.customer.update(body, {}, headers);
+    try {
+      const fieldsChanged = Object.keys(body).filter((k) => body[k as keyof typeof body] !== undefined)
+      await trackServer("profile_updated", { fields_changed: fieldsChanged })
+    } catch {}
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : "Error updating profile",
@@ -346,13 +356,15 @@ export async function addCustomerAddress(
   formData: FormData,
 ): Promise<ActionResult> {
   const headers = await getAuthHeaders();
+  const address = parseAddressFields(formData);
 
   try {
     await sdk.store.customer.createAddress(
-      parseAddressFields(formData),
+      address,
       {},
       headers,
     );
+    try { await trackServer("address_added", { country_code: address.country_code ?? "" }) } catch {}
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : "Error adding address",
@@ -372,14 +384,16 @@ export async function updateCustomerAddress(
   if (!addressId) return { error: "Address ID is required" };
 
   const headers = await getAuthHeaders();
+  const address = parseAddressFields(formData);
 
   try {
     await sdk.store.customer.updateAddress(
       addressId,
-      parseAddressFields(formData),
+      address,
       {},
       headers,
     );
+    try { await trackServer("address_updated", { country_code: address.country_code ?? "" }) } catch {}
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : "Error updating address",
@@ -398,6 +412,7 @@ export async function deleteCustomerAddress(
 
   try {
     await sdk.store.customer.deleteAddress(addressId, headers);
+    try { await trackServer("address_deleted", {}) } catch {}
   } catch (e) {
     return e instanceof Error ? e.message : "Error deleting address";
   } finally {
