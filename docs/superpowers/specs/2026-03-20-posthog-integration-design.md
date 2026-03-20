@@ -73,7 +73,7 @@ Client component (`'use client'`) that wraps the app in the root layout.
 
 **Initialization config:**
 
-```
+```typescript
 posthog.init(NEXT_PUBLIC_POSTHOG_KEY, {
   api_host: NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
   autocapture: false,                    // Custom events only — protect 1M quota
@@ -181,7 +181,7 @@ Guests keep their anonymous ID throughout checkout. The anonymous ID is the `dis
 
 Feature flags are evaluated server-side in RSC for zero-flash rendering:
 
-```
+```typescript
 // In any server component or layout
 const showNewCheckout = await getFeatureFlag('new-checkout-flow', distinctId)
 ```

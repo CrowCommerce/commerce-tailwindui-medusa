@@ -64,10 +64,10 @@ export type AnalyticsEvents = {
     wishlist_id: string
   }
   wishlist_shared: { wishlist_id: string; item_count: number }
-  wishlist_created: { wishlist_id: string; name: string }
+  wishlist_created: { wishlist_id: string; has_name: boolean; name_length: number }
   wishlist_renamed: { wishlist_id: string }
   wishlist_deleted: { wishlist_id: string }
-  wishlist_imported: { source_wishlist_id: string; item_count: number }
+  wishlist_imported: { wishlist_id: string; item_count: number }
 
   // --- Reviews ---
   review_submitted: {
@@ -115,10 +115,10 @@ export type AnalyticsEvents = {
   checkout_step_edited: { step_name: string }
   checkout_payment_failed: { error_code: string; error_message: string }
   checkout_payment_success_order_failed: {
-    cart_id: string
-    payment_intent_id: string
+    had_cart: boolean
+    had_payment_intent: boolean
   }
-  checkout_shipping_no_options: { country_code: string; postal_code: string }
+  checkout_shipping_no_options: { has_shipping_address: boolean; has_postal_code: boolean }
 }
 
 // ---------------------------------------------------------------------------

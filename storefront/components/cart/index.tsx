@@ -51,7 +51,7 @@ export function Cart() {
       cart.totalQuantity !== quantityRef.current &&
       cart.totalQuantity > 0
     ) {
-      setIsOpen(true);
+      openCart();
       quantityRef.current = cart.totalQuantity;
     }
   }, [isOpen, cart?.totalQuantity]);

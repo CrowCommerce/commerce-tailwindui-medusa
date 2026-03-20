@@ -39,8 +39,8 @@ export function CheckoutShipping({
 
         if (opts.length === 0) {
           trackClient("checkout_shipping_no_options", {
-            country_code: cart.shipping_address?.country_code ?? "",
-            postal_code: cart.shipping_address?.postal_code ?? "",
+            has_shipping_address: Boolean(cart.shipping_address),
+            has_postal_code: Boolean(cart.shipping_address?.postal_code),
           });
         }
 

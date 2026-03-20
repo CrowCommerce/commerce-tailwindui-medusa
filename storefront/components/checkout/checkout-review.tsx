@@ -124,8 +124,8 @@ export function CheckoutReview({
       // Payment succeeded at Stripe but order completion failed in Medusa.
       // The customer has been charged — warn them not to retry.
       trackClient("checkout_payment_success_order_failed", {
-        cart_id: cart.id,
-        payment_intent_id: paymentIntentId ?? "",
+        had_cart: true,
+        had_payment_intent: Boolean(paymentIntentId),
       });
       setError(
         "Your payment was processed but we couldn't confirm your order. " +

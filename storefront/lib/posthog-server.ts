@@ -12,6 +12,8 @@ export function getPostHogServer(): PostHog | null {
       host: "https://us.i.posthog.com",
       personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
       featureFlagsPollingInterval: 30000,
+      flushAt: 1,
+      flushInterval: 0,
     })
 
     process.on("beforeExit", () => {

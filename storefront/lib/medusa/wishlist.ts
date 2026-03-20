@@ -215,7 +215,7 @@ export async function createWishlist(
     "Error creating wishlist",
   );
   if (result?.success && createdWishlist) {
-    try { await trackServer("wishlist_created", { wishlist_id: createdWishlist.id, name: createdWishlist.name || name || "" }) } catch {}
+    try { await trackServer("wishlist_created", { wishlist_id: createdWishlist.id, has_name: Boolean(createdWishlist.name || name), name_length: (createdWishlist.name || name || "").length }) } catch {}
   }
   return result;
 }
@@ -421,7 +421,7 @@ export async function importWishlist(
     "Error importing wishlist",
   );
   if (importResult?.success && importedWishlist) {
-    try { await trackServer("wishlist_imported", { source_wishlist_id: importedWishlist.id, item_count: importedWishlist.items?.length ?? 0 }) } catch {}
+    try { await trackServer("wishlist_imported", { wishlist_id: importedWishlist.id, item_count: importedWishlist.items?.length ?? 0 }) } catch {}
   }
   return importResult;
 }

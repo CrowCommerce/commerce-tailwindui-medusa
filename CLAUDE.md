@@ -202,7 +202,7 @@ When implementing any new feature, add PostHog tracking as part of the feature P
 
 **Patterns:**
 
-- Server-side: `trackServer(event, props)` from `lib/analytics.ts` — use in server actions, API routes, subscribers
+- Server-side: `trackServer(event, props)` from `lib/analytics-server` — use in server actions, API routes, subscribers
 - Client-side: `trackClient(event, props)` from `lib/analytics.ts` — use in client components for interactions that only exist on the client (drawer opens, toggles, UI state changes)
 - All events must be added to the `AnalyticsEvents` type map with typed properties before use (enforced by TypeScript)
 - Naming: `snake_case`, `noun_verbed` (e.g., `product_added_to_cart`, `wishlist_created`, `checkout_payment_failed`)

@@ -8,8 +8,12 @@ export async function getFeatureFlag(
   const posthog = getPostHogServer()
   if (!posthog) return false
 
-  const value = await posthog.getFeatureFlag(flag, distinctId)
-  return value ?? false
+  try {
+    const value = await posthog.getFeatureFlag(flag, distinctId)
+    return value ?? false
+  } catch {
+    return false
+  }
 }
 
 export async function getFeatureFlags(
@@ -18,6 +22,10 @@ export async function getFeatureFlags(
   const posthog = getPostHogServer()
   if (!posthog) return {}
 
-  const flags = await posthog.getAllFlags(distinctId)
-  return (flags ?? {}) as Record<string, boolean | string>
+  try {
+    const flags = await posthog.getAllFlags(distinctId)
+    return (flags ?? {}) as Record<string, boolean | string>
+  } catch {
+    return {}
+  }
 }

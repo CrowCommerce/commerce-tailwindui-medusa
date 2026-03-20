@@ -7,6 +7,7 @@ export function WebVitals() {
   const shouldSample = useRef(Math.random() < 0.1)
 
   useReportWebVitals((metric) => {
+    if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) return
     if (!shouldSample.current) return
 
     import("posthog-js").then((posthog) => {
