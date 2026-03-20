@@ -10,6 +10,21 @@
 
 **Spec:** `docs/superpowers/specs/2026-03-19-sentry-integration-design.md`
 
+**Branch workflow:** This project uses Graphite (`gt`) for all branching and PRs. Before starting Task 1, create the feature branch:
+
+```bash
+gt create -m "feat: add Sentry error monitoring and tracing"
+```
+
+After all tasks are complete and verified, submit the PR:
+
+```bash
+gt submit --stack
+gh pr ready <number>
+```
+
+**Lockfile note:** This is a bun workspaces monorepo with a single root lockfile (`bun.lockb`). Running `bun add` in any workspace updates the root `bun.lockb`, not a per-workspace lockfile.
+
 ---
 
 ## File Map
@@ -106,7 +121,7 @@ Stop the dev server after confirming.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add backend/package.json backend/bun.lock backend/instrumentation.ts
+git add backend/package.json bun.lockb backend/instrumentation.ts
 git commit -m "feat(backend): add Sentry SDK with OpenTelemetry instrumentation
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
@@ -214,13 +229,11 @@ Expected: `@sentry/nextjs` and `@sentry/profiling-node` appear in dependencies.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add storefront/package.json storefront/bun.lock
+git add storefront/package.json bun.lockb
 git commit -m "feat(storefront): add Sentry Next.js SDK dependencies
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
-
-> **Note:** The root `bun.lock` may also change — check with `git status` and include it if so.
 
 ---
 
@@ -311,7 +324,7 @@ Sentry.init({
 git add storefront/sentry.server.config.ts storefront/sentry.edge.config.ts
 git commit -m "feat(storefront): add Sentry server and edge runtime configs
 
-Server: error monitoring, tracing, profiling, local variable snapshots.
+Server: error monitoring, tracing, profiling.
 Edge: error monitoring, tracing only (no native addon support).
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
@@ -540,6 +553,11 @@ NEXT_PUBLIC_SENTRY_DSN=
 NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=
 # Server-side trace sample rate (defaults to NEXT_PUBLIC value if not set)
 SENTRY_TRACES_SAMPLE_RATE=
+# Source map uploads (build-time only) — generate token at sentry.io/settings/auth-tokens/
+# These can also go in .env.sentry-build-plugin (gitignored) instead
+SENTRY_AUTH_TOKEN=
+SENTRY_ORG=
+SENTRY_PROJECT=
 ```
 
 - [ ] **Step 2: Commit**
@@ -770,3 +788,9 @@ Find the corresponding trace in the backend Sentry project. It should show HTTP 
 Both traces should share the same trace ID (visible in the trace detail view). If they do, distributed tracing is working.
 
 If traces don't correlate: check the spec's "Distributed Tracing — Verification note" about Node `fetch` instrumentation. The Medusa JS SDK may need manual header propagation for server action calls.
+
+- [ ] **Step 6: Verify server action path**
+
+Trigger a server action that calls the backend (e.g., log in, update customer profile, or add an address). This path goes through a Next.js server action → Node `fetch` → Medusa API, which is the most likely path to fail for trace propagation.
+
+Check both Sentry projects for the trace. If the server action trace doesn't link to the backend trace, Sentry's Node.js instrumentation may not be patching `fetch` to propagate `traceparent` headers in this runtime context.
