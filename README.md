@@ -1,6 +1,6 @@
 # CrowCommerce — Project Status
 
-Last updated: 2026-03-18
+Last updated: 2026-03-19
 
 **[Setup Guide](SETUP.md)** — local dev through production deployment
 
@@ -22,7 +22,7 @@ Last updated: 2026-03-18
 
 | Item | Status | Notes |
 |------|--------|-------|
-| S3 file provider | ⏳ Not started | Replace local file storage |
+| S3 file provider (Cloudflare R2) | ✅ Shipped | Persistent file storage via R2, E2E tests |
 | CI/CD (GitHub Actions) | ⏳ Not started | |
 | Medusa webhooks for cache revalidation | ⏳ Not started | |
 | Vitest unit tests | ⏳ Not started | Config exists, no tests written |
