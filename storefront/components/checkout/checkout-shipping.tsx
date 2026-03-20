@@ -4,6 +4,7 @@ import type { HttpTypes } from "@medusajs/types";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
+import { trackClient } from "lib/analytics";
 import { getShippingOptions, setShippingMethod } from "lib/medusa/checkout";
 import { formatMoney } from "lib/medusa/format";
 import type { ShippingOption } from "lib/types";
@@ -35,6 +36,13 @@ export function CheckoutShipping({
       .then(async (opts) => {
         setOptions(opts);
         setIsLoading(false);
+
+        if (opts.length === 0) {
+          trackClient("checkout_shipping_no_options", {
+            country_code: cart.shipping_address?.country_code ?? "",
+            postal_code: cart.shipping_address?.postal_code ?? "",
+          });
+        }
 
         // Auto-select and submit if there's only one option
         const preselected =

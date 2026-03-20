@@ -11,8 +11,11 @@ import {
   NotificationContainer,
   NotificationProvider,
 } from "components/notifications";
+import { PostHogProvider } from "components/providers/posthog-provider";
 import { SearchDialog, SearchProvider } from "components/search-command";
 import { getCart } from "lib/medusa";
+import { retrieveCustomer } from "lib/medusa/customer";
+import { getPostHogAnonId } from "lib/posthog-cookies";
 
 const { SITE_NAME } = process.env;
 
@@ -30,18 +33,23 @@ export const metadata: Metadata = {
 
 async function AppProviders({ children }: { children: ReactNode }) {
   const cartPromise = getCart();
+  const customer = await retrieveCustomer();
+  const anonId = await getPostHogAnonId();
+  const distinctId = customer?.id || anonId || null;
 
   return (
     <CartProvider cartPromise={cartPromise}>
-      <NotificationProvider>
-        <SearchProvider>
-          <NotificationContainer />
-          <SearchDialog />
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-        </SearchProvider>
-      </NotificationProvider>
+      <PostHogProvider bootstrapDistinctId={distinctId}>
+        <NotificationProvider>
+          <SearchProvider>
+            <NotificationContainer />
+            <SearchDialog />
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </SearchProvider>
+        </NotificationProvider>
+      </PostHogProvider>
     </CartProvider>
   );
 }
