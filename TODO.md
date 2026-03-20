@@ -53,6 +53,7 @@
 - [ ] Set up CI/CD (GitHub Actions)
 - [ ] Configure Medusa webhooks for cache revalidation
 - [ ] Update `DEFAULT_NAVIGATION` with real store categories
+- [ ] Upgrade Turborepo: `bunx @turbo/codemod@latest update`
 
 ## Known Limitations
 
