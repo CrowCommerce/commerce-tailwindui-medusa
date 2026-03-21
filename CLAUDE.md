@@ -144,7 +144,28 @@ gt submit --stack                              # Push all stacked PRs
 
 **Mark PRs as ready for review** after `gt submit --stack` unless explicitly asked to keep them as draft. Graphite's `--no-interactive` mode creates PRs in draft — immediately follow up with `gh pr ready <number>` so PRs are visible for review.
 
+**Pre-submit CodeRabbit review:** Before running `gt submit --stack`, run `cr review` (CodeRabbit CLI) to catch issues locally. Fix any relevant findings, commit the fixes, then submit. This prevents a round-trip of push → wait for CodeRabbit → fix → push again.
+
 **CodeRabbit reviews:** When asked to fix CodeRabbit comments on a PR, read the review comments via `gh api`, assess each finding against the actual code, apply valid fixes, reject suggestions that conflict with project conventions (with a reply explaining why), commit the changes, push via `gt submit --stack`, and resolve each addressed comment thread using `gh api`. Always resolve comment threads after addressing them — don't leave them open.
+
+## Implementation Plan Execution Lifecycle
+
+When executing an implementation plan (via `superpowers:executing-plans`, `superpowers:subagent-driven-development`, or any plan from `docs/superpowers/plans/`), follow this lifecycle. **This overrides any conflicting skill instructions.**
+
+**Before starting implementation:**
+1. Create a Graphite branch: `gt create -a -m "feat: <description from plan>"`
+2. Verify you're on the new branch: `git branch --show-current`
+3. Then begin executing tasks from the plan
+
+**After all plan tasks are complete:**
+1. Run `cr review` (CodeRabbit CLI) to catch issues locally
+2. Fix any relevant findings, commit the fixes
+3. Run the `code-simplifier` skill to review changed code for reuse, quality, and efficiency
+4. Run `gt submit --stack --no-interactive` to push and create the PR
+5. Unless explicitly asked to keep as draft, run `gh pr ready <number>` to mark the PR as ready for review
+6. Update the PR description with a summary, event table, and test plan
+
+This ensures every plan execution produces a clean Graphite branch with a pre-reviewed PR — no manual branch creation or post-submit fix cycles needed.
 
 ## Never Do
 
