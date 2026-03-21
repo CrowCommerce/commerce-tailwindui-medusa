@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { sendOrderConfirmationWorkflow } from "../workflows/notifications/send-order-confirmation"
+import { trackOrderPlacedWorkflow } from "../workflows/analytics/track-order-placed"
 
 export default async function orderPlacedHandler({
   event: { data },
@@ -17,6 +18,14 @@ export default async function orderPlacedHandler({
       `Failed to send order confirmation email for order ${data.id}`,
       error
     )
+  }
+
+  try {
+    await trackOrderPlacedWorkflow(container).run({
+      input: { order_id: data.id },
+    })
+  } catch (error) {
+    logger.warn(`[analytics] Failed to track order_placed for ${data.id}: ${error}`)
   }
 }
 
