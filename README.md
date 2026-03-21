@@ -24,7 +24,7 @@ Last updated: 2026-03-20
 |------|--------|-------|
 | S3 file provider (Cloudflare R2) | ✅ Shipped | Persistent file storage via R2, E2E tests |
 | Sentry error monitoring | ✅ Shipped | Backend + storefront, performance tracing, error-only replay |
-| PostHog analytics | ✅ Shipped | 45 typed events, session replay, web vitals, feature flags, experiments |
+| PostHog analytics | ✅ Shipped | 45 storefront events + 8 backend events, session replay, web vitals, feature flags, experiments, surveys (NPS + exit), trackGoal() |
 | CI/CD (GitHub Actions) | ⏳ Not started | |
 | Medusa webhooks for cache revalidation | ⏳ Not started | |
 | Vitest unit tests | ⏳ Not started | Config exists, no tests written |
