@@ -15,13 +15,11 @@ The PostHog integration shipped 45 typed events, feature flags, session replay, 
 
 ## Solution
 
-### 1. Enable surveys extension
+### 1. Surveys — no code change needed
 
-**File:** `storefront/components/providers/posthog-provider.tsx`
+Surveys work automatically with `posthog-js` >= 1.81.3. The storefront uses `^1.363.1`, well above the minimum. No `opt_in_site_apps` or other config change is needed — surveys are enabled by default unless explicitly disabled with `disable_surveys: true` (which is not set in our provider).
 
-Add `opt_in_site_apps: true` to the `posthog.init()` config object. This enables PostHog's surveys widget. The surveys JS is loaded lazily by PostHog only when an active survey targets the current page — no upfront bundle cost.
-
-One line change. No new files.
+**Zero storefront code changes for surveys.** Both surveys are configured entirely in PostHog.
 
 ### 2. Post-purchase NPS survey
 
@@ -57,33 +55,42 @@ No storefront code needed.
 
 ### 4. `trackGoal()` wrapper
 
-**File:** `storefront/lib/feature-flags.ts`
+**File:** `storefront/lib/analytics-server.ts` (co-located with `trackServer` to avoid coupling the flags module to analytics)
 
-Add a `trackGoal()` function that wraps `trackServer` and tags events with PostHog's `$feature_flag_response` property for experiment metric calculation:
+Add a `trackGoal()` function that wraps `trackServer` and tags events with the correct PostHog experiment property. PostHog links goal events to experiments via `$feature/<flag-key>` properties — not `$feature_flag_response` (which is for exposure events only).
 
 ```typescript
 export async function trackGoal<E extends keyof AnalyticsEvents>(
   event: E,
   properties: AnalyticsEvents[E],
-  value?: number,
+  experiment: { flagKey: string; variant: string },
 ): Promise<void> {
   await trackServer(event, {
     ...properties,
-    $feature_flag_response: value,
+    [`$feature/${experiment.flagKey}`]: experiment.variant,
   } as AnalyticsEvents[E])
 }
 ```
 
-Requires adding an import for `trackServer` from `./analytics-server` and `AnalyticsEvents` from `./analytics`.
+**Usage pattern** (not wired yet — infrastructure only):
+```typescript
+const variant = await getFeatureFlag('new-checkout-flow', distinctId)
+// ... user completes checkout ...
+await trackGoal('order_completed', { order_id, order_total, ... }, {
+  flagKey: 'new-checkout-flow',
+  variant: String(variant),
+})
+```
 
-No callers yet — this is infrastructure. When experiments are created in the PostHog dashboard, `trackGoal()` will be wired into the relevant server actions (e.g., `trackGoal('order_completed', props, orderTotal)` for revenue experiments).
+The caller evaluates the flag first (which auto-sends the `$feature_flag_called` exposure event via `posthog-node`), then captures the goal event with the flag/variant tag. PostHog correlates these to calculate experiment metrics.
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `storefront/components/providers/posthog-provider.tsx` | Add `opt_in_site_apps: true` to `posthog.init()` |
-| `storefront/lib/feature-flags.ts` | Add `trackGoal()` function + imports |
+| `storefront/lib/analytics-server.ts` | Add `trackGoal()` function |
+
+No changes needed for `posthog-provider.tsx` — surveys work out of the box with the current config.
 
 ## Survey Fallback
 
@@ -94,7 +101,7 @@ If surveys cannot be created via the PostHog MCP server (`mcp__posthog__survey-c
 1. Run `cd storefront && bun run build` — must pass with no type errors
 2. Visit `/order/confirmed/[any-order-id]` — verify NPS survey appears after 2 seconds (requires survey to be active in PostHog)
 3. Visit `/checkout` and navigate away — verify exit survey appears (requires survey to be active in PostHog)
-4. Verify `trackGoal` is exported from `lib/feature-flags.ts` and accepts typed events
+4. Verify `trackGoal` is exported from `lib/analytics-server.ts` and accepts typed events with experiment flag/variant
 5. Verify no Lighthouse regression — surveys extension should load lazily
 
 ## Out of Scope
