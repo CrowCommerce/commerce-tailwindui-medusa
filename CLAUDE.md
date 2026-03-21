@@ -162,7 +162,7 @@ When executing an implementation plan (via `superpowers:executing-plans`, `super
 2. Fix any relevant findings, commit the fixes
 3. Run the `code-simplifier` skill to review changed code for reuse, quality, and efficiency
 4. Run `gt submit --stack --no-interactive` to push and create the PR
-5. Run `gh pr ready <number>` to mark the PR as ready for review
+5. Unless explicitly asked to keep as draft, run `gh pr ready <number>` to mark the PR as ready for review
 6. Update the PR description with a summary, event table, and test plan
 
 This ensures every plan execution produces a clean Graphite branch with a pre-reviewed PR — no manual branch creation or post-submit fix cycles needed.

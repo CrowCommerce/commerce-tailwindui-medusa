@@ -128,7 +128,7 @@ export const generateInvoicePdfWorkflow = createWorkflow(
       (data: any) => ({
         event: "invoice_generated",
         actor_id: data.order.customer_id ?? null,
-        actor_fallback: data.order.email ?? null,
+        actor_fallback: `order_${data.input.order_id}`,
         properties: {
           order_id: data.input.order_id,
           invoice_number: `${data.invoice.year}-${data.invoice.display_id}`,
