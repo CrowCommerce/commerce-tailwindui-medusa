@@ -91,7 +91,7 @@ The shared tracking step must handle this: if `actor_id` is falsy, it falls back
 | **Source** | `product_review.created` subscriber |
 | **actor_id** | `review.customer_id` |
 | **Properties** | `product_id`, `rating`, `has_images` |
-| **Notes** | The event payload only includes `id` and `product_id`. The tracking workflow resolves the `productReviewModuleService` from the container (not `useQueryGraphStep` — `product_review` is a custom module that may not be in the query graph). Calls `service.retrieveProductReview(id, { relations: ["images"] })` to get `rating` and image count. |
+| **Notes** | The event payload only includes `id` and `product_id`. The tracking workflow resolves the `productReviewModuleService` from the container (not `useQueryGraphStep` — `product_review` is a custom module that may not be in the query graph). Calls `service.retrieveReview(id, { relations: ["images"] })` to get `rating` and image count. (Method name follows Medusa convention: `retrieve` + model name `Review`, not module name.) |
 
 ### 7. `invoice_generated`
 
