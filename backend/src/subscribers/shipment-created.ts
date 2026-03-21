@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { sendShippingConfirmationWorkflow } from "../workflows/notifications/send-shipping-confirmation"
+import { trackShipmentCreatedWorkflow } from "../workflows/analytics/track-shipment-created"
 
 type ShipmentCreatedPayload = {
   id: string
@@ -12,6 +13,16 @@ export default async function shipmentCreatedHandler({
 }: SubscriberArgs<ShipmentCreatedPayload>) {
   const logger = container.resolve("logger")
 
+  // Analytics first — always track regardless of notification preference
+  try {
+    await trackShipmentCreatedWorkflow(container).run({
+      input: { fulfillment_id: data.id },
+    })
+  } catch (error) {
+    logger.warn(`[analytics] Failed to track shipment_created for ${data.id}: ${error}`)
+  }
+
+  // Then handle notification
   if (data.no_notification) {
     logger.debug(`Shipment ${data.id}: no_notification=true, skipping email`)
     return
