@@ -125,7 +125,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { Modules } from "@medusajs/framework/utils"
 
-type TrackAnalyticsEventInput = {
+export type TrackAnalyticsEventInput = {
   event: string
   actor_id: string | null | undefined
   actor_fallback: string | null | undefined
@@ -135,9 +135,12 @@ type TrackAnalyticsEventInput = {
 export const trackAnalyticsEventStep = createStep(
   "track-analytics-event",
   async (
-    input: TrackAnalyticsEventInput,
+    input: TrackAnalyticsEventInput | null,
     { container }
   ): Promise<StepResponse<void>> => {
+    // Null guard — transforms return null when entity not found
+    if (!input) return new StepResponse()
+
     // Graceful no-op when analytics module is not registered
     let analytics
     try {
@@ -222,11 +225,14 @@ export const trackOrderPlacedWorkflow = createWorkflow(
     })
 
     // Fetch cart to check abandoned_cart_notified metadata
-    const { data: carts } = useQueryGraphStep({
-      entity: "cart",
+    const cartQueryInput = transform({ orders }, (d) => ({
+      entity: "cart" as const,
       fields: ["id", "metadata"],
-      filters: { id: transform({ orders }, (d) => d.orders[0]?.cart_id) },
-    }).config({ name: "fetch-cart-for-recovery-check" })
+      filters: { id: d.orders[0]?.cart_id },
+    }))
+
+    const { data: carts } = useQueryGraphStep(cartQueryInput)
+      .config({ name: "fetch-cart-for-recovery-check" })
 
     const trackingInput = transform(
       { orders, carts },
@@ -968,9 +974,11 @@ Also add `customer_id` and `email` to the order query fields list (line 26 area)
         "email",
 ```
 
-- [ ] **Step 2: Extend `tryGenerateInvoicePdfStep` input type**
+- [ ] **Step 2: Extend `tryGenerateInvoicePdfStep` with input type and inline analytics**
 
-In `backend/src/workflows/steps/try-generate-invoice-pdf.ts`, update the input type:
+In `backend/src/workflows/steps/try-generate-invoice-pdf.ts`:
+
+1. Update the input type:
 
 ```typescript
 type TryGenerateInvoicePdfInput = {
@@ -980,7 +988,33 @@ type TryGenerateInvoicePdfInput = {
 }
 ```
 
-No other changes needed — `tryGenerateInvoicePdfStep` calls `generateInvoicePdfWorkflow` internally or handles invoice generation itself. The `delivery_method` is forwarded.
+2. Add import at top:
+
+```typescript
+import { Modules } from "@medusajs/framework/utils"
+```
+
+3. Add inline analytics tracking after successful PDF render (after `const buffer = await renderToBuffer(element)` on line 70, inside the `try` block), BEFORE the `return new StepResponse(...)`:
+
+```typescript
+      // Track invoice_generated (fire-and-forget, inside try block)
+      try {
+        const analytics = container.resolve(Modules.ANALYTICS)
+        await analytics.track({
+          event: "invoice_generated",
+          actor_id: (input.order as any).customer_id || (input.order as any).email,
+          properties: {
+            order_id: input.order_id,
+            invoice_number: props.invoiceNumber,
+            delivery_method: input.delivery_method ?? "attachment",
+          },
+        })
+      } catch {
+        // Analytics module not registered or tracking failed — ignore
+      }
+```
+
+**Why inline here:** `tryGenerateInvoicePdfStep` does NOT call `generateInvoicePdfWorkflow` — it has its own self-contained invoice pipeline. The order confirmation path uses this step directly, so invoice tracking for email attachments must happen here, not in the main workflow. The main `generateInvoicePdfWorkflow` tracking step (added in Step 1) covers the store/admin download routes.
 
 - [ ] **Step 3: Pass `delivery_method: "attachment"` from order confirmation workflow**
 
@@ -1055,7 +1089,7 @@ import { Modules } from "@medusajs/framework/utils"
             )
             await analytics.track({
               event: "abandoned_cart_email_sent",
-              actor_id: (cart as any).customer_id || cart.email,
+              actor_id: cart.customer_id || cart.email,
               properties: {
                 cart_id: cart.id,
                 hours_abandoned: hoursAbandoned,
