@@ -29,6 +29,7 @@ export const trackOrderPlacedWorkflow = createWorkflow(
 
     // Fetch cart to check abandoned_cart_notified metadata (only if cart_id exists)
     const cartQueryInput = transform({ orders }, (d) => {
+      // Cast: Medusa WorkflowData union too complex for nested step result types
       const cartId = (d.orders[0] as Record<string, any>)?.cart_id
       if (!cartId) return { entity: "cart" as const, fields: ["id", "metadata"], filters: { id: "nonexistent" } }
       return { entity: "cart" as const, fields: ["id", "metadata"], filters: { id: cartId } }
@@ -43,6 +44,7 @@ export const trackOrderPlacedWorkflow = createWorkflow(
         const order = orderResult[0]
         if (!order) return null
 
+        // Cast: Medusa WorkflowData union too complex for nested step result types
         const cart = cartResult[0] as Record<string, any> | undefined
         // abandoned_cart_notified stores an ISO date string, not a boolean
         const isRecoveredCart = Boolean(cart?.metadata?.abandoned_cart_notified)

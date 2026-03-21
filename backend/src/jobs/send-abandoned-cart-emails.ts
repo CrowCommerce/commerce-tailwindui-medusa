@@ -78,8 +78,9 @@ export default async function abandonedCartJob(
                 item_count: cart.items?.length ?? 0,
               },
             })
-          } catch {
-            // Analytics module not registered or tracking failed — ignore
+          } catch (analyticsError) {
+            // Analytics module not registered or tracking failed — debug only
+            logger.debug(`[analytics] Skipped abandoned_cart_email_sent for cart ${cart.id}: ${analyticsError}`)
           }
           logger.info(`Sent abandoned cart email for cart ${cart.id}`)
         } catch (error: any) {

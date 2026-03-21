@@ -76,6 +76,7 @@ export const tryGenerateInvoicePdfStep = createStep(
         const analytics = container.resolve(Modules.ANALYTICS)
         await analytics.track({
           event: "invoice_generated",
+          // Cast: input.order typed as Record<string, any> — accessing known order fields
           actor_id: (input.order as any).customer_id || (input.order as any).email,
           properties: {
             order_id: input.order_id,

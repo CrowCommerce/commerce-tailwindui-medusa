@@ -29,6 +29,7 @@ export const trackShipmentCreatedWorkflow = createWorkflow(
     const trackingInput = transform(
       { fulfillments },
       ({ fulfillments: result }) => {
+        // Cast: Medusa WorkflowData union too complex for nested step result types
         const fulfillment = result[0] as Record<string, any> | undefined
         if (!fulfillment) return null
 

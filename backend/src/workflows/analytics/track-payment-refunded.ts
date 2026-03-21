@@ -28,6 +28,7 @@ export const trackPaymentRefundedWorkflow = createWorkflow(
     })
 
     const trackingInput = transform({ payments }, ({ payments: result }) => {
+      // Cast: Medusa WorkflowData union too complex for nested step result types
       const payment = result[0] as Record<string, any> | undefined
       if (!payment) return null
 
