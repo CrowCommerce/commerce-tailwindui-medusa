@@ -91,7 +91,7 @@ The shared tracking step must handle this: if `actor_id` is falsy, it falls back
 | **Source** | `product_review.created` subscriber |
 | **actor_id** | `review.customer_id` |
 | **Properties** | `product_id`, `rating`, `has_images` |
-| **Notes** | The event payload only includes `id` and `product_id`. The tracking workflow resolves the `productReviewModuleService` from the container (not `useQueryGraphStep` — `product_review` is a custom module that may not be in the query graph). Calls `service.retrieveReview(id, { relations: ["images"] })` to get `rating` and image count. (Method name follows Medusa convention: `retrieve` + model name `Review`, not module name.) |
+| **Notes** | The event payload only includes `id` and `product_id`. The tracking workflow resolves the `productReviewModuleService` from the container (not `useQueryGraphStep` — `product_review` is a custom module that may not be in the query graph). Calls `service.retrieveReview(id, { relations: ["images"] })` to get `rating` and image count. (Method name follows Medusa convention: `retrieve` + model name `Review`, not module name.) **Verified:** The `Review` model defines `images: model.hasMany(() => ReviewImage)`, so `relations: ["images"]` is supported by the auto-generated `MedusaService` retrieve method. |
 
 ### 7. `invoice_generated`
 
@@ -100,7 +100,7 @@ The shared tracking step must handle this: if `actor_id` is falsy, it falls back
 | **Source** | `generate-invoice-pdf` workflow (called from order confirmation workflow and storefront download route) |
 | **actor_id** | `order.customer_id` or `order.email` |
 | **Properties** | `order_id`, `invoice_number`, `delivery_method` |
-| **Notes** | `delivery_method` cannot be determined inside `generateInvoicePdfWorkflow` since it doesn't know its calling context. Instead, extend the workflow's input type to accept an optional `delivery_method: "attachment" \| "link"` field. The order confirmation workflow passes `"attachment"`, the storefront download route passes `"link"`. Defaults to `"unknown"` if not provided. |
+| **Notes** | `delivery_method` cannot be determined inside `generateInvoicePdfWorkflow` since it doesn't know its calling context. Instead, extend the workflow's input type to accept an optional `delivery_method: "attachment" \| "link"` field. Defaults to `"unknown"` if not provided. **Callers to update:** (1) `src/workflows/notifications/send-order-confirmation.ts` — passes `"attachment"` (invoice attached to email), (2) `src/api/store/orders/[id]/invoice/route.ts` — passes `"link"` (customer download), (3) `src/api/admin/orders/[id]/invoice/route.ts` — passes `"link"` (admin download). The intermediate step `src/workflows/steps/try-generate-invoice-pdf.ts` must forward the field through. |
 
 ### 8. `abandoned_cart_email_sent`
 
