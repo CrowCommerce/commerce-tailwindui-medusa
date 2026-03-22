@@ -3,6 +3,7 @@ import {
   createStep,
   StepResponse,
   transform,
+  when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
@@ -33,7 +34,7 @@ const unsubscribeStep = createStep(
     }
 
     if (subscriber.status === "unsubscribed") {
-      return new StepResponse(subscriber, null)
+      return new StepResponse({ subscriber, wasChanged: false }, null)
     }
 
     const previousStatus = subscriber.status
@@ -44,7 +45,7 @@ const unsubscribeStep = createStep(
       unsubscribed_at: new Date(),
     })
 
-    return new StepResponse(updated, {
+    return new StepResponse({ subscriber: updated, wasChanged: true }, {
       id: subscriber.id,
       previousStatus,
     })
@@ -66,17 +67,21 @@ const unsubscribeStep = createStep(
 export const unsubscribeFromNewsletterWorkflow = createWorkflow(
   "unsubscribe-from-newsletter",
   function (input: UnsubscribeInput) {
-    const subscriber = unsubscribeStep({ email: input.email })
+    const result = unsubscribeStep({ email: input.email })
 
-    const eventData = transform({ subscriber, input }, (data) => ({
-      eventName: "newsletter.unsubscribed" as const,
-      data: {
-        id: data.subscriber.id,
-        email: data.input.email,
-      },
-    }))
+    when(result, (data) => data.wasChanged).then(() => {
+      const eventData = transform({ result, input }, (data) => ({
+        eventName: "newsletter.unsubscribed" as const,
+        data: {
+          id: data.result.subscriber.id,
+          email: data.input.email,
+        },
+      }))
 
-    emitEventStep(eventData)
+      emitEventStep(eventData)
+    })
+
+    const subscriber = transform({ result }, (data) => data.result.subscriber)
 
     return new WorkflowResponse(subscriber)
   }
