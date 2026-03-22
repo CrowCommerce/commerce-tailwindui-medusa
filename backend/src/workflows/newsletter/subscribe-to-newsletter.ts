@@ -44,7 +44,8 @@ const upsertSubscriberStep = createStep(
         needsUpdate = true
       }
 
-      if (existing.status === "unsubscribed") {
+      const wasUnsubscribed = existing.status === "unsubscribed"
+      if (wasUnsubscribed) {
         updates.status = "active"
         updates.unsubscribed_at = null
         needsUpdate = true
@@ -56,13 +57,13 @@ const upsertSubscriberStep = createStep(
           ...updates,
         })
         return new StepResponse(
-          { subscriber: updated, isNewSubscriber: false },
+          { subscriber: updated, isNewSubscriber: false, wasReactivated: wasUnsubscribed },
           existing.id
         )
       }
 
       return new StepResponse(
-        { subscriber: existing, isNewSubscriber: false },
+        { subscriber: existing, isNewSubscriber: false, wasReactivated: false },
         existing.id
       )
     }
@@ -75,7 +76,7 @@ const upsertSubscriberStep = createStep(
     })
 
     return new StepResponse(
-      { subscriber, isNewSubscriber: true },
+      { subscriber, isNewSubscriber: true, wasReactivated: false },
       subscriber.id
     )
   }
@@ -96,6 +97,7 @@ export const subscribeToNewsletterWorkflow = createWorkflow(
         id: data.result.subscriber.id,
         email: data.result.subscriber.email,
         isNewSubscriber: data.result.isNewSubscriber,
+        wasReactivated: data.result.wasReactivated,
       },
     }))
 

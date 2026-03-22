@@ -1,11 +1,13 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { syncNewsletterToResendWorkflow } from "../workflows/newsletter/sync-newsletter-to-resend"
 import { sendNewsletterWelcomeWorkflow } from "../workflows/notifications/send-newsletter-welcome"
+import { EmailTemplates } from "../modules/resend/templates/template-registry"
 
 type NewsletterSubscribedData = {
   id: string
   email: string
   isNewSubscriber: boolean
+  wasReactivated: boolean
 }
 
 export default async function newsletterSubscribedHandler({
@@ -34,6 +36,21 @@ export default async function newsletterSubscribedHandler({
     } catch (error) {
       logger.warn(
         `[newsletter] Failed to send welcome email to subscriber ${data.id}: ${error}`
+      )
+    }
+  } else if (data.wasReactivated) {
+    try {
+      await sendNewsletterWelcomeWorkflow(container).run({
+        input: {
+          email: data.email,
+          subscriber_id: data.id,
+          template: EmailTemplates.NEWSLETTER_WELCOME_BACK,
+        },
+      })
+      logger.info(`[newsletter] Welcome-back email sent to subscriber ${data.id}`)
+    } catch (error) {
+      logger.warn(
+        `[newsletter] Failed to send welcome-back email to subscriber ${data.id}: ${error}`
       )
     }
   }

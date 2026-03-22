@@ -13,6 +13,7 @@ import { resolveStorefrontUrl } from "../../subscribers/_helpers/resolve-urls"
 type SendWelcomeInput = {
   email: string
   subscriber_id: string
+  template?: string
 }
 
 const buildWelcomeNotificationStep = createStep(
@@ -29,7 +30,7 @@ const buildWelcomeNotificationStep = createStep(
     return new StepResponse({
       to: input.email,
       channel: "email" as const,
-      template: EmailTemplates.NEWSLETTER_WELCOME,
+      template: input.template || EmailTemplates.NEWSLETTER_WELCOME,
       data: {
         email: input.email,
         unsubscribeUrl,
