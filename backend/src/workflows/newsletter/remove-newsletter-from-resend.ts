@@ -45,7 +45,7 @@ const removeFromResendStep = createStep(
 
     if (error) {
       logger.warn(
-        `[newsletter] Failed to remove ${input.email} from Resend Audience: ${error.message}`
+        `[newsletter] Failed to remove subscriber ${input.subscriber_id} from Resend Audience: ${error.message}`
       )
     }
 

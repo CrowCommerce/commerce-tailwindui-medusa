@@ -18,10 +18,10 @@ export default async function newsletterSubscribedHandler({
     await syncNewsletterToResendWorkflow(container).run({
       input: { email: data.email, subscriber_id: data.id },
     })
-    logger.info(`[newsletter] Synced ${data.email} to Resend Audience`)
+    logger.info(`[newsletter] Synced subscriber ${data.id} to Resend Audience`)
   } catch (error) {
     logger.warn(
-      `[newsletter] Failed to sync ${data.email} to Resend: ${error}`
+      `[newsletter] Failed to sync subscriber ${data.id} to Resend: ${error}`
     )
   }
 
@@ -30,10 +30,10 @@ export default async function newsletterSubscribedHandler({
       await sendNewsletterWelcomeWorkflow(container).run({
         input: { email: data.email, subscriber_id: data.id },
       })
-      logger.info(`[newsletter] Welcome email sent to ${data.email}`)
+      logger.info(`[newsletter] Welcome email sent to subscriber ${data.id}`)
     } catch (error) {
       logger.warn(
-        `[newsletter] Failed to send welcome email to ${data.email}: ${error}`
+        `[newsletter] Failed to send welcome email to subscriber ${data.id}: ${error}`
       )
     }
   }

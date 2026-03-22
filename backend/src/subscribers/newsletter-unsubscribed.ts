@@ -17,11 +17,11 @@ export default async function newsletterUnsubscribedHandler({
       input: { email: data.email, subscriber_id: data.id },
     })
     logger.info(
-      `[newsletter] Removed ${data.email} from Resend Audience`
+      `[newsletter] Removed subscriber ${data.id} from Resend Audience`
     )
   } catch (error) {
     logger.warn(
-      `[newsletter] Failed to remove ${data.email} from Resend: ${error}`
+      `[newsletter] Failed to remove subscriber ${data.id} from Resend: ${error}`
     )
   }
 }
