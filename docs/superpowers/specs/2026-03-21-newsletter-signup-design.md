@@ -60,23 +60,24 @@ Plus free `created_at` / `updated_at` from Medusa DML.
 ### Middleware Registration
 
 In `src/api/middlewares.ts`:
-- `POST /store/newsletter/subscribe` → `validateAndTransformBody(SubscribeSchema)`
+- `POST /store/newsletter/subscribe` → `authenticate("customer", ["session", "bearer"], { allowUnauthenticated: true })` + `validateAndTransformBody(SubscribeSchema)`
 - `POST /store/newsletter/unsubscribe` → `validateAndTransformBody(UnsubscribeSchema)`
+- `POST /store/newsletter/subscribe` → rate limit: 5 requests per minute per IP (reuse `authRateLimit` pattern to prevent abuse on this public endpoint)
 
 ### Zod Schemas
 
 File: `src/api/store/newsletter/validators.ts`
 
-- `SubscribeSchema`: `{ email: z.string().email() }`
+- `SubscribeSchema`: `{ email: z.string().email(), source: z.enum(["footer", "checkout", "account", "import"]).default("footer") }`
 - `UnsubscribeSchema`: `{ token: z.string() }`
 
 ### Subscribe Route Handler
 
 File: `src/api/store/newsletter/subscribe/route.ts`
 
-1. Extract validated body (email already validated by middleware)
-2. Determine `customer_id` from auth context if present (optional auth — use `req.auth_context?.actor_id`)
-3. Call `subscribeToNewsletterWorkflow` with `{ email, customer_id?, source: "footer" }`
+1. Extract validated body (`email` and `source` already validated by middleware)
+2. Determine `customer_id` from auth context if present (`req.auth_context?.actor_id` — populated by `authenticate` middleware with `allowUnauthenticated: true`)
+3. Call `subscribeToNewsletterWorkflow` with `{ email, customer_id?, source }`
 4. Return `{ subscriber, isNewSubscriber }`
 
 ### Unsubscribe Route Handler
@@ -88,6 +89,26 @@ File: `src/api/store/newsletter/unsubscribe/route.ts`
 3. Extract email and verify token hasn't expired
 4. Call `unsubscribeFromNewsletterWorkflow` with `{ email }`
 5. Return `{ success: true }`
+
+## Unsubscribe Token Format
+
+**Algorithm:** HMAC-SHA256
+
+**Token format:** `base64url(email):unix_timestamp:hmac_hex`
+- `email` is base64url-encoded to avoid delimiter collisions
+- `unix_timestamp` is the expiry time (creation time + 30 days)
+- `hmac_hex` is `HMAC-SHA256(base64url(email):unix_timestamp, NEWSLETTER_HMAC_SECRET)`
+
+**Token expiry:** 30 days from generation. Unsubscribe links appear in every newsletter email, so they need a long lifetime. Each new email sends a fresh token.
+
+**Validation steps:**
+1. Split token on `:` into `[encodedEmail, expiry, hmac]`
+2. Recompute HMAC over `encodedEmail:expiry` using `NEWSLETTER_HMAC_SECRET`
+3. Constant-time compare computed HMAC with provided HMAC
+4. Check `expiry > Date.now() / 1000`
+5. Decode `encodedEmail` from base64url to get the email address
+
+**Helper location:** `backend/src/utils/newsletter-token.ts` — exports `signUnsubscribeToken(email)` and `verifyUnsubscribeToken(token)`.
 
 ## Event Flow
 
@@ -140,6 +161,8 @@ newsletter.unsubscribed event
 
 **Output:** `{ subscriber, isNewSubscriber: boolean }`
 
+**Compensation:** None needed — subscriber creation is idempotent, and the event can be replayed manually if needed. A subscriber existing in the DB without a sync/welcome email is a benign state.
+
 ### `unsubscribeFromNewsletterWorkflow`
 
 **Input:** `{ email: string }`
@@ -177,9 +200,10 @@ newsletter.unsubscribed event
 **Input:** `{ email: string, subscriber_id: string }`
 
 **Steps:**
-1. Generate HMAC-signed unsubscribe token (email + expiry)
-2. Build unsubscribe URL: `${STOREFRONT_URL}/newsletter/unsubscribe?token=${token}`
-3. Call `sendNotificationsStep` with:
+1. Resolve storefront URL via `resolveStorefrontUrl()` from `src/subscribers/_helpers/resolve-urls.ts` — skip sending if null
+2. Generate HMAC-signed unsubscribe token via `signUnsubscribeToken(email)` from `src/utils/newsletter-token.ts`
+3. Build unsubscribe URL: `${storefrontUrl}/newsletter/unsubscribe?token=${token}`
+4. Call `sendNotificationsStep` with:
    - `to`: subscriber email
    - `channel`: `"email"`
    - `template`: `EmailTemplates.NEWSLETTER_WELCOME`
@@ -226,7 +250,7 @@ interface NewsletterWelcomeProps extends BaseTemplateProps {
 - Heading: "Welcome to the newsletter"
 - Body: "Thanks for subscribing. We'll send you the latest deals and savings weekly."
 - CTA button: link to storefront homepage
-- Footer: unsubscribe link using `unsubscribeUrl` (reuses `<Footer />` component with real URL instead of `#`)
+- Footer: unsubscribe link using `unsubscribeUrl` — pass `legalLinks={{ unsubscribe: unsubscribeUrl }}` to the `<Footer />` component via `getEmailConfig({ legalLinks: { unsubscribe: unsubscribeUrl } })`
 
 **Validation function:** `isValidNewsletterWelcomeData` — checks `email` is string, `unsubscribeUrl` is string.
 
@@ -241,8 +265,9 @@ interface NewsletterWelcomeProps extends BaseTemplateProps {
 **Uncomment** `<FooterNewsletter />` in `storefront/components/layout/footer/index.tsx`.
 
 **Server action:** `subscribeToNewsletter(email: string)` in `storefront/components/layout/footer/actions.ts`
+- File starts with `"use server"` directive
 - Normalizes email to lowercase
-- Calls `POST /store/newsletter/subscribe` on Medusa backend with `source: "footer"`
+- Calls `sdk.client.fetch("/store/newsletter/subscribe", { method: "POST", headers, body: { email, source: "footer" } })` — uses the established SDK client pattern (same as wishlist/reviews) to automatically include the publishable key
 - Passes auth headers if customer is logged in (via `getAuthHeaders()`)
 
 **Pre-fill for logged-in customers:**
@@ -274,7 +299,7 @@ interface NewsletterWelcomeProps extends BaseTemplateProps {
 
 | Event | When | Properties |
 |-------|------|------------|
-| `newsletter_subscribed` | Successful signup (storefront) | `{ source: "footer" }` |
+| `newsletter_subscribed` | Successful signup (storefront) | `{ source: "footer", is_new_subscriber: boolean }` |
 | `newsletter_subscribe_failed` | Server action error (storefront) | `{ source: "footer", error: string }` |
 
 Add both events to the `AnalyticsEvents` type map with typed properties.
@@ -315,6 +340,7 @@ Add to `medusa-config.ts` modules array:
 | `src/subscribers/newsletter-subscribed.ts` | Subscribe event handler |
 | `src/subscribers/newsletter-unsubscribed.ts` | Unsubscribe event handler |
 | `src/modules/resend/templates/newsletter-welcome.tsx` | Welcome email template |
+| `src/utils/newsletter-token.ts` | HMAC token signing/verification helpers |
 
 ### Backend — Modified Files
 
@@ -330,7 +356,7 @@ Add to `medusa-config.ts` modules array:
 | File | Change |
 |------|--------|
 | `components/layout/footer/index.tsx` | Uncomment `<FooterNewsletter />`, pass `customerEmail` prop |
-| `components/layout/footer/footer-newsletter.tsx` | Wire form to server action, add UX states, change input type to `"email"`, accept `customerEmail` prop |
+| `components/layout/footer/footer-newsletter.tsx` | Add `'use client'` directive, wire `useActionState` for form submission, add UX states, change input type to `"email"`, accept `customerEmail` prop |
 
 ### Storefront — New Files
 
