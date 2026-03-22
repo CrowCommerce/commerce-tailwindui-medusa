@@ -7,6 +7,7 @@ import {
 import { MedusaError } from "@medusajs/framework/utils"
 import multer from "multer"
 import { authRateLimit } from "./middlewares/rate-limit"
+import { newsletterRateLimit } from "./middlewares/newsletter-rate-limit"
 import { PostStoreReviewSchema } from "./store/reviews/route"
 import { PostAdminUpdateReviewsStatusSchema } from "./admin/reviews/status/route"
 import { PostAdminReviewResponseSchema } from "./admin/reviews/[id]/response/route"
@@ -239,7 +240,7 @@ export default defineMiddlewares({
           req.app.set("trust proxy", true)
           next()
         },
-        authRateLimit(),
+        newsletterRateLimit(),
         authenticate("customer", ["session", "bearer"], {
           allowUnauthenticated: true,
         }),
