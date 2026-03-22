@@ -1,6 +1,6 @@
 # CrowCommerce — Project Status
 
-Last updated: 2026-03-20
+Last updated: 2026-03-21
 
 **[Setup Guide](SETUP.md)** — local dev through production deployment
 
@@ -17,6 +17,7 @@ Last updated: 2026-03-20
 | [Product reviews](docs/features/product-reviews.md) | 🟡 Partial | Phases 1-2 (core + images) | Phase 3 (verified purchase, search) |
 | [Wishlist](docs/features/wishlist.md) | ✅ Shipped | Full feature + E2E tests | Code review follow-ups only |
 | Invoice generation | ✅ Shipped | On-demand PDF with product thumbnails, admin config, email toggle, customer + admin download, code review fixes applied | — |
+| Newsletter signup | ✅ Shipped | Footer form, welcome + welcome-back emails, Resend Audience sync, HMAC unsubscribe, rate limiting, PostHog events | Email preferences page, opaque unsubscribe token |
 
 ## Infrastructure & Tooling
 
@@ -39,7 +40,7 @@ These are features identified but not yet planned in detail:
 - CMS pages (Payload CMS integration)
 - Re-order previous purchases
 - Agentic commerce (AI shopping assistant, natural language search)
-- Newsletter signup and campaigns
+- Newsletter campaigns (sending/scheduling — signup is shipped)
 
 ## Architecture References
 
