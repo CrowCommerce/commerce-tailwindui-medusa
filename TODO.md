@@ -36,6 +36,11 @@
 - [ ] Replace HMAC bearer unsubscribe token with opaque server-stored nonce — current token embeds email in reversible base64url and is replayable for 30 days. PostHog pageview captures the full tokenized URL, leaking the token to analytics pipelines. Fix: store a one-time nonce on the subscriber record, invalidate on re-subscribe, and strip the token from the address bar via `window.history.replaceState` after the unsubscribe page loads.
 - [ ] Email preferences page — currently the "manage your email preferences" link is hidden in email footers because no page exists. Two approaches: (1) for logged-in customers, add an email preferences section to `/account/settings` where they can toggle newsletter, order updates, and marketing emails; (2) for account-agnostic access, create a standalone `/email-preferences` page that accepts a signed token (same pattern as unsubscribe) and lets anyone with a valid link manage preferences for their email address without requiring an account. Ideal: support both — account settings for logged-in users, token-based page for email links. Wire the `legalLinks.preferences` config in the email footer to point to the appropriate URL.
 
+### From PR #32 (Meilisearch Integration)
+
+- [ ] Faceted search results page — the current `meilisearch-results.tsx` was reverted because it conflicts with the shared `(store)` layout (duplicate sort dropdown, nested grid). The proper approach: integrate Meilisearch faceted filters (collections, price range, availability) INTO the existing `(store)` layout components (`components/layout/search/collections.tsx`, `sort-filter-menu.tsx`, `mobile-filters.tsx`) rather than rendering a separate InstantSearch layout. The Cmd+K palette Meilisearch integration works correctly — only the search results page needs this redesign.
+- [ ] Investigate `variant_prices` indexing — price range filter shows $0–$0 in Meilisearch results, suggesting variant prices may not be indexed correctly. Check whether `variants.prices.*` in the `useQueryGraphStep` query returns the expected amounts. May need to use `variants.calculated_price.*` with a `QueryContext` instead.
+
 ### From PR #29 (PostHog Integration)
 
 - [ ] Redact PII from `search_performed` event query field — normalize, truncate to 80 chars, and redact strings matching email/phone patterns before sending to PostHog
