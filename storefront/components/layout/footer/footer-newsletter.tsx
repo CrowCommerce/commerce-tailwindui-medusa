@@ -1,21 +1,45 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useEffect, useRef } from "react"
 import { subscribeToNewsletter, type NewsletterResult } from "./actions"
+import { useNotification } from "components/notifications/notification-context"
 
 export function FooterNewsletter({
   customerEmail,
 }: {
   customerEmail?: string | null
 }) {
+  const { showNotification } = useNotification()
+  const hasNotified = useRef(false)
+
   const [state, formAction, isPending] = useActionState<
     NewsletterResult,
     FormData
   >(async (_prev, formData) => {
     const email = formData.get("email") as string
     if (!email) return { error: "Email is required" }
+    hasNotified.current = false
     return subscribeToNewsletter(email)
   }, null)
+
+  useEffect(() => {
+    if (hasNotified.current) return
+    if (state?.success) {
+      hasNotified.current = true
+      showNotification(
+        "success",
+        "You're subscribed!",
+        "A welcome email is on its way to your inbox."
+      )
+    } else if (state?.error) {
+      hasNotified.current = true
+      showNotification(
+        "error",
+        "Subscription failed",
+        "Something went wrong. Please try again."
+      )
+    }
+  }, [state, showNotification])
 
   return (
     <div className="mt-12 md:col-span-8 md:col-start-3 md:row-start-2 md:mt-0 lg:col-span-4 lg:col-start-9 lg:row-start-1">
