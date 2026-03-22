@@ -193,6 +193,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
    S3_REGION=auto          # Always "auto" for Cloudflare R2
    S3_ENDPOINT=            # https://<account-id>.r2.cloudflarestorage.com
    SENTRY_DSN=              # Sentry project DSN
+   MEILISEARCH_HOST=        # Meilisearch server URL (e.g. https://ms-xxx.meilisearch.io or self-hosted)
+   MEILISEARCH_API_KEY=     # Meilisearch master key (admin access for indexing)
    ```
 
 4. **Deploy** — Railway detects the `Dockerfile` and `railway.toml` automatically. The container runs migrations on startup (`bunx medusa db:migrate && bun run start`).
@@ -222,6 +224,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
    SENTRY_AUTH_TOKEN=                       # Source map uploads (sentry.io/settings/auth-tokens/)
    SENTRY_ORG=                              # Sentry organization slug
    SENTRY_PROJECT=                          # Sentry project slug
+   NEXT_PUBLIC_MEILISEARCH_HOST=            # Meilisearch server URL (same as backend)
+   NEXT_PUBLIC_MEILISEARCH_API_KEY=         # Meilisearch search-only API key (NOT master key)
    ```
 
 3. **Deploy** — Vercel detects `vercel.json` (`installCommand: "bun install"`, framework: `nextjs`) and builds automatically.
@@ -245,6 +249,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 - [ ] Stripe test payment succeeds (if configured)
 - [ ] Order confirmation email sends (if Resend configured)
 - [ ] Admin order alert email sends (if `ADMIN_ORDER_EMAILS` configured)
+- [ ] Meilisearch search works: trigger sync (`POST /admin/meilisearch/sync`), verify faceted search on storefront (if Meilisearch configured)
 
 ## Common Issues
 
