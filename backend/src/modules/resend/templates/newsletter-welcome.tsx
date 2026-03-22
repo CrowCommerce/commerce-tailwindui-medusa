@@ -85,6 +85,7 @@ export const NewsletterWelcome = ({
               companyName={config.companyName}
               copyrightYear={config.copyrightYear}
               legalLinks={config.legalLinks}
+              recipientEmail={email}
             />
           </Container>
         </Body>

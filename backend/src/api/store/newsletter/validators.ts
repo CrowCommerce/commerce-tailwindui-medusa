@@ -8,5 +8,5 @@ export const SubscribeSchema = z.object({
 })
 
 export const UnsubscribeSchema = z.object({
-  token: z.string(),
+  token: z.string().min(1),
 })

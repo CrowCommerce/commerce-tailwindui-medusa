@@ -31,7 +31,7 @@ export async function subscribeToNewsletter(
     await trackServer("newsletter_subscribed", {
       source: "footer",
       is_new_subscriber: isNewSubscriber,
-    })
+    }).catch(() => {})
 
     return { success: true, isNewSubscriber }
   } catch (e) {

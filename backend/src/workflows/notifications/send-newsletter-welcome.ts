@@ -53,6 +53,10 @@ export const sendNewsletterWelcomeWorkflow = createWorkflow(
 
     sendNotificationsStep(notifications)
 
-    return new WorkflowResponse({ sent: true })
+    const result = transform({ notification }, (data) => ({
+      sent: data.notification !== null,
+    }))
+
+    return new WorkflowResponse(result)
   }
 )

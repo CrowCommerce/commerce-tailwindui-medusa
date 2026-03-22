@@ -36,7 +36,9 @@ const syncToResendStep = createStep(
       logger.warn(
         `[newsletter] Failed to sync subscriber ${input.subscriber_id} to Resend Audience: ${error.message}`
       )
-      return new StepResponse({ skipped: false, error: error.message })
+      throw new Error(
+        `Failed to sync subscriber to Resend Audience: ${error.message}`
+      )
     }
 
     if (data?.id) {
