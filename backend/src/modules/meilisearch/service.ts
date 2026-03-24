@@ -26,42 +26,37 @@ export default class MeilisearchModuleService {
   async configureIndex(): Promise<void> {
     const index = this.client_.index(this.options_.productIndexName)
 
-    const task1 = await index.updateSearchableAttributes([
+    await index.updateSearchableAttributes([
       "title",
       "description",
       "handle",
       "tag_values",
       "collection_titles",
     ])
-    await index.tasks.waitForTask(task1.taskUid)
 
-    const task2 = await index.updateFilterableAttributes([
+    await index.updateFilterableAttributes([
       "collection_titles",
       "availability",
       "variant_prices",
       "tag_values",
     ])
-    await index.tasks.waitForTask(task2.taskUid)
 
-    const task3 = await index.updateSortableAttributes([
+    await index.updateSortableAttributes([
       "title",
       "created_at",
       "variant_prices",
     ])
-    await index.tasks.waitForTask(task3.taskUid)
   }
 
   async indexData(data: Record<string, unknown>[]): Promise<void> {
     const index = this.client_.index(this.options_.productIndexName)
-    const task = await index.addDocuments(data)
-    await index.tasks.waitForTask(task.taskUid)
+    await index.addDocuments(data)
   }
 
   async deleteFromIndex(ids: string[]): Promise<void> {
     if (ids.length === 0) return
     const index = this.client_.index(this.options_.productIndexName)
-    const task = await index.deleteDocuments(ids)
-    await index.tasks.waitForTask(task.taskUid)
+    await index.deleteDocuments(ids)
   }
 
   async retrieveFromIndex(
