@@ -3,6 +3,9 @@
 # worktrees
 .worktrees/
 
+# Meilisearch local data
+data.ms/
+
 # dependencies
 /node_modules
 **/node_modules
@@ -14,8 +17,7 @@
 
 # testing
 /coverage
-.playwright
-.playwright-mcp
+.playwright*
 storefront/test-results/
 storefront/playwright-report/
 
