@@ -12,7 +12,8 @@ The storefront footer has three columns (Products, Company, Customer Service) al
 - **Footer link management:** Hardcode Company and Legal columns in a config file. Products column stays dynamic from Medusa collections. This avoids unnecessary backend work and provides a clean migration path to Payload CMS later (swap the config import source).
 - **Legal page template:** Use TailwindPlus "Centered" Content Section (Marketing > Page Sections > Content Sections) as the base for a shared `PolicyPage` component. `@tailwindcss/typography` is already installed and will be used for prose styling.
 - **Legal page content:** Placeholder/template content now. SETUP.md will document using Termly to generate real policies.
-- **Company pages:** Not built in this work. Footer links will point to routes that don't exist yet — this is intentional and will be addressed in a future CMS integration.
+- **Company pages:** Not built in this work. Footer links will point to routes that don't exist yet — these will be handled by the existing `[page]` catch-all route (which renders an empty page via the `getPage()` stub). This is acceptable for now and will be addressed in a future CMS integration.
+- **Route placement:** Legal pages go directly under `storefront/app/`, NOT under `(store)`. The `(store)` route group wraps content in a product catalog layout (search header, sort controls, collections sidebar) which is wrong for prose content. The root layout at `storefront/app/layout.tsx` already provides the header and footer for all routes.
 
 ## Scope
 
@@ -131,25 +132,26 @@ Effective date for all placeholders: "March 23, 2026".
 
 ### 6. Route Files
 
-Five thin route files under `storefront/app/(store)/`:
+Five thin route files directly under `storefront/app/` (NOT under `(store)` — that route group wraps content in a product catalog layout with search/filter UI):
 
-- `privacy-policy/page.tsx`
-- `terms-of-service/page.tsx`
-- `return-policy/page.tsx`
-- `shipping-policy/page.tsx`
-- `cookie-policy/page.tsx`
+- `storefront/app/privacy-policy/page.tsx`
+- `storefront/app/terms-of-service/page.tsx`
+- `storefront/app/return-policy/page.tsx`
+- `storefront/app/shipping-policy/page.tsx`
+- `storefront/app/cookie-policy/page.tsx`
 
 Each file (~15-20 lines):
 1. Imports the relevant content from `legal-content.ts`
 2. Exports `generateMetadata()` with title, description, and `robots: { index: true }`
 3. Renders `<PolicyPage {...content} />`
 
-All routes are under the `(store)` route group and inherit the standard header/footer layout.
+These routes inherit the root layout (`storefront/app/layout.tsx`) which provides header, footer, and providers. They intentionally shadow the `[page]` catch-all route for these 5 slugs — the catch-all returns empty stub content anyway, so nothing is lost.
 
 ### 7. Dead Code Cleanup
 
-- Remove `transformMenuToFooterNav` from `storefront/lib/utils.ts`
-- Evaluate whether `getMenu` in `lib/medusa/index.ts` is used anywhere else — if only by the footer, add a comment noting it's available for future CMS use but currently unused
+- Remove `transformMenuToFooterNav` from `storefront/lib/utils.ts` (only used by footer, no longer needed)
+- Keep `transformCollectionsToFooterProducts` in `lib/utils.ts` — the Products column still uses it to transform Medusa collections into `{ name, href }` pairs
+- Remove `getMenu` from `lib/medusa/index.ts` — it is only used by the footer and currently returns collection data as a fallback anyway. If needed for future CMS integration, it can be re-added with a proper CMS data source
 
 ### 8. SETUP.md Update
 
@@ -168,12 +170,13 @@ Add a "Legal Pages" subsection documenting:
 | `storefront/components/layout/footer/index.tsx` | Modify | Update skeleton to match new 3-column structure |
 | `storefront/components/legal/policy-page.tsx` | Create | Shared legal page template component |
 | `storefront/lib/constants/legal-content.ts` | Create | Placeholder content for all 5 policies |
-| `storefront/app/(store)/privacy-policy/page.tsx` | Create | Privacy Policy route |
-| `storefront/app/(store)/terms-of-service/page.tsx` | Create | Terms of Service route |
-| `storefront/app/(store)/return-policy/page.tsx` | Create | Return Policy route |
-| `storefront/app/(store)/shipping-policy/page.tsx` | Create | Shipping Policy route |
-| `storefront/app/(store)/cookie-policy/page.tsx` | Create | Cookie Policy route |
+| `storefront/app/privacy-policy/page.tsx` | Create | Privacy Policy route |
+| `storefront/app/terms-of-service/page.tsx` | Create | Terms of Service route |
+| `storefront/app/return-policy/page.tsx` | Create | Return Policy route |
+| `storefront/app/shipping-policy/page.tsx` | Create | Shipping Policy route |
+| `storefront/app/cookie-policy/page.tsx` | Create | Cookie Policy route |
 | `storefront/lib/utils.ts` | Modify | Remove `transformMenuToFooterNav` |
+| `storefront/lib/medusa/index.ts` | Modify | Remove `getMenu` (only used by footer, returns stub data) |
 | `SETUP.md` | Modify | Add Legal Pages documentation |
 
 ## CMS Migration Path
@@ -188,7 +191,7 @@ When Payload CMS is adopted:
 
 - Verify footer renders 3 distinct columns: Products (from Medusa), Company (static), Legal (static)
 - Verify all 5 legal page routes load with correct content and metadata
-- Verify legal pages use the `(store)` layout (header + footer present)
+- Verify legal pages render with root layout (header + footer present, no product catalog chrome)
 - Verify footer Legal links navigate to the correct pages
 - Build succeeds (`bun run build`)
 - Typecheck passes (`bun run typecheck`)
