@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs"
 import type { HttpTypes } from "@medusajs/types";
 import {
   Elements,
@@ -140,6 +141,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         });
 
         if (error) {
+          Sentry.captureException(error, { tags: { action: "express_checkout_payment", cart_id: cart.id } })
           console.error("[Express Checkout] Payment confirmation error:", error);
           setOrderError(error.message || "Payment confirmation failed. Please try again.");
           return;
@@ -162,6 +164,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
         if (result.type === "order") {
           window.location.href = `/order/confirmed/${result.order.id}`;
         } else {
+          Sentry.captureException(new Error(result.error || "Express checkout cart completion failed"), { tags: { action: "express_checkout_complete", cart_id: cart.id } })
           console.error("[Express Checkout] Cart completion error:", result.error);
           setOrderError(
             "Your payment was processed but we couldn't confirm your order. " +
@@ -170,6 +173,7 @@ function ExpressCheckoutInner({ cart }: { cart: HttpTypes.StoreCart }) {
           );
         }
       } catch (err) {
+        Sentry.captureException(err, { tags: { action: "express_checkout", cart_id: cart.id } })
         console.error("[Express Checkout] Error:", err);
         setOrderError(
           err instanceof Error ? err.message : "An unexpected error occurred.",

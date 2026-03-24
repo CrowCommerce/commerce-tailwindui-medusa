@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { getAuthHeaders } from "lib/medusa/cookies";
 import { trackServer } from "lib/analytics-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -39,6 +40,7 @@ export async function GET(
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
+      Sentry.captureException(new Error(`Invoice generation failed (${res.status})`), { tags: { action: "invoice_download", order_id: id } })
       return NextResponse.json(
         { error: (err as { message?: string }).message || `Invoice generation failed (${res.status})` },
         { status: res.status },
@@ -61,6 +63,7 @@ export async function GET(
       },
     });
   } catch (err) {
+    Sentry.captureException(err, { tags: { action: "invoice_download", order_id: id } })
     const isTimeout =
       err instanceof DOMException && err.name === "TimeoutError";
 

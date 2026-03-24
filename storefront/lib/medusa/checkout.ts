@@ -1,5 +1,6 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs"
 import type { HttpTypes } from "@medusajs/types";
 import { STRIPE_PROVIDER_ID, TAGS } from "lib/constants";
 import { sdk } from "lib/medusa";
@@ -47,6 +48,7 @@ export async function getCheckoutCart(): Promise<HttpTypes.StoreCart | null> {
     }).catch(medusaError);
     return cart;
   } catch (error) {
+    Sentry.captureException(error, { tags: { action: "get_checkout_cart" } })
     console.error("[checkout] Failed to fetch cart:", error);
     return null;
   }
@@ -68,6 +70,7 @@ export async function setCartEmail(
       .catch(medusaError);
     try { await trackServer("checkout_step_completed", { step_name: "email", step_number: 1 }) } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "set_cart_email", cart_id: cartId } })
     return e instanceof Error ? e.message : "Error setting email";
   } finally {
     revalidateCheckout();
@@ -101,6 +104,7 @@ export async function setCartAddresses(
       .catch(medusaError);
     try { await trackServer("checkout_step_completed", { step_name: "address", step_number: 2 }) } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "set_cart_addresses", cart_id: cartId } })
     return e instanceof Error ? e.message : "Error setting addresses";
   } finally {
     revalidateCheckout();
@@ -139,6 +143,7 @@ export async function getShippingOptions(
       currency_code: opt.currency_code || "USD",
     }));
   } catch (error) {
+    Sentry.captureException(error, { tags: { action: "get_shipping_options", cart_id: cartId } })
     console.error("[checkout] Failed to fetch shipping options:", error);
     return [];
   }
@@ -157,6 +162,7 @@ export async function setShippingMethod(
       .catch(medusaError);
     try { await trackServer("checkout_step_completed", { step_name: "shipping", step_number: 3 }) } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "set_shipping_method", cart_id: cartId } })
     return e instanceof Error ? e.message : "Error setting shipping method";
   } finally {
     revalidateCheckout();
@@ -189,6 +195,7 @@ export async function initializePaymentSession(
       .catch(medusaError);
     try { await trackServer("checkout_step_completed", { step_name: "payment", step_number: 4 }) } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "init_payment_session", cart_id: cartId, provider_id: providerId } })
     return e instanceof Error ? e.message : "Error initializing payment";
   } finally {
     revalidateCheckout();
@@ -213,6 +220,7 @@ export async function getSavedPaymentMethods(
     }).catch(medusaError);
     return payment_methods;
   } catch (error) {
+    Sentry.captureException(error, { tags: { action: "get_saved_payment_methods" } })
     console.error("[checkout] Failed to fetch saved payment methods:", error);
     return [];
   }
@@ -253,6 +261,7 @@ export async function completeCart(
           : result.error?.message) || "Payment could not be completed",
     };
   } catch (err) {
+    Sentry.captureException(err, { tags: { action: "complete_cart", cart_id: cartId }, level: "error" })
     return {
       type: "cart",
       error: err instanceof Error ? err.message : "Error completing order",
@@ -323,6 +332,7 @@ export async function getCustomerAddresses(): Promise<
     }).catch(medusaError);
     return addresses;
   } catch (error) {
+    Sentry.captureException(error, { tags: { action: "get_customer_addresses" } })
     console.error("[checkout] Failed to fetch customer addresses:", error);
     return [];
   }
