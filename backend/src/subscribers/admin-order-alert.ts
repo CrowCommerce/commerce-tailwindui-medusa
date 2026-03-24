@@ -1,4 +1,5 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import * as Sentry from "@sentry/node"
 import { sendAdminOrderAlertWorkflow } from "../workflows/notifications/send-admin-order-alert"
 import { resolveAdminUrl } from "./_helpers/resolve-urls"
 
@@ -30,6 +31,7 @@ export default async function adminOrderAlertHandler({
       `Admin order alert sent for order ${data.id} to ${adminEmails.length} recipient(s)`
     )
   } catch (error) {
+    Sentry.captureException(error, { tags: { subscriber: "admin_order_alert", order_id: data.id } })
     logger.error(
       `Failed to send admin order alert for order ${data.id}`,
       error

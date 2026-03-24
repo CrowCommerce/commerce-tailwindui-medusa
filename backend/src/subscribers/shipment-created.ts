@@ -1,4 +1,5 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import * as Sentry from "@sentry/node"
 import { sendShippingConfirmationWorkflow } from "../workflows/notifications/send-shipping-confirmation"
 import { trackShipmentCreatedWorkflow } from "../workflows/analytics/track-shipment-created"
 
@@ -34,6 +35,7 @@ export default async function shipmentCreatedHandler({
     })
     logger.info(`Shipping confirmation email sent for fulfillment ${data.id}`)
   } catch (error) {
+    Sentry.captureException(error, { tags: { subscriber: "shipment_created", step: "send_email", fulfillment_id: data.id } })
     logger.error(
       `Failed to send shipping confirmation for fulfillment ${data.id}`,
       error

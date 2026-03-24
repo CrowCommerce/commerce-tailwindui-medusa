@@ -1,4 +1,5 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import * as Sentry from "@sentry/node"
 import { sendPasswordResetEmailWorkflow } from "../workflows/notifications/send-password-reset-email"
 
 type PasswordResetPayload = {
@@ -33,6 +34,7 @@ export default async function passwordResetHandler({
     })
     logger.info(`Password reset email sent (${actorType})`)
   } catch (error) {
+    Sentry.captureException(error, { tags: { subscriber: "password_reset", actor_type: data.actor_type } })
     logger.error(
       `Failed to send password reset email (${data.actor_type})`,
       error

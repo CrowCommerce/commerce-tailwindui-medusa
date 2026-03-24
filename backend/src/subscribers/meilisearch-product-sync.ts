@@ -1,4 +1,5 @@
 import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
+import * as Sentry from "@sentry/node"
 import { syncProductsWorkflow } from "../workflows/sync-products"
 
 export default async function handleMeilisearchProductSync({
@@ -22,6 +23,7 @@ export default async function handleMeilisearchProductSync({
       },
     })
   } catch (error) {
+    Sentry.captureException(error, { tags: { subscriber: "meilisearch_product_sync", product_id: data.id }, level: "warning" })
     logger.warn(`[Meilisearch] Failed to sync product ${data.id}: ${error}`)
   }
 }

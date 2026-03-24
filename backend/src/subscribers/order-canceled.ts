@@ -1,4 +1,5 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import * as Sentry from "@sentry/node"
 import { sendOrderCanceledWorkflow } from "../workflows/notifications/send-order-canceled"
 import { trackOrderCanceledWorkflow } from "../workflows/analytics/track-order-canceled"
 
@@ -14,6 +15,7 @@ export default async function orderCanceledHandler({
     })
     logger.info(`Order canceled email sent for order ${data.id}`)
   } catch (error) {
+    Sentry.captureException(error, { tags: { subscriber: "order_canceled", step: "send_email", order_id: data.id } })
     logger.error(
       `Failed to send order canceled email for order ${data.id}`,
       error
