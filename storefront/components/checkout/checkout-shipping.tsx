@@ -62,14 +62,14 @@ export function CheckoutShipping({
               setError(result);
             }
           } catch (e) {
-            Sentry.captureException(e, { tags: { action: "auto_select_shipping", cart_id: cart.id } })
+            Sentry.captureException(e, { tags: { action: "auto_select_shipping", } })
           } finally {
             setIsSubmitting(false);
           }
         }
       })
       .catch((e: unknown) => {
-        Sentry.captureException(e, { tags: { action: "load_shipping_options", cart_id: cart.id } })
+        Sentry.captureException(e, { tags: { action: "load_shipping_options", } })
         setError("Failed to load shipping options. Please try again.");
         setIsLoading(false);
       });
@@ -89,7 +89,7 @@ export function CheckoutShipping({
         setError(result);
       }
     } catch (err) {
-      Sentry.captureException(err, { tags: { action: "set_shipping_method", cart_id: cart.id } })
+      Sentry.captureException(err, { tags: { action: "set_shipping_method", } })
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred.",
       );
