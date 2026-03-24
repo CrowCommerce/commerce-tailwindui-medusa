@@ -13,8 +13,8 @@ export type SyncProductsStepInput = {
     tag_values: string[]
     variant_prices: number[]
     availability: boolean
-    created_at: string
-    updated_at: string
+    created_at: string | Date
+    updated_at: string | Date
   }[]
 }
 
