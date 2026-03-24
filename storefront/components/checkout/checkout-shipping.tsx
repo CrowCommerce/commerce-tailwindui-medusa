@@ -1,6 +1,7 @@
 "use client";
 
 import type { HttpTypes } from "@medusajs/types";
+import * as Sentry from "@sentry/nextjs"
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
@@ -60,14 +61,15 @@ export function CheckoutShipping({
             } else {
               setError(result);
             }
-          } catch {
-            // Let user retry manually
+          } catch (e) {
+            Sentry.captureException(e, { tags: { action: "auto_select_shipping", } })
           } finally {
             setIsSubmitting(false);
           }
         }
       })
-      .catch(() => {
+      .catch((e: unknown) => {
+        Sentry.captureException(e, { tags: { action: "load_shipping_options", } })
         setError("Failed to load shipping options. Please try again.");
         setIsLoading(false);
       });
@@ -87,6 +89,7 @@ export function CheckoutShipping({
         setError(result);
       }
     } catch (err) {
+      Sentry.captureException(err, { tags: { action: "set_shipping_method", } })
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred.",
       );

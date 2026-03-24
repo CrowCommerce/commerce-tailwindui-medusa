@@ -3,6 +3,7 @@ import {
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { Modules } from "@medusajs/framework/utils"
+import * as Sentry from "@sentry/node"
 import { INVOICE_MODULE } from "../../modules/invoice"
 import type InvoiceModuleService from "../../modules/invoice/service"
 import { getOrCreateInvoiceRecord, buildInvoiceDocumentProps } from "./_invoice-helpers"
@@ -94,6 +95,7 @@ export const tryGenerateInvoicePdfStep = createStep(
         invoiceNumber: props.invoiceNumber,
       })
     } catch (error) {
+      Sentry.captureException(error, { tags: { workflow_step: "try_generate_invoice_pdf" }, level: "warning" })
       console.error(
         "[try-generate-invoice-pdf] Failed to generate invoice PDF, falling back to link mode:",
         error instanceof Error ? error.message : error

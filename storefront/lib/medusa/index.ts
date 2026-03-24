@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import Medusa from "@medusajs/js-sdk";
 import type { HttpTypes } from "@medusajs/types";
 import { HIDDEN_PRODUCT_TAG, TAGS } from "lib/constants";
@@ -451,6 +452,7 @@ export async function getCart(): Promise<Cart | undefined> {
 
     return transformCart(rawCart);
   } catch (error) {
+    Sentry.captureException(error, { tags: { action: "get_cart" } })
     console.error(
       "[Cart] Failed to retrieve cart, clearing stale cookie:",
       error,

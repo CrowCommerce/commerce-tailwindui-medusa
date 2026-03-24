@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { createHmac, timingSafeEqual } from "node:crypto"
 import { setCartId } from "lib/medusa/cookies"
 import { sdk } from "lib/medusa"
@@ -54,7 +55,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.redirect(new URL("/", request.url))
     }
     recoveredCart = cart
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "cart_recovery", cart_id: id }, level: "warning" })
     return NextResponse.redirect(new URL("/", request.url))
   }
 

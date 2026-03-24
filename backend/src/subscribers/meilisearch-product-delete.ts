@@ -1,4 +1,5 @@
 import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
+import * as Sentry from "@sentry/node"
 import { deleteProductsFromMeilisearchWorkflow } from "../workflows/delete-products-from-meilisearch"
 
 export default async function handleMeilisearchProductDelete({
@@ -20,6 +21,7 @@ export default async function handleMeilisearchProductDelete({
       input: { ids: [data.id] },
     })
   } catch (error) {
+    Sentry.captureException(error, { tags: { subscriber: "meilisearch_product_delete", product_id: data.id }, level: "warning" })
     logger.warn(
       `[Meilisearch] Failed to delete product ${data.id}: ${error}`
     )

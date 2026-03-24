@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node"
 import type { RequestHandler } from "express"
 import Redis from "ioredis"
 
@@ -27,7 +28,8 @@ function getRedis(): Redis | null {
       console.warn("[newsletter-rate-limit] Redis error:", err.message)
     })
     return redis
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e, { tags: { middleware: "newsletter_rate_limit", step: "redis_connect" }, level: "warning" })
     return null
   }
 }
@@ -87,8 +89,8 @@ export function newsletterRateLimit(): RequestHandler {
         })
         return
       }
-    } catch {
-      // Redis error — pass through
+    } catch (e) {
+      Sentry.captureException(e, { tags: { middleware: "newsletter_rate_limit", step: "redis_incr" }, level: "warning" })
       return next()
     }
 

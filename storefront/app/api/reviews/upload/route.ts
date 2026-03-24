@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { getAuthHeaders } from "lib/medusa/cookies";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,6 +31,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
+      // Only report server errors — 4xx are expected validation failures (bad MIME, size limit)
+      if (res.status >= 500) {
+        Sentry.captureException(new Error(`Review upload failed (${res.status})`), { tags: { action: "review_upload" } })
+      }
       return NextResponse.json(
         { error: err.message || `Upload failed (${res.status})` },
         { status: res.status },
@@ -39,6 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (err) {
+    Sentry.captureException(err, { tags: { action: "review_upload" } })
     const isTimeout =
       err instanceof DOMException && err.name === "TimeoutError";
     const message = isTimeout

@@ -1,5 +1,6 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import * as Sentry from "@sentry/node"
 import { sendAbandonedCartEmailWorkflow } from "../workflows/notifications/send-abandoned-cart-email"
 
 type AbandonedCartRow = {
@@ -92,6 +93,7 @@ export default async function abandonedCartJob(
           logger.info(`Sent abandoned cart email for cart ${cart.id}`)
         } catch (error: any) {
           totalErrors++
+          Sentry.captureException(error, { tags: { job: "abandoned_cart_emails", cart_id: cart.id } })
           logger.error(
             `Failed to send abandoned cart email for cart ${cart.id}: ${error?.message}`
           )
@@ -107,6 +109,7 @@ export default async function abandonedCartJob(
       `Abandoned cart job complete: ${totalSent} sent, ${totalErrors} errors in ${duration}ms`
     )
   } catch (error: any) {
+    Sentry.captureException(error, { tags: { job: "abandoned_cart_emails", step: "main" } })
     logger.error(`Abandoned cart job failed: ${error?.message}`)
   }
 }

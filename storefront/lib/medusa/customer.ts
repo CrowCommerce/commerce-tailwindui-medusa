@@ -1,5 +1,6 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs"
 import type { HttpTypes } from "@medusajs/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -54,8 +55,14 @@ export async function retrieveCustomer(): Promise<HttpTypes.StoreCustomer | null
       headers,
       query: { fields: "*addresses" },
     });
+    Sentry.setUser({ id: customer.id })
     return customer;
-  } catch {
+  } catch (e) {
+    // Stale/expired tokens produce 401s on every page load — don't report those
+    const isAuthError = e instanceof Object && "status" in e && (e as { status: number }).status === 401
+    if (!isAuthError) {
+      Sentry.captureException(e, { tags: { action: "retrieve_customer" }, level: "warning" })
+    }
     return null;
   }
 }
@@ -81,6 +88,7 @@ export async function login(
       try { await trackServer("auth_rate_limited", { action: "login" }) } catch {}
       return "Too many login attempts. Please try again in 15 minutes.";
     }
+    Sentry.captureException(e, { tags: { action: "customer_login" } })
     return e instanceof Error ? e.message : "Invalid email or password";
   }
 
@@ -186,6 +194,7 @@ export async function signup(
       try { await trackServer("auth_rate_limited", { action: "signup" }) } catch {}
       return "Too many attempts. Please try again in 15 minutes.";
     }
+    Sentry.captureException(e, { tags: { action: "customer_signup" } })
     return e instanceof Error ? e.message : "Error creating account";
   }
 
@@ -237,6 +246,7 @@ export async function signout(): Promise<void> {
     // Logout endpoint may fail if token already expired — proceed anyway
   }
 
+  Sentry.setUser(null)
   await removeAuthToken();
   await removeCartId();
   await removeWishlistId();
@@ -269,6 +279,7 @@ export async function requestPasswordReset(
     }
     // Log infrastructure errors (network/5xx) for debugging, but still return
     // success to the user to prevent email enumeration.
+    Sentry.captureException(e, { tags: { action: "password_reset_request" }, level: "warning" })
     console.error("[requestPasswordReset]", e)
   }
   return { success: true }
@@ -298,6 +309,7 @@ export async function completePasswordReset(
       try { await trackServer("auth_rate_limited", { action: "password-reset" }) } catch {}
       return { error: "Too many attempts. Please try again in 15 minutes." }
     }
+    Sentry.captureException(e, { tags: { action: "password_reset_complete" } })
     return {
       error: e instanceof Error ? e.message : "Unable to reset password. The link may have expired.",
     }
@@ -324,6 +336,7 @@ export async function updateCustomer(
       await trackServer("profile_updated", { fields_changed: fieldsChanged })
     } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "update_customer" } })
     return {
       error: e instanceof Error ? e.message : "Error updating profile",
     };
@@ -366,6 +379,7 @@ export async function addCustomerAddress(
     );
     try { await trackServer("address_added", { country_code: address.country_code ?? "" }) } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "add_address" } })
     return {
       error: e instanceof Error ? e.message : "Error adding address",
     };
@@ -395,6 +409,7 @@ export async function updateCustomerAddress(
     );
     try { await trackServer("address_updated", { country_code: address.country_code ?? "" }) } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "update_address" } })
     return {
       error: e instanceof Error ? e.message : "Error updating address",
     };
@@ -414,6 +429,7 @@ export async function deleteCustomerAddress(
     await sdk.store.customer.deleteAddress(addressId, headers);
     try { await trackServer("address_deleted", {}) } catch {}
   } catch (e) {
+    Sentry.captureException(e, { tags: { action: "delete_address" } })
     return e instanceof Error ? e.message : "Error deleting address";
   } finally {
     revalidateCustomer();
