@@ -256,6 +256,28 @@ When implementing any new feature, add PostHog tracking as part of the feature P
 
 **PR convention:** include new event names and their properties in the PR description so reviewers can verify naming consistency. Reference the `AnalyticsEvents` type map as the source of truth.
 
+## Error Monitoring (Sentry)
+
+When implementing any new feature, add Sentry error capture as part of the feature PR — not as a follow-up.
+
+**Patterns:**
+
+- Server-side: `Sentry.captureException(error, { tags: { ... }, extra: { ... } })` from `@sentry/nextjs` (storefront) or `@sentry/node` (backend)
+- Attach context: include entity IDs (`order_id`, `cart_id`, `product_id`) as tags, and relevant state as `extra` — **never PII**
+- Use `Sentry.withScope(scope => { ... })` when you need to attach context to a specific capture without polluting the global scope
+
+**What to capture for new features:**
+
+| Category | Example |
+| --- | --- |
+| Handled errors in commerce flows | Payment failures, checkout step errors, API call failures that return fallback values |
+| Background job/subscriber failures | Workflow step errors, event handler catches, scheduled job failures |
+| External service errors | Medusa SDK errors, Stripe API errors, Resend delivery failures, Meilisearch sync errors |
+
+**When NOT to capture:** expected control flow (e.g., 404 for missing resources), validation errors that are shown to the user, errors already captured by Sentry's automatic instrumentation (uncaught exceptions, unhandled promise rejections).
+
+**Key rule:** If a `catch` block swallows an error and returns a fallback value, ask whether that failure should be visible in Sentry. Commerce-critical paths (checkout, payment, cart, orders) should almost always capture.
+
 ## MCP Servers
 
 | Server         | Use                                   |
