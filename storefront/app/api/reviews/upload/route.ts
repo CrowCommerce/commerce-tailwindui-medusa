@@ -31,7 +31,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      Sentry.captureException(new Error(`Review upload failed (${res.status})`), { tags: { action: "review_upload" } })
+      // Only report server errors — 4xx are expected validation failures (bad MIME, size limit)
+      if (res.status >= 500) {
+        Sentry.captureException(new Error(`Review upload failed (${res.status})`), { tags: { action: "review_upload" } })
+      }
       return NextResponse.json(
         { error: err.message || `Upload failed (${res.status})` },
         { status: res.status },

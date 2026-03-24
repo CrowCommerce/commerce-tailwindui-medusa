@@ -49,6 +49,7 @@ export default async function handleMeilisearchSync({
   } catch (error) {
     Sentry.captureException(error, { tags: { subscriber: "meilisearch_sync", step: "full_sync" } })
     logger.error("[Meilisearch] Full sync failed:", error)
+    throw error
   }
 }
 

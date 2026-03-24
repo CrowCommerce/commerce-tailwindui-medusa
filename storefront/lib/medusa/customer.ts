@@ -58,7 +58,11 @@ export async function retrieveCustomer(): Promise<HttpTypes.StoreCustomer | null
     Sentry.setUser({ id: customer.id })
     return customer;
   } catch (e) {
-    Sentry.captureException(e, { tags: { action: "retrieve_customer" }, level: "warning" })
+    // Stale/expired tokens produce 401s on every page load — don't report those
+    const isAuthError = e instanceof Object && "status" in e && (e as { status: number }).status === 401
+    if (!isAuthError) {
+      Sentry.captureException(e, { tags: { action: "retrieve_customer" }, level: "warning" })
+    }
     return null;
   }
 }
