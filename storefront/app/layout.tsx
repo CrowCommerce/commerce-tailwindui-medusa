@@ -13,6 +13,7 @@ import {
   NotificationProvider,
 } from "components/notifications";
 import { PostHogProvider } from "components/providers/posthog-provider";
+import { SentryUserProvider } from "components/providers/sentry-user-provider";
 import { SearchDialog, SearchProvider } from "components/search-command";
 import { getFeatureFlags } from "lib/feature-flags";
 import { WebVitals } from "./web-vitals";
@@ -44,6 +45,7 @@ async function AppProviders({ children }: { children: ReactNode }) {
   return (
     <CartProvider cartPromise={cartPromise}>
       <PostHogProvider bootstrapDistinctId={distinctId} bootstrapFlags={bootstrapFlags}>
+        <SentryUserProvider customerId={customer?.id ?? null} />
         <WebVitals />
         <NotificationProvider>
           <SearchProvider>

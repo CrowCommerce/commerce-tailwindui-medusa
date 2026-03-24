@@ -43,7 +43,14 @@ const upload = multer({
 
 export default defineMiddlewares({
   errorHandler: (error, req, res, next) => {
-    Sentry.captureException(error)
+    Sentry.withScope((scope) => {
+      if ((req as any).auth_context?.actor_id) {
+        scope.setUser({ id: (req as any).auth_context.actor_id })
+      }
+      scope.setTag("method", req.method)
+      scope.setTag("path", req.path)
+      Sentry.captureException(error)
+    })
     next(error)
   },
   routes: [

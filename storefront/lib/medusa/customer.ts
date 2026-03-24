@@ -55,6 +55,7 @@ export async function retrieveCustomer(): Promise<HttpTypes.StoreCustomer | null
       headers,
       query: { fields: "*addresses" },
     });
+    Sentry.setUser({ id: customer.id })
     return customer;
   } catch (e) {
     Sentry.captureException(e, { tags: { action: "retrieve_customer" }, level: "warning" })
@@ -241,6 +242,7 @@ export async function signout(): Promise<void> {
     // Logout endpoint may fail if token already expired — proceed anyway
   }
 
+  Sentry.setUser(null)
   await removeAuthToken();
   await removeCartId();
   await removeWishlistId();
