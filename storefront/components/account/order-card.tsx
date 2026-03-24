@@ -71,11 +71,16 @@ export function OrderCard({ order }: { order: HttpTypes.StoreOrder }) {
             </dd>
           </div>
         </dl>
-        {showInvoice && (
-          <div className="hidden lg:col-span-2 lg:flex lg:items-center lg:justify-end lg:space-x-4">
-            <DownloadInvoiceButton orderId={order.id} />
-          </div>
-        )}
+        <div className="hidden lg:col-span-2 lg:flex lg:items-center lg:justify-end lg:space-x-4">
+          {showInvoice && <DownloadInvoiceButton orderId={order.id} />}
+          <Link
+            href={`/account/orders/${order.id}`}
+            className="text-sm font-medium text-primary-600 hover:text-primary-500"
+          >
+            View Order
+            <span aria-hidden="true"> &rarr;</span>
+          </Link>
+        </div>
       </div>
 
       <h4 className="sr-only">Items</h4>
@@ -111,25 +116,30 @@ export function OrderCard({ order }: { order: HttpTypes.StoreOrder }) {
               </div>
             </div>
 
-            {item.product_handle && (
-              <div className="mt-6 flex items-center border-t border-gray-200 pt-4 text-sm font-medium">
+            <div className="mt-6 flex items-center gap-x-6 border-t border-gray-200 pt-4 text-sm font-medium">
+              {item.product_handle && (
                 <Link
                   href={`/product/${item.product_handle}`}
                   className="text-primary-600 hover:text-primary-500"
                 >
                   View product
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </li>
         ))}
       </ul>
 
-      {showInvoice && (
-        <div className="border-t border-gray-200 p-4 sm:p-6 lg:hidden">
-          <DownloadInvoiceButton orderId={order.id} />
-        </div>
-      )}
+      <div className="flex items-center justify-between border-t border-gray-200 p-4 sm:p-6 lg:hidden">
+        {showInvoice && <DownloadInvoiceButton orderId={order.id} />}
+        <Link
+          href={`/account/orders/${order.id}`}
+          className="text-sm font-medium text-primary-600 hover:text-primary-500"
+        >
+          View Order
+          <span aria-hidden="true"> &rarr;</span>
+        </Link>
+      </div>
     </div>
   );
 }

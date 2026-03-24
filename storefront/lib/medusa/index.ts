@@ -464,6 +464,22 @@ export async function getCart(): Promise<Cart | undefined> {
 
 // --- Orders ---
 
+export type StoreOrderDetail = HttpTypes.StoreOrder & {
+  status?: string;
+  fulfillment_status?: string;
+  payment_collections?: Array<{
+    payments?: Array<{
+      provider_id?: string;
+      data?: {
+        payment_method?: { card?: { brand?: string; last4?: string; exp_month?: number; exp_year?: number } };
+        card?: { brand?: string; last4?: string; exp_month?: number; exp_year?: number };
+      };
+    }>;
+    payment_sessions?: Array<{ provider_id?: string }>;
+  }>;
+  promotions?: Array<{ code?: string }>;
+};
+
 export async function getOrders(): Promise<HttpTypes.StoreOrder[]> {
   const headers = await getAuthHeaders();
   if (!headers.authorization) return [];
@@ -484,6 +500,29 @@ export async function getOrders(): Promise<HttpTypes.StoreOrder[]> {
   } catch (error) {
     console.error("[Orders] Failed to retrieve orders:", error);
     return [];
+  }
+}
+
+export async function getOrder(orderId: string): Promise<StoreOrderDetail | null> {
+  const headers = await getAuthHeaders();
+  if (!headers.authorization) return null;
+
+  try {
+    const { order } = await sdk.client.fetch<{ order: StoreOrderDetail }>(
+      `/store/orders/${orderId}`,
+      {
+        method: "GET",
+        headers,
+        query: {
+          fields:
+            "*items,*items.variant,*items.product,*shipping_address,*billing_address,*shipping_methods,*payment_collections,*payment_collections.payments,*payment_collections.payment_sessions,+status,+fulfillment_status,+promotions",
+        },
+      },
+    ).catch(medusaError);
+    return order;
+  } catch (error) {
+    console.error("[Order] Failed to retrieve order:", error);
+    return null;
   }
 }
 
