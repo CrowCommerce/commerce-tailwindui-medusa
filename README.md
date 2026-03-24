@@ -24,7 +24,7 @@ Last updated: 2026-03-21
 | Item | Status | Notes |
 |------|--------|-------|
 | S3 file provider (Cloudflare R2) | ✅ Shipped | Persistent file storage via R2, E2E tests |
-| Sentry error monitoring | ✅ Shipped | Backend + storefront, performance tracing, error-only replay |
+| Sentry error monitoring | ✅ Shipped | Full error capture (checkout, cart, auth, 13 subscribers, jobs), user context enrichment, environment separation, 5xx-only proxy policy |
 | PostHog analytics | ✅ Shipped | 45 storefront events + 8 backend events, session replay, web vitals, feature flags, experiments, surveys (NPS + exit), trackGoal() |
 | CI/CD (GitHub Actions) | ⏳ Not started | |
 | Medusa webhooks for cache revalidation | ⏳ Not started | |
