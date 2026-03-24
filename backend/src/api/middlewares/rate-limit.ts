@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node"
 import type { RequestHandler } from "express"
 import Redis from "ioredis"
 
@@ -23,7 +24,8 @@ function getRedis(): Redis | null {
       console.warn("[rate-limit] Redis error — auth rate limiting may be unavailable:", err.message)
     })
     return redis
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e, { tags: { middleware: "rate_limit", step: "redis_connect" }, level: "warning" })
     return null
   }
 }
@@ -60,8 +62,8 @@ export function authRateLimit(): RequestHandler {
         })
         return
       }
-    } catch {
-      // Redis read failed — pass through
+    } catch (e) {
+      Sentry.captureException(e, { tags: { middleware: "rate_limit", step: "redis_read" }, level: "warning" })
       return next()
     }
 
