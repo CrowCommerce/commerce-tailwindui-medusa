@@ -26,7 +26,7 @@ const NavigationSkeleton = () => (
       <div className="space-y-6">
         <div className="h-4 w-20 animate-pulse rounded-sm bg-gray-200" />
         <div className="space-y-4">
-          {[...Array(5)].map((_, i) => (
+          {[...Array(3)].map((_, i) => (
             <div
               key={i}
               className="h-3 w-24 animate-pulse rounded-sm bg-gray-200"
@@ -36,7 +36,7 @@ const NavigationSkeleton = () => (
       </div>
     </div>
     <div className="space-y-6">
-      <div className="h-4 w-28 animate-pulse rounded-sm bg-gray-200" />
+      <div className="h-4 w-12 animate-pulse rounded-sm bg-gray-200" />
       <div className="space-y-4">
         {[...Array(5)].map((_, i) => (
           <div
