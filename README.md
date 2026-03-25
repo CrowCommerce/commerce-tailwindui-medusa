@@ -1,8 +1,10 @@
 # CrowCommerce — Project Status
 
-Last updated: 2026-03-21
+Last updated: 2026-03-25
 
 **[Setup Guide](SETUP.md)** — local dev through production deployment
+
+**Vercel ownership:** This storefront is deployed from the **CrowCommerce** Vercel team with slug `crow-commerce`. The correct Vercel project path is `crow-commerce/commerce-tailwindui-medusa`.
 
 ## Feature Status
 

@@ -97,6 +97,7 @@ rm -rf storefront/.next            # Clear Next.js cache (needed after transform
 4. **Verify CORS variables** — `STORE_CORS`, `ADMIN_CORS`, and `AUTH_CORS` must include all origins that make requests. `AUTH_CORS` must include both the storefront domain AND the backend/admin domain
 5. **Check for key type mismatches** — never use master/admin keys where search-only or publishable keys are expected (e.g., `NEXT_PUBLIC_MEILISEARCH_API_KEY` must be a search-only key, `NEXT_PUBLIC_STRIPE_KEY` must be a publishable `pk_` key)
 6. **Verify preview deployments** — Vercel preview deployments need the same env vars as production (or separate values for staging services)
+7. **Check for trailing newlines in Vercel env vars** — pasted secrets/URLs can end up stored as `value\n`. Run `vercel env pull --environment=production` and inspect quoted values if a deploy behaves oddly. A newline in `MEDUSA_BACKEND_URL` can break the storefront proxy's CSP header and cause a production 500 before the app renders.
 
 **Periodic audit:** Run `grep -roE 'process\.env\.[A-Z_]+' backend/medusa-config.ts storefront/lib/ | sed 's/.*process.env.//' | sort -u` to see all referenced env vars and cross-check against what's deployed.
 
@@ -768,6 +769,8 @@ Formats: AVIF and WebP.
 
 ## Production Deployment
 
+**Vercel ownership:** This storefront lives under the Vercel team **CrowCommerce** with slug `crow-commerce`. The correct project path is `crow-commerce/commerce-tailwindui-medusa`. Do not use `crowcommerce` or the similarly named `crow-development` team for this repo.
+
 | Service | Platform | URL | CLI Access |
 |---------|----------|-----|------------|
 | **Backend** | Railway | `https://api.medusa.crowcommerce.org` | `railway` CLI (installed, linked). Use `railway variables` to audit env vars, `railway run` to execute commands in production. |
@@ -780,6 +783,9 @@ Formats: AVIF and WebP.
 
 **Redeploy storefront:**
 ```bash
+# Verify you are targeting the correct Vercel team/project first
+vercel project ls --scope crow-commerce | grep commerce-tailwindui-medusa
+
 # Get latest production deployment URL
 vercel list --scope crow-commerce --prod 2>&1 | head -7
 # Redeploy it (copies the deployment URL from above)
