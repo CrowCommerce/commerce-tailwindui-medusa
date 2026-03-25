@@ -76,6 +76,7 @@ export async function getCheckoutCart(): Promise<HttpTypes.StoreCart | null> {
  */
 export async function getPaymentClientSecret(
   cartId: string,
+  providerId?: string,
 ): Promise<string | null> {
   try {
     await assertSessionCart(cartId);
@@ -93,7 +94,10 @@ export async function getPaymentClientSecret(
       query: { fields: "*payment_collection.payment_sessions" },
     }).catch(medusaError);
 
-    const session = cart.payment_collection?.payment_sessions?.[0] ?? null;
+    const sessions = cart.payment_collection?.payment_sessions ?? [];
+    const session = providerId
+      ? (sessions.find((s) => s.provider_id === providerId) ?? null)
+      : (sessions[0] ?? null);
     return (session?.data?.client_secret as string) ?? null;
   } catch (error) {
     Sentry.captureException(error, {
@@ -381,9 +385,10 @@ export async function applyExpressCheckoutData(
   );
   if (paymentError) throw new Error(paymentError);
 
-  // Fetch only the client_secret via the dedicated server action —
+  // Fetch only the Stripe client_secret via the dedicated server action —
   // getCheckoutCart() strips session data, so we can't read it from there.
-  const secret = await getPaymentClientSecret(cartId);
+  // Pass STRIPE_PROVIDER_ID to guard against multi-provider ordering ambiguity.
+  const secret = await getPaymentClientSecret(cartId, STRIPE_PROVIDER_ID);
   if (!secret) throw new Error("Payment session created but no client secret found");
   return secret;
 }
