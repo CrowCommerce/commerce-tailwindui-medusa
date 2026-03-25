@@ -14,10 +14,11 @@ Add a GitHub Actions CI workflow that enforces quality gates on PRs before merge
 
 ## Goals
 
-- Block merges to `main` when typecheck, formatting, or unit tests fail
+- Block merges to `main` when typecheck, formatting, or unit tests fail in either workspace
 - Surface failures per-workspace (storefront vs backend) so the source is immediately obvious
 - Run checks in parallel to minimize wall time
 - Require zero external secrets or services
+- Skip draft PRs entirely — CI only runs on ready PRs
 
 ## Non-Goals
 
@@ -44,7 +45,13 @@ on:
   - `synchronize` — fires on subsequent pushes to a ready PR
   - `reopened` — fires when a closed PR is reopened
 
-Draft PRs are intentionally excluded — CI runs only once a PR is opened in ready state or marked ready from draft. Note: `ready_for_review` only fires on the *transition* from draft to ready, not on initial open — hence `opened` is also required.
+**Draft PR exclusion:** `opened` and `synchronize` fire on draft PRs too. A job-level `if` condition enforces the ready-only intent:
+
+```yaml
+if: github.event_name == 'push' || github.event.pull_request.draft == false
+```
+
+This must be set on both jobs.
 
 ---
 
@@ -58,7 +65,16 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 ```
 
-Using `cancel-in-progress: true` unconditionally would cancel mid-flight runs on `main` when two commits land quickly, meaning CI would not complete for every main commit. The conditional preserves cancellation for PR branches (where only the latest push matters) while ensuring every main push gets a completed run.
+---
+
+## Permissions
+
+Minimal read-only permissions — this workflow does not write to the repo:
+
+```yaml
+permissions:
+  contents: read
+```
 
 ---
 
@@ -72,18 +88,20 @@ ci-storefront (ubuntu-latest)     ci-backend (ubuntu-latest)
 1. Checkout                       1. Checkout
 2. Setup Bun 1.1.18               2. Setup Bun 1.1.18
 3. Cache ~/.bun/install/cache     3. Cache ~/.bun/install/cache
-4. bun install (root)             4. bun install (root)
+4. bun install --frozen-lockfile  4. bun install --frozen-lockfile
 5. turbo typecheck                5. turbo typecheck
    --filter=@repo/storefront         --filter=@repo/backend
-6. prettier:check (direct)        6. bun run test:unit (direct)
-7. bun run test:unit (direct)
+6. prettier:check (direct)        6. prettier:check (direct)
+7. bun run test:unit (direct)     7. bun run test:unit (direct)
 ```
 
 Both jobs run concurrently. Total wall time is bounded by the slower of the two.
 
-**Note on test commands:** Unit tests are run via workspace scripts directly (`cd <workspace> && bun run test:unit`) rather than through `turbo test`, because the `test` turbo task has `"dependsOn": ["^build"]` which would trigger dependency builds unnecessarily in CI. Running tests directly is faster and correct.
+**Note on `--frozen-lockfile`:** Used in both jobs so CI acts as a true quality gate — if `bun.lockb` is stale or missing a package, CI fails rather than silently updating dependency resolution.
 
-**Note on prettier:** Prettier is run directly (`cd storefront && bun run prettier:check`) because it is not a turbo pipeline task — this is intentional. The diagram above uses shorthand labels; the step table below is authoritative for exact commands.
+**Note on test commands:** Unit tests are run via workspace scripts directly (`cd <workspace> && bun run test:unit`) rather than through `turbo test`, because the `test` turbo task has `"dependsOn": ["^build"]` which would trigger dependency builds unnecessarily in CI.
+
+**Note on prettier:** Prettier is run directly because it is not a turbo pipeline task — this is intentional. The diagram uses shorthand labels; the step table below is authoritative for exact commands.
 
 ---
 
@@ -96,7 +114,7 @@ Both jobs run concurrently. Total wall time is bounded by the slower of the two.
 - **Bun setup action:** `oven-sh/setup-bun@v2`
 - **Lockfile:** `bun.lockb` (binary format — this repo uses Bun 1.1.18 which predates the YAML lockfile migration)
 - **Dependency cache:** `~/.bun/install/cache` keyed on `hashFiles('**/bun.lockb')`
-- **Install command:** `bun install` at repo root (Bun workspaces installs all packages)
+- **Install command:** `bun install --frozen-lockfile` at repo root
 
 ### `ci-storefront` checks
 
@@ -111,9 +129,16 @@ Both jobs run concurrently. Total wall time is bounded by the slower of the two.
 | Step | Command |
 |------|---------|
 | Typecheck | `bunx turbo typecheck --filter=@repo/backend` |
+| Prettier | `cd backend && bun run prettier:check` |
 | Unit tests | `cd backend && bun run test:unit` |
 
-Backend has no `prettier:check` or `"test"` script — those steps are omitted. The backend `test:unit` script is `TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit`; these flags are embedded in the script so they propagate correctly when called via `bun run test:unit`.
+**Backend prettier prerequisites:** The backend does not currently have prettier configured. Before the workflow can use `bun run prettier:check` in the backend, the following must be added:
+- `prettier` (v3.5.3) added to `backend/devDependencies`
+- `backend/.prettierrc` — overrides the root config (`"plugins": []`) since the backend does not use Tailwind
+- `backend/.prettierignore` — excludes `.medusa/` and `node_modules/`
+- `prettier:check` and `prettier` scripts added to `backend/package.json`
+
+The backend `test:unit` script is `TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit`; these flags are embedded in the script so they propagate correctly when called via `bun run test:unit`.
 
 ---
 
@@ -128,13 +153,18 @@ After the workflow is merged, configure branch protection on `main` in **GitHub 
 
 This is compatible with Graphite stacked PRs — each stack level is an independent PR that must pass CI before its child can merge.
 
+**Note:** The status checks `ci-storefront` and `ci-backend` only appear in GitHub's search box after they have run at least once. Complete the test PR verification step first, then add the checks here.
+
 ---
 
-## Deliverable
+## Deliverables
 
-One new file: `.github/workflows/ci.yml` (~70 lines)
-
-No changes to existing source code, package scripts, or turbo configuration are required.
+| File | Action |
+|------|--------|
+| `.github/workflows/ci.yml` | Create — the full CI workflow |
+| `backend/package.json` | Modify — add `prettier` devDependency + `prettier:check` and `prettier` scripts |
+| `backend/.prettierrc` | Create — `{ "plugins": [] }` to override root tailwind plugin config |
+| `backend/.prettierignore` | Create — exclude `.medusa/` and `node_modules/` |
 
 ---
 
