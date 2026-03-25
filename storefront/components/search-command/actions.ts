@@ -2,7 +2,6 @@
 
 import { getProducts } from "lib/medusa";
 import { Product } from "lib/types";
-import { redactPiiFromQuery } from "lib/analytics";
 import { trackServer } from "lib/analytics-server";
 import * as Sentry from "@sentry/nextjs";
 
@@ -23,7 +22,7 @@ export async function searchProducts(
     });
     try {
       await trackServer("search_performed", {
-        query: redactPiiFromQuery(sanitizedQuery),
+        query: sanitizedQuery,
         result_count: products.length,
         source: "medusa",
       });
