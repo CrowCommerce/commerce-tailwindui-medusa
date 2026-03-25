@@ -10,6 +10,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Abandoned cart recovery emails with HMAC-signed recovery links
 - Product thumbnail images in email templates
 
+## [2026-03-25]
+
+### Security
+- Checkout payment session hardening: strip `payment_sessions[].data` (including Stripe `client_secret`) from RSC payload; dedicated `getPaymentClientSecret(cartId, providerId?)` server action returns only the secret over the secure server-action channel
+- Zod validation at checkout server action boundaries: `setCartEmail` (email normalization + format), `setCartAddresses` (full address schema for shipping + billing), `initializePaymentSession` (provider ID format, payment data shape)
+- `applyExpressCheckoutData` now scopes secret retrieval to `STRIPE_PROVIDER_ID` to prevent multi-provider session ordering ambiguity
+
 ## [2026-03-24]
 
 ### Security
