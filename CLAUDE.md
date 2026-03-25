@@ -289,6 +289,8 @@ When implementing any new feature, add Sentry error capture as part of the featu
 
 ## Production Deployment
 
+**Vercel ownership:** This storefront is managed under the Vercel team **CrowCommerce** with slug `crow-commerce`. The correct project path is `crow-commerce/commerce-tailwindui-medusa`. Do not use `crowcommerce` or the `crow-development` team when running Vercel CLI commands for this repo.
+
 | Service | Platform | URL | CLI Access |
 |---------|----------|-----|------------|
 | **Backend** | Railway | `https://api.medusa.crowcommerce.org` | `railway` CLI (installed, linked). Use `railway variables` to audit env vars, `railway run` to execute commands in production. |
@@ -301,6 +303,9 @@ When implementing any new feature, add Sentry error capture as part of the featu
 
 **Redeploy storefront:**
 ```bash
+# Verify you are targeting the correct Vercel team/project first
+vercel project ls --scope crow-commerce | grep commerce-tailwindui-medusa
+
 # Get latest production deployment URL
 vercel list --scope crow-commerce --prod 2>&1 | head -7
 # Redeploy it (copies the deployment URL from above)

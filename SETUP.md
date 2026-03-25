@@ -291,7 +291,7 @@ When migrating to a CMS (e.g., Payload), swap the import source in each route fi
 
 ### Storefront → Vercel
 
-1. **Import the repo** in the [Vercel dashboard](https://vercel.com/new). Set the root directory to `storefront/`.
+1. **Import the repo** in the [Vercel dashboard](https://vercel.com/new) under the **CrowCommerce** team (slug: `crow-commerce`). Use the project `commerce-tailwindui-medusa` and set the root directory to `storefront/`.
 
 2. **Set environment variables** in Vercel project settings:
 
@@ -319,6 +319,8 @@ When migrating to a CMS (e.g., Payload), swap the import source in each route fi
 3. **Deploy** — Vercel detects `vercel.json` (`installCommand: "bun install"`, framework: `nextjs`) and builds automatically.
 
 4. **Update backend CORS** — add your Vercel production domain to `STORE_CORS` in Railway.
+
+5. **Sanity-check Vercel env formatting** — after setting or updating critical Vercel vars, run `vercel env pull --environment=production` and confirm URL/key values do not include trailing newlines. A pasted newline in `MEDUSA_BACKEND_URL` can break the storefront proxy's CSP header and produce production 500s.
 
 ## Structured Data Coverage
 
