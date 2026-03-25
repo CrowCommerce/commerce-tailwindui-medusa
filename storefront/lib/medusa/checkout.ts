@@ -14,6 +14,12 @@ import type {
   ShippingOption,
 } from "lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
+import {
+  addressSchema,
+  emailSchema,
+  paymentDataSchema,
+  providerIdSchema,
+} from "lib/medusa/checkout-schemas";
 
 function revalidateCheckout(): void {
   revalidateTag(TAGS.cart, "max");
@@ -46,10 +52,57 @@ export async function getCheckoutCart(): Promise<HttpTypes.StoreCart | null> {
           "*items,*items.product,*items.variant,*items.thumbnail,+items.total,*promotions,+shipping_methods.name,*payment_collection.payment_sessions",
       },
     }).catch(medusaError);
+    // Strip sensitive payment provider data (e.g. Stripe client_secret) before
+    // serializing the cart into RSC props. Clients must call getPaymentClientSecret()
+    // via a dedicated server action to obtain the secret securely.
+    if (cart.payment_collection?.payment_sessions) {
+      cart.payment_collection.payment_sessions =
+        cart.payment_collection.payment_sessions.map((session) => {
+          const { data: _data, ...safeSession } = session;
+          return safeSession as HttpTypes.StorePaymentSession;
+        });
+    }
     return cart;
   } catch (error) {
     Sentry.captureException(error, { tags: { action: "get_checkout_cart" } })
     console.error("[checkout] Failed to fetch cart:", error);
+    return null;
+  }
+}
+
+/**
+ * Returns only the Stripe client_secret for the active payment session.
+ * Keeps sensitive payment data server-side — never serialized in RSC payload.
+ */
+export async function getPaymentClientSecret(
+  cartId: string,
+  providerId?: string,
+): Promise<string | null> {
+  try {
+    await assertSessionCart(cartId);
+  } catch {
+    return null;
+  }
+
+  const headers = await getAuthHeaders();
+  try {
+    const { cart } = await sdk.client.fetch<{
+      cart: HttpTypes.StoreCart;
+    }>(`/store/carts/${cartId}`, {
+      method: "GET",
+      headers,
+      query: { fields: "*payment_collection.payment_sessions" },
+    }).catch(medusaError);
+
+    const sessions = cart.payment_collection?.payment_sessions ?? [];
+    const session = providerId
+      ? (sessions.find((s) => s.provider_id === providerId) ?? null)
+      : (sessions[0] ?? null);
+    return (session?.data?.client_secret as string) ?? null;
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { action: "get_payment_client_secret", cart_id: cartId },
+    });
     return null;
   }
 }
@@ -60,8 +113,13 @@ export async function setCartEmail(
   cartId: string,
   email: string,
 ): Promise<string | null> {
+  const emailResult = emailSchema.safeParse(email);
+  if (!emailResult.success) {
+    return emailResult.error.issues[0]?.message ?? "Invalid email";
+  }
+  const normalizedEmail = emailResult.data; // trimmed + lowercased by schema
+
   const headers = await getAuthHeaders();
-  const normalizedEmail = email.trim().toLowerCase();
 
   try {
     await assertSessionCart(cartId);
@@ -86,8 +144,21 @@ export async function setCartAddresses(
   shipping: AddressPayload,
   billing?: AddressPayload,
 ): Promise<string | null> {
+  const shippingResult = addressSchema.safeParse(shipping);
+  if (!shippingResult.success) {
+    return shippingResult.error.issues[0]?.message ?? "Invalid shipping address";
+  }
+  const validatedShipping = shippingResult.data;
+  let validatedBilling = validatedShipping;
+  if (billing !== undefined) {
+    const billingResult = addressSchema.safeParse(billing);
+    if (!billingResult.success) {
+      return billingResult.error.issues[0]?.message ?? "Invalid billing address";
+    }
+    validatedBilling = billingResult.data;
+  }
+
   const headers = await getAuthHeaders();
-  const billingAddress = billing || shipping;
 
   try {
     await assertSessionCart(cartId);
@@ -95,8 +166,8 @@ export async function setCartAddresses(
       .update(
         cartId,
         {
-          shipping_address: shipping,
-          billing_address: billingAddress,
+          shipping_address: validatedShipping,
+          billing_address: validatedBilling,
         },
         {},
         headers,
@@ -178,6 +249,15 @@ export async function initializePaymentSession(
   providerId: string,
   data?: Record<string, unknown>,
 ): Promise<string | null> {
+  const providerResult = providerIdSchema.safeParse(providerId);
+  if (!providerResult.success) {
+    return providerResult.error.issues[0]?.message ?? "Invalid provider ID";
+  }
+  const dataResult = paymentDataSchema.safeParse(data);
+  if (!dataResult.success) {
+    return "Invalid payment data";
+  }
+
   const headers = await getAuthHeaders();
 
   try {
@@ -191,7 +271,7 @@ export async function initializePaymentSession(
     }).catch(medusaError);
 
     await sdk.store.payment
-      .initiatePaymentSession(cart, { provider_id: providerId, data }, {}, headers)
+      .initiatePaymentSession(cart, { provider_id: providerResult.data, data: dataResult.data }, {}, headers)
       .catch(medusaError);
     try { await trackServer("checkout_step_completed", { step_name: "payment", step_number: 4 }) } catch {}
   } catch (e) {
@@ -305,12 +385,10 @@ export async function applyExpressCheckoutData(
   );
   if (paymentError) throw new Error(paymentError);
 
-  // Fetch updated cart and find the Stripe session by provider_id
-  const updatedCart = await getCheckoutCart();
-  const stripeSession = updatedCart?.payment_collection?.payment_sessions?.find(
-    (s) => s.provider_id === STRIPE_PROVIDER_ID,
-  );
-  const secret = stripeSession?.data?.client_secret as string | undefined;
+  // Fetch only the Stripe client_secret via the dedicated server action —
+  // getCheckoutCart() strips session data, so we can't read it from there.
+  // Pass STRIPE_PROVIDER_ID to guard against multi-provider ordering ambiguity.
+  const secret = await getPaymentClientSecret(cartId, STRIPE_PROVIDER_ID);
   if (!secret) throw new Error("Payment session created but no client secret found");
   return secret;
 }
