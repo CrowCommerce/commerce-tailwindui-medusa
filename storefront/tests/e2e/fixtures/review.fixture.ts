@@ -128,6 +128,30 @@ function createReviewResponse(reviewId: string, content: string): string {
 }
 
 /**
+ * Insert images for a review directly in the database.
+ * Bypasses API hostname validation so E2E tests can use
+ * placeholder image URLs regardless of S3_FILE_URL configuration.
+ */
+function createReviewImages(
+  reviewId: string,
+  images: { url: string; sort_order: number }[],
+): void {
+  assertMedusaId(reviewId, "")
+  for (const img of images) {
+    runSql(
+      `INSERT INTO review_image (id, url, sort_order, review_id, created_at, updated_at)
+       VALUES (
+         'revi_' || substr(md5(random()::text), 1, 26),
+         '${img.url.replace(/'/g, "''")}',
+         ${img.sort_order},
+         '${reviewId}',
+         NOW(), NOW()
+       )`,
+    )
+  }
+}
+
+/**
  * Invalidate the Next.js cache for reviews so the storefront
  * serves fresh data after direct DB modifications.
  */
@@ -195,6 +219,7 @@ export {
   revalidateReviewsCache,
   cleanupReview,
   createReview,
+  createReviewImages,
   storeHeaders,
 };
 
