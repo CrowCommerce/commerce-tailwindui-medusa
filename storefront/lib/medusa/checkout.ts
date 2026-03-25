@@ -77,8 +77,11 @@ export async function getCheckoutCart(): Promise<HttpTypes.StoreCart | null> {
 export async function getPaymentClientSecret(
   cartId: string,
 ): Promise<string | null> {
-  const sessionCartId = await getCartId();
-  if (!sessionCartId || sessionCartId !== cartId) return null;
+  try {
+    await assertSessionCart(cartId);
+  } catch {
+    return null;
+  }
 
   const headers = await getAuthHeaders();
   try {
@@ -141,16 +144,15 @@ export async function setCartAddresses(
   if (!shippingResult.success) {
     return shippingResult.error.issues[0]?.message ?? "Invalid shipping address";
   }
+  const validatedShipping = shippingResult.data;
+  let validatedBilling = validatedShipping;
   if (billing !== undefined) {
     const billingResult = addressSchema.safeParse(billing);
     if (!billingResult.success) {
       return billingResult.error.issues[0]?.message ?? "Invalid billing address";
     }
+    validatedBilling = billingResult.data;
   }
-  const validatedShipping = shippingResult.data;
-  const validatedBilling = billing !== undefined
-    ? addressSchema.parse(billing)
-    : validatedShipping;
 
   const headers = await getAuthHeaders();
 

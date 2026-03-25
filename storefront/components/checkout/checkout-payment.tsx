@@ -204,8 +204,9 @@ export function CheckoutPayment({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart.id]);
 
-  // Re-fetch clientSecret when cart updates (e.g. after payment method switch).
+  // Re-fetch clientSecret when payment session changes (e.g. after payment method switch).
   // Guards on initRef so it only fires after the initial session is created.
+  const paymentSessionId = cart.payment_collection?.payment_sessions?.[0]?.id ?? null;
   useEffect(() => {
     if (isZeroTotal || !initRef.current) return;
 
@@ -213,8 +214,11 @@ export function CheckoutPayment({
       if (secret && secret !== clientSecret) {
         setClientSecret(secret);
       }
+    }).catch(() => {
+      // Secret refresh failure is non-fatal; initial session secret is still valid.
     });
-  }, [cart, clientSecret, isZeroTotal]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentSessionId, isZeroTotal]);
 
   // --- Zero-total rendering ---
   if (isZeroTotal) {
