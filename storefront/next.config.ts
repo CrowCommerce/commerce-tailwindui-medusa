@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs"
+import { withSentryConfig } from "@sentry/nextjs";
 
 export default withSentryConfig(
   {
@@ -16,15 +16,19 @@ export default withSentryConfig(
             },
             { key: "X-Frame-Options", value: "DENY" },
             { key: "X-Content-Type-Options", value: "nosniff" },
-            { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+            {
+              key: "Referrer-Policy",
+              value: "strict-origin-when-cross-origin",
+            },
             {
               key: "Permissions-Policy",
-              value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+              value:
+                "camera=(), microphone=(), geolocation=(), interest-cohort=()",
             },
             { key: "X-DNS-Prefetch-Control", value: "on" },
           ],
         },
-      ]
+      ];
     },
     async rewrites() {
       return [
@@ -36,7 +40,7 @@ export default withSentryConfig(
           source: "/api/ph/:path*",
           destination: "https://us.i.posthog.com/:path*",
         },
-      ]
+      ];
     },
     experimental: {
       serverActions: {
@@ -89,5 +93,5 @@ export default withSentryConfig(
     org: process.env.SENTRY_ORG,
     project: process.env.SENTRY_PROJECT,
     silent: !process.env.CI,
-  }
-)
+  },
+);

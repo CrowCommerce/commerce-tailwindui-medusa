@@ -1,16 +1,10 @@
-import * as Sentry from "@sentry/nextjs"
+import * as Sentry from "@sentry/nextjs";
 import Medusa from "@medusajs/js-sdk";
 import type { HttpTypes } from "@medusajs/types";
 import { HIDDEN_PRODUCT_TAG, TAGS } from "lib/constants";
 import { FOOTER_CONFIG } from "lib/constants/footer";
 import { DEFAULT_NAVIGATION } from "lib/constants/navigation";
-import type {
-  Cart,
-  Collection,
-  Navigation,
-  Page,
-  Product,
-} from "lib/types";
+import type { Cart, Collection, Navigation, Page, Product } from "lib/types";
 import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -49,7 +43,7 @@ const STATIC_PAGES = new Map(
 );
 
 function sanitizeEnvUrl(value: string | undefined, fallback: string): string {
-  return value?.replace(/[\r\n]+/g, "").trim() || fallback
+  return value?.replace(/[\r\n]+/g, "").trim() || fallback;
 }
 
 type ProductFetchQuery = {
@@ -65,7 +59,7 @@ type ProductFetchQuery = {
 
 const MEDUSA_BACKEND_URL = sanitizeEnvUrl(
   process.env.MEDUSA_BACKEND_URL,
-  "http://localhost:9000"
+  "http://localhost:9000",
 );
 
 export const sdk = new Medusa({
@@ -99,9 +93,7 @@ async function getDefaultRegion(): Promise<HttpTypes.StoreRegion> {
     : undefined;
 
   cachedRegion =
-    preferred ??
-    regions.find((r) => r.currency_code === "usd") ??
-    regions[0]!;
+    preferred ?? regions.find((r) => r.currency_code === "usd") ?? regions[0]!;
   return cachedRegion;
 }
 
@@ -201,9 +193,7 @@ export async function getProducts({
     cache: "force-cache",
   });
 
-  return products
-    .filter((p) => !isHiddenProduct(p))
-    .map(transformProduct);
+  return products.filter((p) => !isHiddenProduct(p)).map(transformProduct);
 }
 
 // Placeholder: Medusa v2 has no recommendation engine. This returns the 4 most
@@ -306,9 +296,7 @@ export async function getCollectionProducts({
     cache: "force-cache",
   });
 
-  return products
-    .filter((p) => !isHiddenProduct(p))
-    .map(transformProduct);
+  return products.filter((p) => !isHiddenProduct(p)).map(transformProduct);
 }
 
 export async function getCollections(): Promise<Collection[]> {
@@ -465,28 +453,27 @@ export async function getCart(): Promise<Cart | undefined> {
     const headers = await getAuthHeaders();
 
     // Fetch the raw cart to check its region
-    const { cart: rawCart } = await sdk.client.fetch<{
-      cart: HttpTypes.StoreCart;
-    }>(`/store/carts/${cartId}`, {
-      method: "GET",
-      headers,
-      query: { fields: CART_FIELDS },
-    }).catch(medusaError);
+    const { cart: rawCart } = await sdk.client
+      .fetch<{
+        cart: HttpTypes.StoreCart;
+      }>(`/store/carts/${cartId}`, {
+        method: "GET",
+        headers,
+        query: { fields: CART_FIELDS },
+      })
+      .catch(medusaError);
 
     // Reconcile stale carts created under a different region/currency
     if (rawCart.region_id !== defaultRegion.id) {
-      await sdk.store.cart.update(
-        cartId,
-        { region_id: defaultRegion.id },
-        {},
-        headers,
-      ).catch(medusaError);
+      await sdk.store.cart
+        .update(cartId, { region_id: defaultRegion.id }, {}, headers)
+        .catch(medusaError);
       return await fetchCart(cartId);
     }
 
     return transformCart(rawCart);
   } catch (error) {
-    Sentry.captureException(error, { tags: { action: "get_cart" } })
+    Sentry.captureException(error, { tags: { action: "get_cart" } });
     console.error(
       "[Cart] Failed to retrieve cart, clearing stale cookie:",
       error,
@@ -507,8 +494,20 @@ export type StoreOrderDetail = HttpTypes.StoreOrder & {
       provider_id?: string;
       created_at?: string | Date;
       data?: {
-        payment_method?: { card?: { brand?: string; last4?: string; exp_month?: number; exp_year?: number } };
-        card?: { brand?: string; last4?: string; exp_month?: number; exp_year?: number };
+        payment_method?: {
+          card?: {
+            brand?: string;
+            last4?: string;
+            exp_month?: number;
+            exp_year?: number;
+          };
+        };
+        card?: {
+          brand?: string;
+          last4?: string;
+          exp_month?: number;
+          exp_year?: number;
+        };
       };
     }>;
     payment_sessions?: Array<{ provider_id?: string }>;
@@ -528,9 +527,9 @@ async function getE2EOrders(): Promise<StoreOrderDetail[] | null> {
   if (!encodedFixture) return null;
 
   try {
-    const fixture = JSON.parse(
-      decodeURIComponent(encodedFixture),
-    ) as { orders?: StoreOrderDetail[] };
+    const fixture = JSON.parse(decodeURIComponent(encodedFixture)) as {
+      orders?: StoreOrderDetail[];
+    };
 
     return Array.isArray(fixture.orders) ? fixture.orders : null;
   } catch (error) {
@@ -565,7 +564,9 @@ export async function getOrders(): Promise<HttpTypes.StoreOrder[]> {
   }
 }
 
-export async function getOrder(orderId: string): Promise<StoreOrderDetail | null> {
+export async function getOrder(
+  orderId: string,
+): Promise<StoreOrderDetail | null> {
   const headers = await getAuthHeaders();
   if (!headers.authorization) return null;
 
@@ -575,17 +576,16 @@ export async function getOrder(orderId: string): Promise<StoreOrderDetail | null
   }
 
   try {
-    const { order } = await sdk.client.fetch<{ order: StoreOrderDetail }>(
-      `/store/orders/${orderId}`,
-      {
+    const { order } = await sdk.client
+      .fetch<{ order: StoreOrderDetail }>(`/store/orders/${orderId}`, {
         method: "GET",
         headers,
         query: {
           fields:
             "*items,*items.variant,*items.product,*shipping_address,*billing_address,*shipping_methods,*payment_collections,*payment_collections.payments,*payment_collections.payment_sessions,*fulfillments,+status,+payment_status,+fulfillment_status,+promotions",
         },
-      },
-    ).catch(medusaError);
+      })
+      .catch(medusaError);
     return order;
   } catch (error) {
     console.error("[Order] Failed to retrieve order:", error);

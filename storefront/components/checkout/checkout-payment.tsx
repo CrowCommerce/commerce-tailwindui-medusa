@@ -88,8 +88,7 @@ function PaymentForm({
     }
   }
 
-  const paymentSession =
-    cart.payment_collection?.payment_sessions?.[0] ?? null;
+  const paymentSession = cart.payment_collection?.payment_sessions?.[0] ?? null;
 
   return (
     <form onSubmit={handleSubmit} className="py-4">
@@ -117,8 +116,13 @@ function PaymentForm({
       <div className="mt-6">
         <button
           type="submit"
-          disabled={!stripe || !elements || (!isComplete && !usingSavedMethod) || isSubmitting}
-          className="w-full rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+          disabled={
+            !stripe ||
+            !elements ||
+            (!isComplete && !usingSavedMethod) ||
+            isSubmitting
+          }
+          className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 w-full rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
         >
           {isSubmitting ? "Processing..." : "Continue to review"}
         </button>
@@ -206,18 +210,21 @@ export function CheckoutPayment({
 
   // Re-fetch clientSecret when payment session changes (e.g. after payment method switch).
   // Guards on initRef so it only fires after the initial session is created.
-  const paymentSessionId = cart.payment_collection?.payment_sessions?.[0]?.id ?? null;
+  const paymentSessionId =
+    cart.payment_collection?.payment_sessions?.[0]?.id ?? null;
   useEffect(() => {
     if (isZeroTotal || !initRef.current) return;
 
-    getPaymentClientSecret(cart.id).then((secret) => {
-      if (secret && secret !== clientSecret) {
-        setClientSecret(secret);
-      }
-    }).catch(() => {
-      // Secret refresh failure is non-fatal; initial session secret is still valid.
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    getPaymentClientSecret(cart.id)
+      .then((secret) => {
+        if (secret && secret !== clientSecret) {
+          setClientSecret(secret);
+        }
+      })
+      .catch(() => {
+        // Secret refresh failure is non-fatal; initial session secret is still valid.
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentSessionId, isZeroTotal]);
 
   // --- Zero-total rendering ---

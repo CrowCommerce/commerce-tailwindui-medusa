@@ -27,9 +27,18 @@ async function createReviewWithImages(
   });
 
   createReviewImages(reviewId, [
-    { url: "https://placehold.co/400x300/orange/white?text=Review+Image+1", sort_order: 0 },
-    { url: "https://placehold.co/400x300/blue/white?text=Review+Image+2", sort_order: 1 },
-    { url: "https://placehold.co/400x300/green/white?text=Review+Image+3", sort_order: 2 },
+    {
+      url: "https://placehold.co/400x300/orange/white?text=Review+Image+1",
+      sort_order: 0,
+    },
+    {
+      url: "https://placehold.co/400x300/blue/white?text=Review+Image+2",
+      sort_order: 1,
+    },
+    {
+      url: "https://placehold.co/400x300/green/white?text=Review+Image+3",
+      sort_order: 2,
+    },
   ]);
 
   approveReview(reviewId);
@@ -106,9 +115,7 @@ test.describe("Review Image Lightbox", () => {
     });
 
     // Should see image thumbnails
-    await expect(
-      page.locator(sel.REVIEW_LIST_THUMBNAIL).first(),
-    ).toBeVisible({
+    await expect(page.locator(sel.REVIEW_LIST_THUMBNAIL).first()).toBeVisible({
       timeout: 10_000,
     });
 
@@ -161,9 +168,7 @@ test.describe("Review Image Lightbox", () => {
     await expectLightboxOpen(page);
 
     // Should show prev/next navigation buttons
-    const navButtons = page.locator(
-      '[role="dialog"] button:has(svg.size-6)',
-    );
+    const navButtons = page.locator('[role="dialog"] button:has(svg.size-6)');
     await expect(navButtons.first()).toBeAttached({ timeout: 5_000 });
     const count = await navButtons.count();
     expect(count).toBe(2);
@@ -231,8 +236,8 @@ test.describe("Review Image Lightbox", () => {
     await closeBtn.click();
 
     // Dialog should close (element should be detached from DOM)
-    await expect(
-      page.locator(sel.REVIEW_LIGHTBOX_DIALOG),
-    ).not.toBeAttached({ timeout: 5_000 });
+    await expect(page.locator(sel.REVIEW_LIGHTBOX_DIALOG)).not.toBeAttached({
+      timeout: 5_000,
+    });
   });
 });

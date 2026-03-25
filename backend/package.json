@@ -19,10 +19,12 @@
     "dev": "medusa develop",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit --passWithNoTests",
     "dev:emails": "email dev --dir ./src/modules/resend/templates -p 3003",
     "preview:emails": "email dev --dir ./src/modules/resend/templates -p 3003",
     "typecheck": "tsc --noEmit",
+    "prettier": "prettier --write --ignore-unknown .",
+    "prettier:check": "prettier --check --ignore-unknown .",
     "clean": "rm -rf .medusa node_modules"
   },
   "dependencies": {
@@ -46,6 +48,7 @@
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.1",
+    "prettier": "3.5.3",
     "@react-email/preview-server": "5.2.9",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",

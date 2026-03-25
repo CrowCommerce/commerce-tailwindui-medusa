@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-} from "@headlessui/react";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import {
   XMarkIcon,
   ChevronLeftIcon,
@@ -33,7 +29,10 @@ export function ReviewImageLightbox({
     <Dialog open={open} onClose={onClose} className="relative z-50">
       <DialogBackdrop className="fixed inset-0 bg-black/80" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel className="relative max-h-[90vh] max-w-3xl" data-testid="review-lightbox">
+        <DialogPanel
+          className="relative max-h-[90vh] max-w-3xl"
+          data-testid="review-lightbox"
+        >
           <button
             type="button"
             onClick={onClose}
@@ -57,7 +56,9 @@ export function ReviewImageLightbox({
             <div className="absolute inset-y-0 flex w-full items-center justify-between px-2">
               <button
                 type="button"
-                onClick={() => setIndex((i) => (i > 0 ? i - 1 : images.length - 1))}
+                onClick={() =>
+                  setIndex((i) => (i > 0 ? i - 1 : images.length - 1))
+                }
                 aria-label="Previous image"
                 data-testid="review-lightbox-prev"
                 className="rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
@@ -66,7 +67,9 @@ export function ReviewImageLightbox({
               </button>
               <button
                 type="button"
-                onClick={() => setIndex((i) => (i < images.length - 1 ? i + 1 : 0))}
+                onClick={() =>
+                  setIndex((i) => (i < images.length - 1 ? i + 1 : 0))
+                }
                 aria-label="Next image"
                 data-testid="review-lightbox-next"
                 className="rounded-full bg-black/50 p-2 text-white hover:bg-black/70"

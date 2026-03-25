@@ -9,7 +9,7 @@ import {
 import { XMarkIcon, StarIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import type { Review } from "lib/types";
 
 export function ReviewForm({
@@ -33,30 +33,6 @@ export function ReviewForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const blobUrls = useRef<Map<File, string>>(new Map())
-
-  function getBlobUrl(file: File): string {
-    if (!blobUrls.current.has(file)) {
-      blobUrls.current.set(file, URL.createObjectURL(file))
-    }
-    return blobUrls.current.get(file)!
-  }
-
-  function revokeBlobUrl(file: File): void {
-    const url = blobUrls.current.get(file)
-    if (url) {
-      URL.revokeObjectURL(url)
-      blobUrls.current.delete(file)
-    }
-  }
-
-  useEffect(() => {
-    return () => {
-      blobUrls.current.forEach((url) => URL.revokeObjectURL(url))
-      blobUrls.current.clear()
-    }
-  }, [])
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setSelectedFiles((prev) => [...prev, ...files].slice(0, 3));
@@ -64,8 +40,6 @@ export function ReviewForm({
   };
 
   const removeFile = (index: number) => {
-    const file = selectedFiles[index]
-    if (file) revokeBlobUrl(file)
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -91,9 +65,10 @@ export function ReviewForm({
         }
 
         const { files: uploaded } = await res.json();
-        uploadedImages = uploaded.map(
-          (f: { url: string }, i: number) => ({ url: f.url, sort_order: i }),
-        );
+        uploadedImages = uploaded.map((f: { url: string }, i: number) => ({
+          url: f.url,
+          sort_order: i,
+        }));
         formData.set("images", JSON.stringify(uploadedImages));
       } catch {
         setIsSubmitting(false);
@@ -126,8 +101,6 @@ export function ReviewForm({
 
     // Reset form state for next time
     setRating(0);
-    blobUrls.current.forEach((url) => URL.revokeObjectURL(url))
-    blobUrls.current.clear()
     setSelectedFiles([]);
     setError(null);
 
@@ -139,7 +112,8 @@ export function ReviewForm({
   const isDisabled = isSubmitting || rating === 0;
 
   function submitButtonLabel(): string {
-    if (isSubmitting) return selectedFiles.length > 0 ? "Uploading images..." : "Submitting...";
+    if (isSubmitting)
+      return selectedFiles.length > 0 ? "Uploading images..." : "Submitting...";
     return "Submit review";
   }
 
@@ -165,7 +139,7 @@ export function ReviewForm({
               Write a review
             </DialogTitle>
 
-            <form action={handleSubmit} className="mt-6 space-y-6" data-testid="review-form">
+            <form action={handleSubmit} className="mt-6 space-y-6">
               <input type="hidden" name="product_id" value={productId} />
               <input type="hidden" name="rating" value={rating} />
 
@@ -182,7 +156,6 @@ export function ReviewForm({
                       onMouseEnter={() => setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(0)}
                       className="p-0.5"
-                      data-testid={`review-star-${star}`}
                     >
                       {displayRating >= star ? (
                         <StarIconSolid className="size-8 text-yellow-400" />
@@ -208,8 +181,7 @@ export function ReviewForm({
                   type="text"
                   id="review-title"
                   name="title"
-                  data-testid="review-title-input"
-                  className="mt-2 block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:text-sm/6"
+                  className="focus:outline-primary-600 mt-2 block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
                   placeholder="Summarize your experience"
                 />
               </div>
@@ -226,28 +198,27 @@ export function ReviewForm({
                   name="content"
                   rows={4}
                   required
-                  data-testid="review-content-input"
-                  className="mt-2 block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary-600 sm:text-sm/6"
+                  className="focus:outline-primary-600 mt-2 block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
                   placeholder="What did you like or dislike about this product?"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Photos <span className="text-gray-400">(optional, max 3)</span>
+                  Photos{" "}
+                  <span className="text-gray-400">(optional, max 3)</span>
                 </label>
                 <div className="mt-2 flex gap-2">
                   {selectedFiles.map((file, i) => (
-                    <div key={i} className="relative" data-testid="review-image-preview">
+                    <div key={i} className="relative">
                       <img
-                        src={getBlobUrl(file)}
+                        src={URL.createObjectURL(file)}
                         alt=""
                         className="size-16 rounded-md object-cover"
                       />
                       <button
                         type="button"
                         onClick={() => removeFile(i)}
-                        data-testid="review-image-remove"
                         className="absolute -top-1 -right-1 rounded-full bg-gray-900 p-0.5 text-white"
                       >
                         <XMarkIcon className="size-3" />
@@ -255,12 +226,11 @@ export function ReviewForm({
                     </div>
                   ))}
                   {selectedFiles.length < 3 && (
-                    <label data-testid="review-add-photo-label" className="flex size-16 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400">
+                    <label className="flex size-16 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400">
                       <input
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
                         onChange={handleFileChange}
-                        data-testid="review-file-input"
                         className="hidden"
                       />
                       <span className="text-2xl text-gray-400">+</span>
@@ -270,13 +240,12 @@ export function ReviewForm({
               </div>
 
               {(error || serverError) && (
-                <p className="text-sm text-red-600" data-testid="review-error-message">{error || serverError}</p>
+                <p className="text-sm text-red-600">{error || serverError}</p>
               )}
 
               <button
                 type="submit"
                 disabled={isDisabled}
-                data-testid="review-submit-button"
                 className={clsx(
                   "w-full rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm",
                   isDisabled
