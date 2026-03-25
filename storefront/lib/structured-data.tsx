@@ -42,12 +42,6 @@ function toAbsoluteUrl(url: string): string {
   return new URL(url, createAbsoluteUrl("/")).toString();
 }
 
-function getPriceValidUntil(daysInFuture = 30): string {
-  const validUntil = new Date();
-  validUntil.setUTCDate(validUntil.getUTCDate() + daysInFuture);
-  return validUntil.toISOString().slice(0, 10);
-}
-
 function getReviewAuthorName(firstName: string, lastName: string): string {
   const trimmedFirstName = firstName.trim();
   const trimmedLastName = lastName.trim();
@@ -112,6 +106,8 @@ export function buildProductJsonLd(
 ): WithContext<SchemaProduct> {
   const reviewEntries = reviews ? buildReviewJsonLd(reviews) : undefined;
   const sku = getProductSku(product);
+  const productImages =
+    product.images.length > 0 ? product.images : [product.featuredImage];
 
   const offers: AggregateOffer = {
     "@type": "AggregateOffer",
@@ -123,7 +119,6 @@ export function buildProductJsonLd(
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock",
     url: createAbsoluteUrl(`/product/${product.handle}`),
-    priceValidUntil: getPriceValidUntil(),
   };
 
   return {
@@ -131,7 +126,7 @@ export function buildProductJsonLd(
     "@type": "Product",
     name: product.title,
     description: product.description,
-    image: product.images.map((image) => toAbsoluteUrl(image.url)),
+    image: productImages.map((image) => toAbsoluteUrl(image.url)),
     url: createAbsoluteUrl(`/product/${product.handle}`),
     ...(sku ? { sku } : {}),
     offers,

@@ -102,9 +102,29 @@ describe("structured data builders", () => {
       priceCurrency: "USD",
       offerCount: 2,
     });
+    expect(productJsonLd.offers).not.toHaveProperty("priceValidUntil");
     expect(productJsonLd.aggregateRating).toBeUndefined();
     expect(productJsonLd.review).toBeUndefined();
     expect(productJsonLd.sku).toBe("LS-SM");
+  });
+
+  it("falls back to the featured image when no gallery images exist", () => {
+    const productJsonLd = buildProductJsonLd(
+      makeProduct({
+        images: [],
+        featuredImage: {
+          url: "/images/featured-only.jpg",
+          altText: "Featured only",
+          width: 1200,
+          height: 1200,
+        },
+      }),
+      null,
+    );
+
+    expect(productJsonLd.image).toEqual([
+      "http://localhost:3000/images/featured-only.jpg",
+    ]);
   });
 
   it("emits aggregate rating and review entries when reviews exist", () => {

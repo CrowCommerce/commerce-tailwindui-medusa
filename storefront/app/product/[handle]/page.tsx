@@ -93,7 +93,6 @@ export default async function ProductPage(props: {
       </Suspense>
       <ProductPageContent
         productPromise={productPromise}
-        reviewsPromise={reviewsPromise}
         reviewsSlot={
           <Suspense
             fallback={
