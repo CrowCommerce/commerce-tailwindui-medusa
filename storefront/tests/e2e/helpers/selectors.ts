@@ -168,3 +168,27 @@ export const EXPRESS_CHECKOUT_DIVIDER = 'span:has-text("or")';
 export const ORDER_CONFIRMED_HEADING = 'h1:has-text("Thank you!")';
 export const ORDER_CONFIRMED_SUBTITLE = 'p:has-text("Your order is confirmed")';
 export const CONTINUE_SHOPPING_LINK = 'a:has-text("Continue Shopping")';
+
+// ---------------------------------------------------------------------------
+// Promo code input (checkout order summary)
+// ---------------------------------------------------------------------------
+
+export const PROMO_CODE_TOGGLE =
+  'button[aria-label="Toggle promo code input"]';
+export const PROMO_CODE_INPUT = "#promo-code-input";
+export const PROMO_CODE_APPLY_BUTTON = 'button:has-text("Apply")';
+export const PROMO_CODE_CHIP = (code: string) =>
+  `li:has(span:has-text("${code}"))`;
+export const PROMO_CODE_REMOVE_BUTTON = (code: string) =>
+  `button[aria-label="Remove promo code ${code}"]`;
+export const PROMO_CODE_ERROR = "#promo-code-error";
+export const ORDER_SUMMARY_DISCOUNT_ROW = 'dt:has-text("Discount")';
+
+// ---------------------------------------------------------------------------
+// Discount popup
+// ---------------------------------------------------------------------------
+
+export const DISCOUNT_POPUP = 'h3:has-text("10% off your first order")';
+export const DISCOUNT_POPUP_CREATE_ACCOUNT = 'a:has-text("Create an account")';
+export const DISCOUNT_POPUP_DISMISS = 'button[aria-label="Dismiss"]';
+export const DISCOUNT_POPUP_MAYBE_LATER = 'button:has-text("Maybe later")';
