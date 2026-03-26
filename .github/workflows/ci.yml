@@ -82,3 +82,91 @@ jobs:
 
       - name: Unit tests
         run: cd backend && bun run test:unit
+
+  playwright-smoke:
+    name: playwright-smoke
+    runs-on: ubuntu-latest
+    needs: [ci-storefront, ci-backend]
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      CI: "true"
+      PGPASSWORD: postgres
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/medusa_db
+      MEDUSA_BACKEND_URL: http://localhost:9000
+      STORE_CORS: http://localhost:3000
+      ADMIN_CORS: http://localhost:9000
+      AUTH_CORS: http://localhost:3000,http://localhost:9000
+      STOREFRONT_URL: http://localhost:3000
+      JWT_SECRET: supersecret
+      COOKIE_SECRET: supersecret
+      STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+      NEXT_PUBLIC_STRIPE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.1.18"
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: cd storefront && bunx playwright install --with-deps chromium
+
+      - name: Validate smoke CI secrets
+        run: |
+          test -n "$STRIPE_API_KEY" || (echo "::error::Missing STRIPE_API_KEY repository secret for Playwright smoke CI"; exit 1)
+          test -n "$NEXT_PUBLIC_STRIPE_KEY" || (echo "::error::Missing NEXT_PUBLIC_STRIPE_KEY repository secret for Playwright smoke CI"; exit 1)
+
+      - name: Create test database
+        run: createdb -h 127.0.0.1 -U postgres medusa_db
+
+      - name: Run backend migrations
+        run: cd backend && bunx medusa db:migrate
+
+      - name: Seed backend data
+        run: cd backend && bun run seed
+
+      - name: Export Medusa publishable key
+        run: |
+          publishable_key="$(psql "$DATABASE_URL" -tAc "SELECT token FROM api_key WHERE type = 'publishable' ORDER BY created_at ASC LIMIT 1;")"
+          test -n "$publishable_key" || (echo "::error::Could not find a Medusa publishable key after seeding"; exit 1)
+          echo "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$publishable_key" >> "$GITHUB_ENV"
+
+      - name: Run Playwright smoke suite
+        run: cd storefront && bun run test:e2e:smoke
+
+      - name: Upload Playwright smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke-artifacts
+          path: |
+            storefront/playwright-report
+            storefront/test-results
+          if-no-files-found: ignore
+          retention-days: 7
