@@ -110,9 +110,9 @@ async function fillStripeCard(page: Page): Promise<void> {
     value: string,
     required = true,
   ): Promise<boolean> {
-    const candidateFrames: Frame[] = [activePaymentFrame, ...page.frames()];
-
     for (let attempt = 0; attempt < 5; attempt++) {
+      const candidateFrames: Frame[] = [activePaymentFrame, ...page.frames()];
+
       for (const frame of candidateFrames) {
         const input = frame.locator(selectors);
         if (

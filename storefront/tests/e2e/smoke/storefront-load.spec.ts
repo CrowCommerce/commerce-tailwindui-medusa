@@ -17,9 +17,7 @@ test.describe("Storefront smoke", () => {
     const productHref = await openFirstProductFromSearch(page);
     const escapedProductHref = escapeRegex(productHref);
 
-    await expect(page).toHaveURL(
-      new RegExp(`${escapedProductHref}(\\?.*)?$`),
-    );
+    await expect(page).toHaveURL(new RegExp(`${escapedProductHref}(\\?.*)?$`));
     await expect(
       page.locator(
         'button[aria-label="Add to cart"], button[aria-label="Please select an option"]',

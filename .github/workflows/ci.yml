@@ -113,7 +113,6 @@ jobs:
       JWT_SECRET: supersecret
       COOKIE_SECRET: supersecret
       STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
       NEXT_PUBLIC_STRIPE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_KEY }}
     steps:
       - name: Checkout
