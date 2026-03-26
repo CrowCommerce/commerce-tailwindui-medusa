@@ -1,5 +1,9 @@
 import { test as authTest, expect } from "./auth.fixture";
-import type { Page } from "@playwright/test";
+import type { Frame, Page } from "@playwright/test";
+import {
+  addCurrentProductToCart,
+  openFirstProductFromSearch,
+} from "../helpers/product-flow";
 
 type CheckoutFixtures = {
   /** A guest page with an item in cart, already on /checkout */
@@ -13,66 +17,8 @@ type CheckoutFixtures = {
  * Works for both guest and authed pages.
  */
 async function addToCartAndCheckout(page: Page): Promise<void> {
-  // Navigate to /search which reliably lists all products.
-  // Retry navigation if the page fails to render (dev server overload).
-  for (let navAttempt = 0; navAttempt < 3; navAttempt++) {
-    await page.goto("/search");
-    await page.waitForLoadState("networkidle");
-    const hasContent = await page
-      .locator('a[href^="/product/"]')
-      .first()
-      .isVisible({ timeout: 10_000 })
-      .catch(() => false);
-    if (hasContent) break;
-    // Page is blank — reload
-    await page.waitForTimeout(2_000);
-  }
-
-  // Click the first visible product link (one that has an image)
-  const productLink = page
-    .locator('a[href^="/product/"]')
-    .filter({ has: page.locator("img") })
-    .first();
-  await expect(productLink).toBeVisible({ timeout: 15_000 });
-  const productHref = await productLink.getAttribute("href");
-  if (!productHref) {
-    throw new Error("Could not determine product URL from search results");
-  }
-  await page.goto(productHref);
-  await page.waitForURL("**/product/**");
-  await page.waitForLoadState("networkidle");
-
-  // Wait for Add To Cart button to appear (either enabled or disabled variant prompt)
-  const anyAddButton = page.locator(
-    'button[aria-label="Add to cart"], button[aria-label="Please select an option"]',
-  );
-  await expect(anyAddButton.first()).toBeVisible({ timeout: 15_000 });
-
-  // If product has variant options, the button shows "Please select an option" (disabled).
-  // Select the first available variant option.
-  const disabledAdd = page.locator(
-    'button[aria-label="Please select an option"]',
-  );
-  if (await disabledAdd.isVisible({ timeout: 2_000 }).catch(() => false)) {
-    // Variant option buttons are in a fieldset/group. Find any non-disabled,
-    // non-aria-labelled button that looks like a size/color option.
-    const variantButton = page
-      .locator('button:not([disabled]):not([aria-label]):not([type="submit"])')
-      .filter({ hasText: /^[A-Z0-9/]{1,10}$/ })
-      .first();
-    if (await variantButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await variantButton.click();
-      // Wait for the Add to cart button to become enabled
-      await expect(
-        page.locator('button[aria-label="Add to cart"]'),
-      ).toBeVisible({ timeout: 5_000 });
-    }
-  }
-
-  // Click "Add To Cart" — enabled button with aria-label="Add to cart"
-  const addToCartButton = page.locator('button[aria-label="Add to cart"]');
-  await expect(addToCartButton).toBeVisible({ timeout: 15_000 });
-  await addToCartButton.click();
+  await openFirstProductFromSearch(page);
+  await addCurrentProductToCart(page);
 
   // Wait for cart drawer/panel to appear and click Checkout
   const checkoutButton = page.locator('button:has-text("Checkout")');
@@ -107,20 +53,26 @@ export const STRIPE_TEST_CARD = {
  * PaymentElement renders with accordion layout inside an iframe titled
  * "Secure payment input frame". Two such iframes exist (one from
  * ExpressCheckout, one from PaymentElement). We find the one containing
- * the "Card" accordion, click it to expand, then fill the nested card
- * field iframes.
+ * the "Card" accordion, click it to expand, then fill the card fields
+ * inside that same frame.
  */
 async function fillStripeCard(page: Page): Promise<void> {
-  // Step 1: Find the Stripe PaymentElement frame that contains the "Card" accordion.
-  // Multiple iframes share the same title, so we iterate page.frames().
-  await page.waitForTimeout(3_000);
+  const cardNumberSelectors =
+    '[placeholder="1234 1234 1234 1234"], [name="cardnumber"], [name="number"], [autocomplete="cc-number"], [aria-label*="Card number" i], [data-elements-stable-field-name="cardNumber"]';
+  const expirySelectors =
+    '[placeholder="MM / YY"], [name="exp-date"], [name="expiry"], [autocomplete="cc-exp"], [aria-label*="expir" i], [data-elements-stable-field-name="cardExpiry"]';
+  const cvcSelectors =
+    '[placeholder="CVC"], [name="cvc"], [autocomplete="cc-csc"], [aria-label*="CVC" i], [data-elements-stable-field-name="cardCvc"]';
+  const zipSelectors =
+    '[placeholder="12345"], [placeholder="ZIP"], [name="postal"], [aria-label*="ZIP" i], [autocomplete="postal-code"]';
 
-  let paymentFrame = null;
+  // Multiple Stripe frames exist. Find the PaymentElement frame with the Card accordion.
+  let paymentFrame: Frame | null = null;
   for (let attempt = 0; attempt < 5; attempt++) {
     for (const frame of page.frames()) {
-      const cardText = frame.locator("text=Card");
+      const cardButton = frame.getByRole("button", { name: /^Card$/ });
       if (
-        await cardText
+        await cardButton
           .first()
           .isVisible({ timeout: 1_000 })
           .catch(() => false)
@@ -130,7 +82,7 @@ async function fillStripeCard(page: Page): Promise<void> {
       }
     }
     if (paymentFrame) break;
-    await page.waitForTimeout(2_000);
+    await page.waitForTimeout(1_500);
   }
 
   if (!paymentFrame) {
@@ -138,12 +90,19 @@ async function fillStripeCard(page: Page): Promise<void> {
       "Could not find Stripe PaymentElement frame with Card accordion",
     );
   }
+  const activePaymentFrame = paymentFrame;
 
-  // Step 2: Click "Card" to expand the card form
-  await paymentFrame.locator("text=Card").first().click();
-  await page.waitForTimeout(2_000);
+  // PaymentElement renders its form inside the same frame after the accordion expands.
+  const cardButton = activePaymentFrame
+    .getByRole("button", { name: /^Card$/ })
+    .first();
+  await cardButton.click();
+  await expect(
+    activePaymentFrame.locator(cardNumberSelectors).first(),
+  ).toBeVisible({
+    timeout: 15_000,
+  });
 
-  // Step 3: Fill card fields — each is in its own nested iframe.
   // Stripe requires keydown/keyup events, so we use pressSequentially
   // instead of fill() to properly trigger Stripe's internal validation.
   async function typeInFrame(
@@ -151,8 +110,10 @@ async function fillStripeCard(page: Page): Promise<void> {
     value: string,
     required = true,
   ): Promise<boolean> {
+    const candidateFrames: Frame[] = [activePaymentFrame, ...page.frames()];
+
     for (let attempt = 0; attempt < 5; attempt++) {
-      for (const frame of page.frames()) {
+      for (const frame of candidateFrames) {
         const input = frame.locator(selectors);
         if (
           await input
@@ -176,24 +137,10 @@ async function fillStripeCard(page: Page): Promise<void> {
     return false;
   }
 
-  await typeInFrame(
-    '[placeholder="1234 1234 1234 1234"], [name="cardnumber"], [name="number"], [autocomplete="cc-number"], [aria-label*="Card number" i], [data-elements-stable-field-name="cardNumber"]',
-    STRIPE_TEST_CARD.number,
-  );
-  await typeInFrame(
-    '[placeholder="MM / YY"], [name="exp-date"], [name="expiry"], [autocomplete="cc-exp"], [aria-label*="expir" i], [data-elements-stable-field-name="cardExpiry"]',
-    STRIPE_TEST_CARD.expiry,
-  );
-  await typeInFrame(
-    '[placeholder="CVC"], [name="cvc"], [autocomplete="cc-csc"], [aria-label*="CVC" i], [data-elements-stable-field-name="cardCvc"]',
-    STRIPE_TEST_CARD.cvc,
-  );
-  // ZIP code — Stripe may render it with various placeholders
-  await typeInFrame(
-    '[placeholder="12345"], [placeholder="ZIP"], [name="postal"], [aria-label*="ZIP" i], [autocomplete="postal-code"]',
-    "10001",
-    false, // ZIP is optional
-  );
+  await typeInFrame(cardNumberSelectors, STRIPE_TEST_CARD.number);
+  await typeInFrame(expirySelectors, STRIPE_TEST_CARD.expiry);
+  await typeInFrame(cvcSelectors, STRIPE_TEST_CARD.cvc);
+  await typeInFrame(zipSelectors, "10001", false);
 }
 
 /**

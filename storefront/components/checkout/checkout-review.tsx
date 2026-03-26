@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { trackClient } from "lib/analytics";
-import { completeCart } from "lib/medusa/checkout";
+import { completeCart, getPaymentClientSecret } from "lib/medusa/checkout";
 import { formatMoney } from "lib/medusa/format";
 import type { CheckoutStep } from "lib/types";
 
@@ -146,10 +146,13 @@ export function CheckoutReview({
         return;
       }
 
+      const activeClientSecret =
+        clientSecret ?? (await getPaymentClientSecret(cart.id));
+
       // Saved payment method: use confirmCardPayment
-      if (isSavedMethod && stripe && clientSecret) {
+      if (isSavedMethod && stripe && activeClientSecret) {
         const { error: confirmError, paymentIntent } =
-          await stripe.confirmCardPayment(clientSecret, {
+          await stripe.confirmCardPayment(activeClientSecret, {
             payment_method: savedPaymentMethodId,
           });
 
@@ -177,11 +180,11 @@ export function CheckoutReview({
       }
 
       // Card / new payment method: use confirmPayment with elements
-      if (stripe && elements && clientSecret) {
+      if (stripe && elements && activeClientSecret) {
         const { error: confirmError, paymentIntent } =
           await stripe.confirmPayment({
             elements,
-            clientSecret,
+            clientSecret: activeClientSecret,
             confirmParams: {
               return_url: `${window.location.origin}/checkout/capture/${cart.id}`,
               payment_method_data: {
@@ -232,8 +235,9 @@ export function CheckoutReview({
         return;
       }
 
-      // Fallback: no Stripe available, attempt direct completion
-      await handleOrderComplete();
+      setError(
+        "Payment session expired. Please return to the payment step and try again.",
+      );
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred.",

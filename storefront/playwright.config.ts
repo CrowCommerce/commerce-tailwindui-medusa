@@ -10,6 +10,8 @@ function getWebServerEnv(): Record<string, string> {
   );
 }
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+
 // Load .env.local so NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is available to fixtures
 const envPath = resolve(__dirname, ".env.local");
 try {
@@ -35,10 +37,14 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1, // Turbopack dev server has intermittent module factory errors under concurrent load
   workers: process.env.CI ? 1 : undefined,
-  reporter: [["html", { open: "never" }]],
+  outputDir: "test-results",
+  reporter: [
+    ["list"],
+    ["html", { open: "never", outputFolder: "playwright-report" }],
+  ],
   timeout: 60_000,
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     actionTimeout: 30_000,
@@ -54,9 +60,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "cd .. && bun run dev",
+    command:
+      process.env.PLAYWRIGHT_WEB_SERVER_COMMAND ??
+      'trap "kill 0" EXIT; cd ..; (cd backend && bun run dev) & (cd storefront && bun run dev) & wait',
     env: getWebServerEnv(),
-    url: "http://localhost:3000",
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
