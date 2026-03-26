@@ -7,13 +7,7 @@ import {
 } from "lib/medusa/transforms";
 
 function makeVariant(
-  overrides: Partial<HttpTypes.StoreProductVariant> & {
-    calculated_price?: {
-      currency_code?: string;
-      calculated_amount?: number;
-    };
-    inventory_quantity?: number;
-  } = {},
+  overrides: Record<string, unknown> = {},
 ): HttpTypes.StoreProductVariant {
   return {
     id: "variant_default",
@@ -34,11 +28,11 @@ function makeVariant(
     },
     inventory_quantity: 5,
     ...overrides,
-  } as HttpTypes.StoreProductVariant;
+  } as unknown as HttpTypes.StoreProductVariant;
 }
 
 function makeProduct(
-  overrides: Partial<HttpTypes.StoreProduct> = {},
+  overrides: Record<string, unknown> = {},
 ): HttpTypes.StoreProduct {
   return {
     id: "prod_123",
@@ -66,11 +60,11 @@ function makeProduct(
     tags: [{ value: "summer" }, { name: "linen" }, "sale"],
     updated_at: "2026-03-25T12:00:00.000Z",
     ...overrides,
-  } as HttpTypes.StoreProduct;
+  } as unknown as HttpTypes.StoreProduct;
 }
 
 function makeCollection(
-  overrides: Partial<HttpTypes.StoreCollection> = {},
+  overrides: Record<string, unknown> = {},
 ): HttpTypes.StoreCollection {
   return {
     handle: "shirts",
@@ -83,11 +77,11 @@ function makeCollection(
     },
     updated_at: "2026-03-25T12:00:00.000Z",
     ...overrides,
-  } as HttpTypes.StoreCollection;
+  } as unknown as HttpTypes.StoreCollection;
 }
 
 function makeCart(
-  overrides: Partial<HttpTypes.StoreCart> = {},
+  overrides: Record<string, unknown> = {},
 ): HttpTypes.StoreCart {
   return {
     id: "cart_123",
@@ -97,7 +91,7 @@ function makeCart(
     tax_total: 12,
     items: [],
     ...overrides,
-  } as HttpTypes.StoreCart;
+  } as unknown as HttpTypes.StoreCart;
 }
 
 describe("transformProduct", () => {
