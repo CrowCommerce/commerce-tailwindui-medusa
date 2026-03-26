@@ -75,6 +75,7 @@ import {
   useQueryGraphStep,
   updateCartPromotionsStep,
 } from "@medusajs/medusa/core-flows"
+import { PromotionActions } from "@medusajs/framework/utils"
 import { FIRST_PURCHASE_PROMOTION_CODE } from "../constants"
 
 type Input = { cart_id: string }
@@ -155,7 +156,8 @@ export const applyFirstPurchasePromoWorkflow = createWorkflow(
       () => {
         updateCartPromotionsStep({
           id: eligibility.cart_id!,
-          promo_codes: { add: [FIRST_PURCHASE_PROMOTION_CODE] },
+          promo_codes: [FIRST_PURCHASE_PROMOTION_CODE],
+          action: PromotionActions.ADD,
         })
       }
     )
@@ -306,32 +308,36 @@ async function validateFirstPurchaseEligibility(
 // Block ineligible manual application of FIRST_PURCHASE
 updateCartPromotionsWorkflow.hooks.validate(
   async ({ input }, { container }) => {
-    const promoCodes: string[] = (input as any).promo_codes?.add ?? []
+    // input.promo_codes is a flat string[] (not { add: [] })
+    const promoCodes: string[] = (input as any).promo_codes ?? []
     if (!promoCodes.includes(FIRST_PURCHASE_PROMOTION_CODE)) return
 
-    await validateFirstPurchaseEligibility((input as any).id, container)
+    // cart_id (not id) identifies the cart for this workflow
+    await validateFirstPurchaseEligibility((input as any).cart_id!, container)
   }
 )
 
 // Block checkout completion if FIRST_PURCHASE is present but customer is not eligible
 completeCartWorkflow.hooks.validate(
-  async ({ cart_id }, { container }) => {
+  async ({ input, cart }, { container }) => {
+    // completeCartWorkflow hook receives { input, cart } where input.id is the cart ID
+    const cartId = (input as any).id as string
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     const { data: carts } = await query.graph({
       entity: "cart",
       fields: ["promotions.code"],
-      filters: { id: cart_id },
+      filters: { id: cartId },
     })
 
-    const cart = carts[0]
-    const hasFirstPurchasePromo = (cart?.promotions ?? []).some(
+    const fetchedCart = carts[0]
+    const hasFirstPurchasePromo = (fetchedCart?.promotions ?? []).some(
       (p: { code: string }) => p.code === FIRST_PURCHASE_PROMOTION_CODE
     )
 
     if (!hasFirstPurchasePromo) return
 
-    await validateFirstPurchaseEligibility(cart_id, container)
+    await validateFirstPurchaseEligibility(cartId, container)
   }
 )
 ```

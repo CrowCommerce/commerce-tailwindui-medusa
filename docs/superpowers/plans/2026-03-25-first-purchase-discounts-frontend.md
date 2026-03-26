@@ -540,7 +540,7 @@ export function DiscountPopup({ isAuthenticated }: Props) {
             {/* Actions */}
             <div className="mt-5 sm:mt-6 space-y-3">
               <Link
-                href="/account?view=register"
+                href="/account/register"
                 onClick={close}
                 className="block w-full rounded-md bg-primary-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
               >
@@ -888,8 +888,8 @@ test.describe("Discount Popup", () => {
       timeout: 5_000,
     });
     await page.locator(sel.DISCOUNT_POPUP_CREATE_ACCOUNT).click();
-    await page.waitForURL("**/account**", { timeout: 10_000 });
-    expect(page.url()).toContain("view=register");
+    await page.waitForURL("**/account/register**", { timeout: 10_000 });
+    expect(page.url()).toContain("/account/register");
   });
 });
 ```
