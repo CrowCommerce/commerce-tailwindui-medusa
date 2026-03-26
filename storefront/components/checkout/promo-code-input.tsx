@@ -12,7 +12,7 @@ import { applyPromoCode, removePromoCode } from "lib/medusa/checkout";
 import { useRef, useState, useTransition } from "react";
 
 type Props = {
-  promotions: HttpTypes.StorePromotion[];
+  promotions: HttpTypes.StoreCartPromotion[];
 };
 
 export function PromoCodeInput({ promotions }: Props) {

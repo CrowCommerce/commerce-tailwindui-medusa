@@ -1,5 +1,6 @@
 import type { HttpTypes } from "@medusajs/types";
 import { RemoveItemButton } from "components/checkout/checkout-item-actions";
+import { PromoCodeInput } from "components/checkout/promo-code-input";
 import { formatMoney } from "lib/medusa/format";
 import Link from "next/link";
 
@@ -67,6 +68,8 @@ export function OrderSummary({ cart }: { cart: HttpTypes.StoreCart }) {
           })}
         </ul>
       </div>
+
+      <PromoCodeInput promotions={cart.promotions ?? []} />
 
       <dl className="mt-10 space-y-6 text-sm font-medium text-gray-500">
         <div className="flex justify-between">
