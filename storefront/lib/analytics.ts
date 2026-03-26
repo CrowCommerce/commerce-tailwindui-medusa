@@ -150,6 +150,11 @@ export type AnalyticsEvents = {
     has_shipping_address: boolean;
     has_postal_code: boolean;
   };
+
+  // --- Promotions ---
+  promo_code_applied: { cart_id: string; code: string };
+  promo_code_removed: { cart_id: string; code: string };
+  promo_code_failed: { cart_id: string; code: string; error: string };
 };
 
 // ---------------------------------------------------------------------------

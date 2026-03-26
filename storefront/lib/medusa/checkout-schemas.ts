@@ -35,3 +35,11 @@ export const providerIdSchema = z
 
 // Payment data is provider-specific; validate it is a plain object (not an array or primitive)
 export const paymentDataSchema = z.record(z.string(), z.unknown()).optional();
+
+// Promo code: non-empty string, max 50 chars, normalized to uppercase
+export const promoCodeSchema = z
+  .string()
+  .trim()
+  .min(1, "Promo code is required")
+  .max(50, "Promo code is too long")
+  .transform((val) => val.toUpperCase());
