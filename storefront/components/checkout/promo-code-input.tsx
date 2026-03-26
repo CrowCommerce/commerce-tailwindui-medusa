@@ -69,7 +69,7 @@ export function PromoCodeInput({ promotions }: Props) {
             {appliedCodes.map((code) => (
               <li
                 key={code}
-                className="flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700"
+                className="bg-primary-50 text-primary-700 flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium"
               >
                 <span>{code}</span>
                 <button
@@ -77,7 +77,7 @@ export function PromoCodeInput({ promotions }: Props) {
                   aria-label={`Remove promo code ${code}`}
                   disabled={isPending}
                   onClick={() => handleRemove(code)}
-                  className="ml-1 rounded-full p-0.5 text-primary-500 hover:text-primary-700 disabled:opacity-50"
+                  className="text-primary-500 hover:text-primary-700 ml-1 rounded-full p-0.5 disabled:opacity-50"
                 >
                   <XMarkIcon aria-hidden="true" className="size-3.5" />
                 </button>
@@ -113,7 +113,7 @@ export function PromoCodeInput({ promotions }: Props) {
             aria-describedby={error ? "promo-code-error" : undefined}
             className={clsx(
               "block w-full rounded-md border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm",
-              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500",
+              "focus:ring-primary-500 focus:border-primary-500 focus:ring-2 focus:outline-none",
               "disabled:opacity-50",
               error ? "border-red-300" : "border-gray-300",
             )}
@@ -123,9 +123,9 @@ export function PromoCodeInput({ promotions }: Props) {
             onClick={handleApply}
             disabled={isPending || !inputValue.trim()}
             className={clsx(
-              "shrink-0 rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm",
-              "hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "bg-primary-600 shrink-0 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm",
+              "hover:bg-primary-500 focus-visible:outline-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+              "disabled:cursor-not-allowed disabled:opacity-50",
             )}
           >
             {isPending ? "Applying…" : "Apply"}
@@ -134,7 +134,11 @@ export function PromoCodeInput({ promotions }: Props) {
 
         {/* Inline error */}
         {error && (
-          <p id="promo-code-error" role="alert" className="text-sm text-red-600">
+          <p
+            id="promo-code-error"
+            role="alert"
+            className="text-sm text-red-600"
+          >
             {error}
           </p>
         )}

@@ -11,9 +11,9 @@ test.describe("Promo Code Input", () => {
   test("promo code toggle is visible on checkout", async ({
     guestCheckoutPage: page,
   }) => {
-    await expect(
-      page.locator(sel.ORDER_SUMMARY_ITEM).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(sel.ORDER_SUMMARY_ITEM).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     await expect(page.locator(sel.PROMO_CODE_TOGGLE)).toBeVisible();
   });
@@ -21,9 +21,9 @@ test.describe("Promo Code Input", () => {
   test("clicking toggle reveals the promo code input", async ({
     guestCheckoutPage: page,
   }) => {
-    await expect(
-      page.locator(sel.ORDER_SUMMARY_ITEM).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(sel.ORDER_SUMMARY_ITEM).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     // Input should be hidden initially
     await expect(page.locator(sel.PROMO_CODE_INPUT)).not.toBeVisible();
@@ -36,9 +36,9 @@ test.describe("Promo Code Input", () => {
   test("applying an invalid code shows an inline error", async ({
     guestCheckoutPage: page,
   }) => {
-    await expect(
-      page.locator(sel.ORDER_SUMMARY_ITEM).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(sel.ORDER_SUMMARY_ITEM).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     await page.locator(sel.PROMO_CODE_TOGGLE).click();
     await page.locator(sel.PROMO_CODE_INPUT).fill(INVALID_PROMO_CODE);
@@ -56,9 +56,9 @@ test.describe("Promo Code Input", () => {
   test("applying a valid code shows a chip and clears the input", async ({
     guestCheckoutPage: page,
   }) => {
-    await expect(
-      page.locator(sel.ORDER_SUMMARY_ITEM).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(sel.ORDER_SUMMARY_ITEM).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     await page.locator(sel.PROMO_CODE_TOGGLE).click();
     await page.locator(sel.PROMO_CODE_INPUT).fill(VALID_PROMO_CODE);
@@ -79,9 +79,9 @@ test.describe("Promo Code Input", () => {
   test("removing an applied code removes the chip", async ({
     guestCheckoutPage: page,
   }) => {
-    await expect(
-      page.locator(sel.ORDER_SUMMARY_ITEM).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator(sel.ORDER_SUMMARY_ITEM).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     // Apply first
     await page.locator(sel.PROMO_CODE_TOGGLE).click();

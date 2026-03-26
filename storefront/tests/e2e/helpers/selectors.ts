@@ -173,8 +173,7 @@ export const CONTINUE_SHOPPING_LINK = 'a:has-text("Continue Shopping")';
 // Promo code input (checkout order summary)
 // ---------------------------------------------------------------------------
 
-export const PROMO_CODE_TOGGLE =
-  'button[aria-label="Toggle promo code input"]';
+export const PROMO_CODE_TOGGLE = 'button[aria-label="Toggle promo code input"]';
 export const PROMO_CODE_INPUT = "#promo-code-input";
 export const PROMO_CODE_APPLY_BUTTON = 'button:has-text("Apply")';
 export const PROMO_CODE_CHIP = (code: string) =>

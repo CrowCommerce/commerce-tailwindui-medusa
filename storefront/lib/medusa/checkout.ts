@@ -485,9 +485,7 @@ export async function getCustomerAddresses(): Promise<
 
 // === Promo Codes ===
 
-export async function applyPromoCode(
-  code: string,
-): Promise<string | null> {
+export async function applyPromoCode(code: string): Promise<string | null> {
   const codeResult = promoCodeSchema.safeParse(code);
   if (!codeResult.success) {
     return codeResult.error.issues[0]?.message ?? "Invalid promo code";
@@ -505,10 +503,9 @@ export async function applyPromoCode(
     // Medusa v2 has dedicated endpoints for cart promotions — do NOT use
     // sdk.store.cart.update for this (its promo_codes field is string[], not {add/remove}).
     await sdk.client
-      .fetch<{ cart: HttpTypes.StoreCart }>(
-        `/store/carts/${cartId}/promotions`,
-        { method: "POST", headers, body: { promo_codes: [normalizedCode] } },
-      )
+      .fetch<{
+        cart: HttpTypes.StoreCart;
+      }>(`/store/carts/${cartId}/promotions`, { method: "POST", headers, body: { promo_codes: [normalizedCode] } })
       .catch(medusaError);
     try {
       await trackServer("promo_code_applied", {
@@ -537,9 +534,7 @@ export async function applyPromoCode(
   return null;
 }
 
-export async function removePromoCode(
-  code: string,
-): Promise<string | null> {
+export async function removePromoCode(code: string): Promise<string | null> {
   const codeResult = promoCodeSchema.safeParse(code);
   if (!codeResult.success) {
     return codeResult.error.issues[0]?.message ?? "Invalid promo code";
@@ -555,10 +550,9 @@ export async function removePromoCode(
   try {
     await assertSessionCart(cartId);
     await sdk.client
-      .fetch<{ cart: HttpTypes.StoreCart }>(
-        `/store/carts/${cartId}/promotions`,
-        { method: "DELETE", headers, body: { promo_codes: [normalizedCode] } },
-      )
+      .fetch<{
+        cart: HttpTypes.StoreCart;
+      }>(`/store/carts/${cartId}/promotions`, { method: "DELETE", headers, body: { promo_codes: [normalizedCode] } })
       .catch(medusaError);
     try {
       await trackServer("promo_code_removed", {

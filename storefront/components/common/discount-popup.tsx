@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-} from "@headlessui/react";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -56,7 +52,7 @@ export function DiscountPopup({ isAuthenticated }: Props) {
                 type="button"
                 onClick={close}
                 aria-label="Dismiss"
-                className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                className="focus:ring-primary-500 rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-offset-2 focus:outline-none"
               >
                 <span className="sr-only">Close</span>
                 <XMarkIcon aria-hidden="true" className="size-6" />
@@ -65,10 +61,10 @@ export function DiscountPopup({ isAuthenticated }: Props) {
 
             {/* Content */}
             <div className="text-center">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary-100">
+              <div className="bg-primary-100 mx-auto flex size-12 items-center justify-center rounded-full">
                 {/* Tag icon — inline SVG to avoid extra dependency */}
                 <svg
-                  className="size-6 text-primary-600"
+                  className="text-primary-600 size-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
@@ -100,18 +96,18 @@ export function DiscountPopup({ isAuthenticated }: Props) {
             </div>
 
             {/* Actions */}
-            <div className="mt-5 sm:mt-6 space-y-3">
+            <div className="mt-5 space-y-3 sm:mt-6">
               <Link
                 href="/account/register"
                 onClick={close}
-                className="block w-full rounded-md bg-primary-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                className="bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 block w-full rounded-md px-3 py-2 text-center text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 Create an account
               </Link>
               <button
                 type="button"
                 onClick={close}
-                className="block w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                className="block w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
               >
                 Maybe later
               </button>
