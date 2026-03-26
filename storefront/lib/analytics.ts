@@ -40,7 +40,7 @@ export type AnalyticsEvents = {
   customer_signed_up: { method: string };
   customer_logged_in: { method: string };
   customer_logged_out: Record<string, never>;
-  password_reset_requested: { email: string };
+  password_reset_requested: Record<string, never>;
   password_reset_completed: Record<string, never>;
 
   // --- Account ---

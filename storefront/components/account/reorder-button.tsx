@@ -29,9 +29,7 @@ export function ReorderButton({
     if ("error" in result) {
       trackClient("reorder_failed", {
         order_id: orderId,
-        error_code: result.error.includes("no longer available")
-          ? "item_unavailable"
-          : "unknown_error",
+        error_code: result.error_code,
       });
       setErrorMessage(result.error);
       setState("error");

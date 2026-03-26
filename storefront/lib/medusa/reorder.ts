@@ -9,9 +9,9 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 type ReorderResult =
   | { cart: HttpTypes.StoreCart }
-  | { error: string };
+  | { error: string; error_code: "item_unavailable" | "unknown_error" };
 
-function classifyError(e: unknown): string {
+function classifyError(e: unknown): { error: string; error_code: "item_unavailable" | "unknown_error" } {
   const msg = e instanceof Error ? e.message.toLowerCase() : "";
   if (
     msg.includes("variant") ||
@@ -19,12 +19,21 @@ function classifyError(e: unknown): string {
     msg.includes("stock") ||
     msg.includes("not found")
   ) {
-    return "Some items from this order are no longer available.";
+    return {
+      error: "Some items from this order are no longer available.",
+      error_code: "item_unavailable",
+    };
   }
-  return "Something went wrong. Please try again.";
+  return {
+    error: "Something went wrong. Please try again.",
+    error_code: "unknown_error",
+  };
 }
 
 export async function reorder(orderId: string): Promise<ReorderResult> {
+  if (!/^order_[a-z0-9]+$/.test(orderId)) {
+    return { error: "Something went wrong. Please try again.", error_code: "unknown_error" };
+  }
   try {
     const headers = await getAuthHeaders();
     const { cart } = await sdk.client.fetch<{ cart: HttpTypes.StoreCart }>(
@@ -39,6 +48,6 @@ export async function reorder(orderId: string): Promise<ReorderResult> {
     Sentry.captureException(e, {
       tags: { order_id: orderId, action: "reorder" },
     });
-    return { error: classifyError(e) };
+    return classifyError(e);
   }
 }

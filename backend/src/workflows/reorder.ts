@@ -105,7 +105,10 @@ export const reorderWorkflow = createWorkflow(
               (
                 method
               ): method is { shipping_option_id: string } =>
-                method !== null && method !== undefined
+                method !== null &&
+                method !== undefined &&
+                typeof (method as { shipping_option_id?: unknown }).shipping_option_id === "string" &&
+                !!(method as { shipping_option_id: string }).shipping_option_id
             )
             .map((method) => ({
               id: method.shipping_option_id,
