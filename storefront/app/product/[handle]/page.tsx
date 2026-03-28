@@ -74,7 +74,6 @@ export default async function ProductPage(props: {
 
   if (!product) return notFound();
 
-  const reviewsPromise = getProductReviews(product.id);
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: "Home", path: "/" },
     { name: "Products", path: "/products" },

@@ -25,6 +25,6 @@ export async function POST(
 
   return res.status(503).json({
     message: REORDER_DISABLED_MESSAGE,
-    code: "temporarily_unavailable",
+    error_code: "temporarily_unavailable",
   });
 }
