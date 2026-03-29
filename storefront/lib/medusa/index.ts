@@ -5,6 +5,7 @@ import { HIDDEN_PRODUCT_TAG, TAGS } from "lib/constants";
 import { FOOTER_CONFIG } from "lib/constants/footer";
 import { DEFAULT_NAVIGATION } from "lib/constants/navigation";
 import type { Cart, Collection, Navigation, Page, Product } from "lib/types";
+import { sanitizeEnvUrl, sanitizeEnvValue } from "lib/env";
 import { cacheLife, cacheTag, revalidateTag, unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -42,10 +43,6 @@ const STATIC_PAGES = new Map(
   ]),
 );
 
-function sanitizeEnvUrl(value: string | undefined, fallback: string): string {
-  return value?.replace(/[\r\n]+/g, "").trim() || fallback;
-}
-
 type ProductFetchQuery = {
   region_id: string;
   fields: string;
@@ -67,7 +64,9 @@ const MEDUSA_BACKEND_URL = sanitizeEnvUrl(
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: false,
-  publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+  publishableKey: sanitizeEnvValue(
+    process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+  ),
 });
 
 // --- Region Helper (single-region mode) ---
