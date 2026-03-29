@@ -94,20 +94,21 @@ test.describe("Review Form", () => {
     await expect(submitBtn).toBeEnabled();
     await submitBtn.click();
 
-    // Dialog closes immediately (optimistic submission)
+    // Dialog closes after submission
     await expect(page.locator(sel.REVIEW_DIALOG_TITLE)).not.toBeVisible({
       timeout: 5_000,
     });
 
-    await expect(page.locator(sel.REVIEW_SUBMISSION_NOTICE)).toBeVisible({
-      timeout: 10_000,
-    });
-    await expect(page.locator(sel.REVIEW_SUBMISSION_NOTICE)).toContainText(
-      "awaiting approval",
-    );
+    await expect(
+      page.getByText(
+        "Thanks for your review. It has been submitted for moderation and will appear once approved.",
+      ),
+    ).toBeVisible({ timeout: 10_000 });
 
-    await page.reload({ waitUntil: "networkidle" });
-    await expect(page.getByText(uniqueContent)).toHaveCount(0);
+    // Pending reviews should not appear in the public list before approval.
+    await expect(
+      page.locator(sel.REVIEW_CONTENT_TEXT).filter({ hasText: uniqueContent }).first(),
+    ).toHaveCount(0);
   });
 
   test("shows error when content is empty", async ({

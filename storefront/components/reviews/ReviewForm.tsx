@@ -6,10 +6,11 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { useEffect, useMemo, useState } from "react";
 import { XMarkIcon, StarIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/20/solid";
+import * as Sentry from "@sentry/nextjs";
 import clsx from "clsx";
+import { useEffect, useMemo, useState } from "react";
 
 export function ReviewForm({
   productId,
@@ -79,7 +80,11 @@ export function ReviewForm({
           sort_order: i,
         }));
         formData.set("images", JSON.stringify(uploadedImages));
-      } catch {
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { action: "review_upload", product_id: productId },
+          level: "warning",
+        });
         setIsSubmitting(false);
         setError("Failed to upload images. Please try again.");
         return;

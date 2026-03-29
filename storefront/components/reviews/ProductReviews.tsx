@@ -19,7 +19,7 @@ export function ProductReviews({
 }) {
   const [formOpen, setFormOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [submissionNotice, setSubmissionNotice] = useState<string | null>(null);
+  const [formMessage, setFormMessage] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>(initialData.reviews);
   const [summaryData, setSummaryData] = useState(initialData);
   const [hasMore, setHasMore] = useState(
@@ -38,27 +38,9 @@ export function ProductReviews({
     });
   }
 
-  function updateSummary(rating: number, delta: 1 | -1) {
-    setSummaryData((prev) => {
-      const newCount = prev.count + delta;
-      const newAvg =
-        newCount > 0
-          ? (prev.averageRating * prev.count + rating * delta) / newCount
-          : 0;
-      const newDist = prev.ratingDistribution.map((d) =>
-        d.rating === rating ? { ...d, count: d.count + delta } : d,
-      );
-      return {
-        ...prev,
-        count: newCount,
-        averageRating: newAvg,
-        ratingDistribution: newDist,
-      };
-    });
-  }
-
   async function handleReviewSubmitted(formData: FormData): Promise<boolean> {
     setFormError(null);
+    setFormMessage(null);
     const result = await addProductReview(null, formData);
 
     if (result?.error) {
@@ -66,18 +48,9 @@ export function ProductReviews({
       return false;
     }
 
-    if (result?.review) {
-      setReviews((prev) => [result.review!, ...prev]);
-      updateSummary(result.review.rating, 1);
-    }
-
     setFormOpen(false);
-    setSubmissionNotice(
-      result?.status === "approved"
-        ? "Thanks. Your review is now live."
-        : result?.verifiedPurchase
-          ? "Thanks. Your verified-purchase review was submitted and is awaiting approval."
-          : "Thanks. Your review was submitted and is awaiting approval.",
+    setFormMessage(
+      "Thanks for your review. It has been submitted for moderation and will appear once approved.",
     );
 
     return true;
@@ -91,7 +64,7 @@ export function ProductReviews({
           canReview={canReview}
           onWriteReview={() => {
             setFormOpen(true);
-            setSubmissionNotice(null);
+            setFormMessage(null);
             trackClient("review_form_opened", { product_id: productId });
           }}
         />
@@ -99,13 +72,10 @@ export function ProductReviews({
 
       <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
         <h3 className="sr-only">Recent reviews</h3>
-        {submissionNotice && (
-          <div
-            data-testid="review-submission-notice"
-            className="border-primary-200 bg-primary-50 text-primary-800 mb-6 rounded-lg border px-4 py-3 text-sm"
-          >
-            {submissionNotice}
-          </div>
+        {formMessage && (
+          <p className="mb-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            {formMessage}
+          </p>
         )}
         <ReviewListClient reviews={reviews} />
 
