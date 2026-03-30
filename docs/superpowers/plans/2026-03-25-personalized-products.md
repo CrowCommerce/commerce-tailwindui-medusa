@@ -45,9 +45,9 @@
 |------|--------|---------|
 | `lib/types.ts` | Modify | Add `metadata?: Record<string, unknown>` to `Product` and `CartItem` |
 | `lib/medusa/transforms.ts` | Modify | Thread `product.metadata` and `lineItem.metadata` through transforms |
-| `lib/medusa/index.ts` | Modify | Add `getCustomVariantPrice`, extend `addToCart` lines type with metadata |
+| `lib/medusa/index.ts` | Modify | Export `getDefaultRegion`, add `getCustomVariantPrice` (server-only), extend `addToCart` with metadata + auth headers |
 | `lib/analytics.ts` | Modify | Add `personalized_price_calculated` and `personalized_product_added_to_cart` to `AnalyticsEvents` |
-| `components/cart/actions.ts` | Modify | Add `addPersonalizedItem` server action |
+| `components/cart/actions.ts` | Modify | Add `fetchCustomVariantPrice` server action (client-callable bridge) + `addPersonalizedItem` |
 | `components/product/product-detail.tsx` | Modify | Dimension inputs, live price fetch, personalized add-to-cart path |
 | `components/cart/index.tsx` | Modify | Show `Width: Xcm · Height: Xcm` on personalized cart items |
 | `app/order/confirmed/[orderId]/page.tsx` | Modify | Same dimensions display on order confirmation items |
@@ -73,10 +73,11 @@ import {
   createStep,
   createWorkflow,
   transform,
-  useQueryGraphStep,
   StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
+// useQueryGraphStep lives in medusa/core-flows — see existing workflows like create-review.ts
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 
 const DIMENSION_PRICE_FACTOR = 0.01 // price increase per cm²; update per client
 
@@ -118,12 +119,17 @@ export const getCustomPriceWorkflow = createWorkflow(
     const currency_code = transform(regions, (r) => r[0]?.currency_code ?? "usd")
 
     // 2. Get variant's calculated price for this region
-    const { data: variants } = useQueryGraphStep({
-      entity: "variant",
-      fields: ["calculated_price.*"],
-      filters: { id: input.variantId },
-      options: { throwIfKeyNotFound: false },
-    })
+    // context: { region_id, currency_code } is required for Medusa to resolve the correct price tier
+    // currency_code is a workflow variable, so we use transform() to build the step input
+    const { data: variants } = useQueryGraphStep(
+      transform({ variantId: input.variantId, regionId: input.regionId, currency_code }, (d) => ({
+        entity: "variant",
+        fields: ["calculated_price.*"],
+        filters: { id: d.variantId },
+        context: { region_id: d.regionId, currency_code: d.currency_code },
+        options: { throwIfKeyNotFound: false },
+      }))
+    )
     const baseAmount = transform(variants, (v) => {
       const price = v[0]?.calculated_price as { calculated_amount?: number } | undefined
       return price?.calculated_amount ?? 0
@@ -166,7 +172,23 @@ git commit -m "feat: add getCustomPriceWorkflow for dimension-based pricing"
 **Files:**
 - Create: `backend/src/workflows/custom-add-to-cart.ts`
 
-**Background:** Workflows compose other workflows using `.runAsStep()`. `addToCartWorkflow` from `@medusajs/medusa/core-flows` is the standard cart addition workflow. `acquireLockStep`/`releaseLockStep` prevent concurrent cart modifications. The hook registration (`addToCartWorkflow.hooks.validate`) is a side effect that runs when this file is imported at server start — Medusa auto-loads all `src/workflows/` files.
+**Background:** Workflows compose other workflows using `.runAsStep()`. `addToCartWorkflow` from `@medusajs/medusa/core-flows` is the standard cart addition workflow. `acquireLockStep`/`releaseLockStep` prevent concurrent cart modifications — they come from `@medusajs/core-flows` which is a hoisted transitive dep (already in `node_modules`) but not explicitly in `backend/package.json`. The hook registration (`addToCartWorkflow.hooks.validate`) is a side effect that runs when this file is imported at server start — Medusa auto-loads all `src/workflows/` files.
+
+**`AcquireLockStepInput` signature** (from `@medusajs/core-flows/dist/locking/steps/acquire-lock.d.ts`):
+- `key: string | string[]` — the lock key(s) — NOT `keys`
+- `timeout?: number` — max wait time in **SECONDS** (not ms)
+- `retryInterval?: number` — seconds between retries (default 0.3)
+
+**`ReleaseLockStepInput` signature**:
+- `key: string | string[]` — NOT `keys`
+
+- [ ] **Step A2.0: Add `@medusajs/core-flows` to `backend/package.json`**
+
+```bash
+cd backend && bun add @medusajs/core-flows@2.13.1
+```
+
+This pins it to the same version as the other Medusa packages. It is already in `node_modules` as a transitive dep, so this just makes the dependency explicit.
 
 - [ ] **Step A2.1: Create the workflow file**
 
@@ -175,12 +197,13 @@ git commit -m "feat: add getCustomPriceWorkflow for dimension-based pricing"
 import {
   createWorkflow,
   transform,
-  useQueryGraphStep,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import {
-  addToCartWorkflow,
-} from "@medusajs/medusa/core-flows"
+// useQueryGraphStep, addToCartWorkflow, addLineItemsStep from medusa/core-flows
+// addToCartWorkflow is imported for the validation hook only; addLineItemsStep adds items directly
+// (using addToCartWorkflow.runAsStep() here would re-trigger its own hook and re-acquire the cart lock)
+import { useQueryGraphStep, addToCartWorkflow, addLineItemsStep } from "@medusajs/medusa/core-flows"
+// acquireLockStep/releaseLockStep from @medusajs/core-flows (hoisted transitive dep — add to backend/package.json per Step A2.0)
 import { acquireLockStep, releaseLockStep } from "@medusajs/core-flows"
 import { MedusaError } from "@medusajs/framework/utils"
 import { getCustomPriceWorkflow } from "./get-custom-price"
@@ -233,11 +256,14 @@ export const customAddToCartWorkflow = createWorkflow(
     })
 
     // 3. Lock the cart
-    acquireLockStep(transform({ cartId: input.cartId }, (d) => ({ keys: [d.cartId], timeout: 2000, ttl: 10000 })))
+    // AcquireLockStepInput: key (string | string[]), timeout (seconds, not ms), retryInterval (seconds)
+    acquireLockStep(transform({ cartId: input.cartId }, (d) => ({ key: d.cartId, timeout: 2, retryInterval: 0.3 })))
 
     // 4. Add line item with custom unit price
-    addToCartWorkflow.runAsStep({
-      input: transform({ input, customPrice }, (d) => ({
+    // Use addLineItemsStep directly — NOT addToCartWorkflow.runAsStep() which would
+    // re-trigger the validation hook and attempt to re-acquire the already-held cart lock
+    addLineItemsStep(
+      transform({ input, customPrice }, (d) => ({
         cart_id: d.input.cartId,
         items: [{
           variant_id: d.input.variantId,
@@ -245,11 +271,11 @@ export const customAddToCartWorkflow = createWorkflow(
           unit_price: d.customPrice.amount,
           metadata: d.input.metadata,
         }],
-      })),
-    })
+      }))
+    )
 
-    // 5. Release lock
-    releaseLockStep(transform({ cartId: input.cartId }, (d) => ({ keys: [d.cartId] })))
+    // 5. Release lock — ReleaseLockStepInput uses key (string | string[])
+    releaseLockStep(transform({ cartId: input.cartId }, (d) => ({ key: d.cartId })))
 
     // 6. Re-fetch updated cart
     const { data: updatedCarts } = useQueryGraphStep({
@@ -298,7 +324,8 @@ git commit -m "feat: add customAddToCartWorkflow with validation hook"
 // backend/src/api/store/variants/[id]/price/route.ts
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { z } from "@medusajs/framework/zod"
-import { getCustomPriceWorkflow } from "../../../../workflows/get-custom-price"
+// 5 levels up: api/store/variants/[id]/price/ → src/workflows/
+import { getCustomPriceWorkflow } from "../../../../../workflows/get-custom-price"
 
 export const PostVariantPriceSchema = z.object({
   region_id: z.string(),
@@ -380,7 +407,8 @@ git commit -m "feat: add POST /store/variants/:id/price custom pricing route"
 // backend/src/api/store/carts/[id]/line-items-custom/route.ts
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { z } from "@medusajs/framework/zod"
-import { customAddToCartWorkflow } from "../../../../workflows/custom-add-to-cart"
+// 5 levels up: api/store/carts/[id]/line-items-custom/ → src/workflows/
+import { customAddToCartWorkflow } from "../../../../../workflows/custom-add-to-cart"
 
 export const PostCustomLineItemSchema = z.object({
   variant_id: z.string(),
@@ -561,15 +589,15 @@ Create `storefront/tests/unit/personalized-products.test.ts`:
 
 ```ts
 import { describe, expect, it, vi } from "vitest"
+import type { Product, CartItem } from "lib/types"
 
 // --- Type shape tests ---
-// These verify that TypeScript compiles with the expected shape.
-// Since this is a runtime test file, we test via object assignment
-// (TypeScript errors would prevent the test from running).
+// Explicit type annotations (not inferred) enforce that TypeScript validates
+// the shape — without them, the object literal passes even before the type change.
 
 describe("Product metadata type", () => {
   it("accepts metadata on Product", () => {
-    const product = {
+    const product: Product = {
       id: "prod_1",
       handle: "test",
       availableForSale: true,
@@ -592,7 +620,7 @@ describe("Product metadata type", () => {
 
 describe("CartItem metadata type", () => {
   it("accepts metadata on CartItem top level", () => {
-    const item = {
+    const item: CartItem = {
       id: "item_1",
       quantity: 1,
       cost: { totalAmount: { amount: "10.50", currencyCode: "USD" } },
@@ -707,7 +735,7 @@ git commit -m "feat: add metadata to Product and CartItem types, thread through 
 - Modify: `storefront/lib/medusa/index.ts`
 - Modify: `storefront/tests/unit/personalized-products.test.ts`
 
-**Background:** `getCustomVariantPrice` calls the new backend route. It returns `{ amount: string, currency_code: string }` where `amount` is a decimal string (e.g. `"10.50"`) — using `.toFixed(2)` since Medusa v2 amounts are in the main currency unit. `addToCart` gains an optional `metadata` field per line; when present it calls the custom route instead of the standard SDK method.
+**Background:** `getCustomVariantPrice` calls the new backend route and lives in `lib/medusa/index.ts` (server-only — this file imports `next/cache`, `next/headers`, `next/server`; it MUST NOT be imported by `'use client'` components). It returns `{ amount: string, currency_code: string }` where `amount` is a decimal string (e.g. `"10.50"`) — using `.toFixed(2)` since Medusa v2 amounts are in the main currency unit. The client-callable bridge (`fetchCustomVariantPrice` server action) is added in Task B3. `addToCart` gains an optional `metadata` field per line; when present it calls the custom route instead of the standard SDK method, passing `headers` from `getAuthHeaders()`.
 
 - [ ] **Step B2.1: Write failing tests**
 
@@ -754,9 +782,17 @@ describe("getCustomVariantPrice", () => {
 cd storefront && bun run vitest tests/unit/personalized-products.test.ts 2>&1 | grep -E "FAIL|PASS|Error" | head -10
 ```
 
-- [ ] **Step B2.3: Add `getCustomVariantPrice` to `storefront/lib/medusa/index.ts`**
+- [ ] **Step B2.3: Export `getDefaultRegion` and add `getCustomVariantPrice` to `storefront/lib/medusa/index.ts`**
 
-Add after the `addToCart` function (around line 415):
+First, find the `getDefaultRegion` function declaration (around line 75) and add `export` if it isn't already exported:
+```ts
+// Before:
+async function getDefaultRegion() {
+// After:
+export async function getDefaultRegion() {
+```
+
+Then add `getCustomVariantPrice` after the `addToCart` function (around line 415):
 
 ```ts
 export async function getCustomVariantPrice(
@@ -799,6 +835,7 @@ In the `for (const line of lines)` loop, replace the `sdk.store.cart.createLineI
       await sdk.client
         .fetch(`/store/carts/${cartId}/line-items-custom`, {
           method: "POST",
+          headers, // auth headers — same pattern as sdk.store.cart.createLineItem below
           body: {
             variant_id: line.merchandiseId,
             quantity: line.quantity,
@@ -848,9 +885,28 @@ git commit -m "feat: add getCustomVariantPrice and metadata support in addToCart
 **Files:**
 - Modify: `storefront/components/cart/actions.ts`
 
-**Background:** Server actions with non-`useActionState` signatures can be called directly as async functions from client components. This action mirrors `addItem`'s error handling pattern — returns `string | null` rather than throwing. `revalidateCart` is a private helper already defined in the same file.
+**Background:** Server actions in this file can be called directly from client components. `fetchCustomVariantPrice` is the client-callable bridge for the server-only `getCustomVariantPrice` (from `lib/medusa`) — it handles region lookup internally so `product-detail.tsx` never imports server-only modules. `addPersonalizedItem` mirrors `addItem`'s error handling pattern — returns `string | null` rather than throwing. `revalidateCart` is a private helper already defined in the same file.
 
-- [ ] **Step B3.1: Add `addPersonalizedItem` to `storefront/components/cart/actions.ts`**
+- [ ] **Step B3.1: Add `fetchCustomVariantPrice` to `storefront/components/cart/actions.ts`**
+
+Add these imports at the top of the file (after the existing import block):
+```ts
+import { getCustomVariantPrice, getDefaultRegion } from "lib/medusa"
+```
+
+Then add as a new exported function (after the existing imports, before the first action):
+
+```ts
+export async function fetchCustomVariantPrice(
+  variantId: string,
+  metadata: { height: number; width: number }
+): Promise<{ amount: string; currency_code: string }> {
+  const region = await getDefaultRegion()
+  return getCustomVariantPrice(variantId, region.id, metadata)
+}
+```
+
+- [ ] **Step B3.2: Add `addPersonalizedItem` to `storefront/components/cart/actions.ts`**
 
 Add after the `addItem` function:
 
@@ -881,7 +937,7 @@ export async function addPersonalizedItem(
 }
 ```
 
-- [ ] **Step B3.2: Run typecheck**
+- [ ] **Step B3.3: Run typecheck**
 
 ```bash
 cd storefront && bun run typecheck 2>&1 | grep -i "actions" | head -10
@@ -889,11 +945,11 @@ cd storefront && bun run typecheck 2>&1 | grep -i "actions" | head -10
 
 Expected: no errors.
 
-- [ ] **Step B3.3: Commit**
+- [ ] **Step B3.4: Commit**
 
 ```bash
 git add storefront/components/cart/actions.ts
-git commit -m "feat: add addPersonalizedItem server action"
+git commit -m "feat: add fetchCustomVariantPrice bridge and addPersonalizedItem server actions"
 ```
 
 ---
@@ -903,7 +959,7 @@ git commit -m "feat: add addPersonalizedItem server action"
 **Files:**
 - Modify: `storefront/components/product/product-detail.tsx`
 
-**Background:** `ProductDetail` is already a `'use client'` component (432 lines). This task adds UI only when `sourceProduct.metadata?.is_personalized === true` — the non-personalized path must be completely unchanged. `getCustomVariantPrice` and `getDefaultRegion` are imported from `lib/medusa`. The debounce uses a `useRef`-held numeric timer handle so it persists across renders. `addPersonalizedItem` is called directly (not via `useActionState`).
+**Background:** `ProductDetail` is already a `'use client'` component (432 lines). This task adds UI only when `sourceProduct.metadata?.is_personalized === true` — the non-personalized path must be completely unchanged. `lib/medusa/index.ts` is server-only (imports `next/cache`, `next/headers`, `next/server`) and MUST NOT be imported here — use `fetchCustomVariantPrice` from `components/cart/actions` instead (it handles region lookup internally). The debounce uses a `useRef`-held numeric timer handle so it persists across renders. `addPersonalizedItem` is called directly (not via `useActionState`).
 
 **Key variables already in `ProductDetail`:**
 - `state` — selected option state from `useProduct()`
@@ -914,8 +970,8 @@ git commit -m "feat: add addPersonalizedItem server action"
 
 Find the existing import block. Add:
 ```ts
-import { getCustomVariantPrice, getDefaultRegion } from "lib/medusa"
-import { addPersonalizedItem } from "components/cart/actions"
+// Do NOT import from "lib/medusa" — it's server-only (next/cache, next/headers, next/server)
+import { fetchCustomVariantPrice, addPersonalizedItem } from "components/cart/actions"
 import * as Sentry from "@sentry/nextjs"
 ```
 
@@ -953,10 +1009,9 @@ After the existing `useEffect` for analytics tracking, add:
 
     debounceTimerRef.current = window.setTimeout(async () => {
       try {
-        const region = await getDefaultRegion()
-        const price = await getCustomVariantPrice(
+        // fetchCustomVariantPrice is a server action — handles region lookup internally
+        const price = await fetchCustomVariantPrice(
           selectedVariantId,
-          region.id,
           { height: Number(height), width: Number(width) }
         )
         setCustomPrice(price)

@@ -221,6 +221,10 @@ Do not let these block the client fork tonight unless the user explicitly reprio
 - [x] Strip `payment_sessions` from checkout cart serialization — only pass `client_secret` to client via dedicated server action (Finding #1: broad payment-session exposure)
 - [x] Add Zod schema validation to checkout server actions for `email`, address payloads, `providerId`, and `data` params (Finding #2: no input validation at action boundaries)
 
+### From PR #61 (Company Pages)
+
+- [ ] Wire up contact form to send email via Resend — the form at `/contact` currently has no backend. Add a Route Handler (`app/api/contact/route.ts`) that accepts the form payload, validates it, and sends a notification email to the store inbox using Resend. Consider rate limiting (reuse the existing Redis-backed middleware pattern). Track `contact_form_submitted` and `contact_form_failed` PostHog events. Decide whether to confirm to the sender with an auto-reply or just log the submission.
+
 ### From PR #33 (Newsletter Signup)
 
 - [ ] Replace HMAC bearer unsubscribe token with opaque server-stored nonce — current token embeds email in reversible base64url and is replayable for 30 days. PostHog pageview captures the full tokenized URL, leaking the token to analytics pipelines. Fix: store a one-time nonce on the subscriber record, invalidate on re-subscribe, and strip the token from the address bar via `window.history.replaceState` after the unsubscribe page loads.
