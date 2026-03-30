@@ -42,12 +42,12 @@ export function AboutTeam() {
   return (
     <div className="mx-auto mt-32 max-w-7xl px-6 sm:mt-48 lg:px-8">
       <div className="mx-auto max-w-2xl lg:mx-0">
-        <h2 className="text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
+        <h2 className="text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">
           Our team
         </h2>
         <p className="mt-6 text-lg/8 text-gray-600">
-          We&apos;re a small but mighty group of people who genuinely love what we do
-          and hold each other to a high bar every day.
+          We&apos;re a small but mighty group of people who genuinely love what
+          we do and hold each other to a high bar every day.
         </p>
       </div>
       <ul

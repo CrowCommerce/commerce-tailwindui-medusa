@@ -75,7 +75,7 @@ export function FaqSection() {
           </p>
         </div>
         <div className="mt-20">
-          <dl className="space-y-16 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:space-y-0 lg:gap-x-10">
+          <dl className="space-y-16 sm:grid sm:grid-cols-2 sm:space-y-0 sm:gap-x-6 sm:gap-y-16 lg:gap-x-10">
             {faqs.map((faq) => (
               <div key={faq.id}>
                 <dt className="text-base/7 font-semibold text-gray-900">

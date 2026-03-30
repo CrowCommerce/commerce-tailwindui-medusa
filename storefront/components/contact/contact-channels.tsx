@@ -47,7 +47,10 @@ export function ContactChannels() {
               {channel.description}
             </p>
             <p className="mt-4 text-sm/6 font-semibold">
-              <a href={channel.href} className="text-indigo-600 hover:text-indigo-500">
+              <a
+                href={channel.href}
+                className="text-indigo-600 hover:text-indigo-500"
+              >
                 {channel.linkLabel} <span aria-hidden="true">&rarr;</span>
               </a>
             </p>
