@@ -3,6 +3,81 @@ import { getStorefrontSentryBuildConfig } from "./lib/sentry";
 
 const sentryBuildConfig = getStorefrontSentryBuildConfig();
 
+function sanitizeEnvUrl(value: string | undefined, fallback = ""): string {
+  return value?.replace(/[\r\n]+/g, "").trim() || fallback;
+}
+
+function getCspOrigin(value: string | undefined, fallback?: string): string {
+  const sanitized = sanitizeEnvUrl(value, fallback ?? "");
+
+  if (!sanitized) {
+    return "";
+  }
+
+  try {
+    return new URL(sanitized).origin;
+  } catch {
+    return "";
+  }
+}
+
+function joinCspSources(sources: Array<string | false | undefined>): string {
+  return [...new Set(sources.filter(Boolean))].join(" ");
+}
+
+function buildContentSecurityPolicy(): string {
+  const isDev = process.env.NODE_ENV !== "production";
+  const backendOrigin = getCspOrigin(
+    process.env.MEDUSA_BACKEND_URL,
+    "http://localhost:9000",
+  );
+  const meilisearchOrigin = getCspOrigin(
+    process.env.NEXT_PUBLIC_MEILISEARCH_HOST,
+  );
+  const posthogOrigin = getCspOrigin(process.env.NEXT_PUBLIC_POSTHOG_HOST);
+
+  const scriptSrc = joinCspSources([
+    "'self'",
+    "'unsafe-inline'",
+    "https://js.stripe.com",
+    "https://*.js.stripe.com",
+    isDev && "'unsafe-eval'",
+  ]);
+
+  const connectSrc = joinCspSources([
+    "'self'",
+    backendOrigin,
+    posthogOrigin,
+    meilisearchOrigin,
+    "https://*.sentry.io",
+    "https://sentry.io",
+    "https://*.stripe.com",
+    "https://m.stripe.com",
+    isDev && "ws:",
+    isDev && "wss:",
+  ]);
+
+  return [
+    "default-src 'self'",
+    `script-src ${scriptSrc}`,
+    "script-src-attr 'none'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    `connect-src ${connectSrc}`,
+    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.stripe.com",
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
+    "media-src 'self' blob: https:",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ");
+}
+
+const contentSecurityPolicy = buildContentSecurityPolicy();
+
 export default withSentryConfig(
   {
     cacheComponents: true,
@@ -22,7 +97,7 @@ export default withSentryConfig(
             { key: "X-Content-Type-Options", value: "nosniff" },
             {
               key: "Referrer-Policy",
-              value: "strict-origin-when-cross-origin",
+              value: "origin-when-cross-origin",
             },
             {
               key: "Permissions-Policy",
@@ -30,6 +105,10 @@ export default withSentryConfig(
                 "camera=(), microphone=(), geolocation=(), interest-cohort=()",
             },
             { key: "X-DNS-Prefetch-Control", value: "on" },
+            {
+              key: "Content-Security-Policy",
+              value: contentSecurityPolicy,
+            },
           ],
         },
       ];

@@ -12,6 +12,32 @@ let warned = false;
 const inProcessStore = new Map<string, { count: number; resetAt: number }>();
 let warnedFallback = false;
 
+function getForwardedHeaderValue(
+  value: string | string[] | undefined,
+): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const candidate = Array.isArray(value) ? value[0] : value;
+  return candidate
+    .split(",")
+    .map((entry) => entry.trim())
+    .find(Boolean);
+}
+
+function getClientIp(req: Parameters<RequestHandler>[0]): string | undefined {
+  return (
+    req.ip ||
+    getForwardedHeaderValue(req.headers["cf-connecting-ip"]) ||
+    getForwardedHeaderValue(req.headers["true-client-ip"]) ||
+    getForwardedHeaderValue(req.headers["x-real-ip"]) ||
+    getForwardedHeaderValue(req.headers["x-forwarded-for"]) ||
+    req.socket.remoteAddress ||
+    undefined
+  );
+}
+
 function getRedis(): Redis | null {
   if (redis) return redis;
   const url = process.env.REDIS_URL;
@@ -41,7 +67,7 @@ function getRedis(): Redis | null {
 
 export function newsletterRateLimit(): RequestHandler {
   return async (req, res, next) => {
-    const ip = req.ip || req.socket.remoteAddress;
+    const ip = getClientIp(req);
     if (!ip) return next();
 
     const key = `newsletter_sub:${ip}`;
