@@ -1,6 +1,6 @@
 # CrowCommerce — Project Status
 
-Last updated: 2026-03-27
+Last updated: 2026-03-30
 
 **[Setup Guide](SETUP.md)** — local dev through production deployment
 
@@ -20,6 +20,7 @@ Last updated: 2026-03-27
 | [Wishlist](docs/features/wishlist.md)                         | ✅ Shipped | Full feature + E2E tests                                                                                                | Code review follow-ups only                      |
 | Invoice generation                                            | ✅ Shipped | On-demand PDF with product thumbnails, admin config, email toggle, customer + admin download, code review fixes applied | —                                                |
 | Newsletter signup                                             | ✅ Shipped | Footer form, welcome + welcome-back emails, Resend Audience sync, HMAC unsubscribe, rate limiting, PostHog events       | Email preferences page, opaque unsubscribe token |
+| Company pages (About, Contact, FAQ)                           | 🟡 Partial | Static `/about`, `/contact`, `/faq` pages with TailwindPlus components                                                  | Contact form backend (Resend wiring)             |
 
 ## Infrastructure & Tooling
 
