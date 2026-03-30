@@ -5,7 +5,7 @@ import type {
 import { MedusaError } from "@medusajs/framework/utils";
 import { z } from "@medusajs/framework/zod";
 import { WISHLIST_MODULE } from "../../../../modules/wishlist";
-import WishlistModuleService from "../../../../modules/wishlist/service";
+import type WishlistModuleService from "../../../../modules/wishlist/service";
 import { PostImportWishlistSchema } from "../validators";
 import { verifyShareToken, requireSalesChannelId } from "../helpers";
 

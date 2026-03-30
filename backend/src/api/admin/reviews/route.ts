@@ -1,17 +1,41 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { createFindParams } from "@medusajs/medusa/api/utils/validators";
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { z } from "@medusajs/framework/zod";
 
-export const GetAdminReviewsSchema = createFindParams();
-const VERIFIED_PURCHASE_FIELDS = ["order_id", "order_line_item_id"] as const;
+function parseOptionalNumber(value: unknown) {
+  if (typeof value === "string") {
+    return parseInt(value, 10);
+  }
+
+  return value;
+}
+
+function parseOptionalBoolean(value: unknown) {
+  if (typeof value === "string") {
+    if (value === "true") {
+      return true;
+    }
+
+    if (value === "false") {
+      return false;
+    }
+  }
+
+  return value;
+}
+
+export const GetAdminReviewsSchema = z.object({
+  fields: z.string().optional(),
+  offset: z.preprocess(parseOptionalNumber, z.number().optional().default(0)),
+  limit: z.preprocess(parseOptionalNumber, z.number().optional().default(20)),
+  order: z.string().optional(),
+  with_deleted: z.preprocess(parseOptionalBoolean, z.boolean().optional()),
+});
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve("query");
-  const fields = Array.from(
-    new Set([...(req.queryConfig.fields ?? []), ...VERIFIED_PURCHASE_FIELDS]),
-  );
 
   const {
-    data: rawReviews,
+    data: reviews,
     metadata: { count, take, skip } = {
       count: 0,
       take: 20,
@@ -20,30 +44,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   } = await query.graph({
     entity: "review",
     ...req.queryConfig,
-    fields,
   });
-
-  const reviews = rawReviews.map(
-    (
-      review: Record<string, unknown> & {
-        order_id?: string | null;
-        order_line_item_id?: string | null;
-      },
-    ) => {
-      const {
-        order_id: _orderId,
-        order_line_item_id: _orderLineItemId,
-        ...rest
-      } = review;
-
-      return {
-        ...rest,
-        verified_purchase: Boolean(
-          review.order_id && review.order_line_item_id,
-        ),
-      };
-    },
-  );
 
   res.json({
     reviews,

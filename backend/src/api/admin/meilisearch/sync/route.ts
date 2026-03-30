@@ -1,7 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { Modules } from "@medusajs/framework/utils";
 import { MEILISEARCH_MODULE } from "../../../../modules/meilisearch";
-import MeilisearchModuleService from "../../../../modules/meilisearch/service";
+import type MeilisearchModuleService from "../../../../modules/meilisearch/service";
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const logger = req.scope.resolve("logger");

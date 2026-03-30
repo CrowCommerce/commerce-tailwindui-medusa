@@ -1,10 +1,37 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { PRODUCT_REVIEW_MODULE } from "../../../../../modules/product-review";
-import ProductReviewModuleService from "../../../../../modules/product-review/service";
-import { createFindParams } from "@medusajs/medusa/api/utils/validators";
+import type ProductReviewModuleService from "../../../../../modules/product-review/service";
+import { z } from "@medusajs/framework/zod";
 
-export const GetStoreReviewsSchema = createFindParams();
-const VERIFIED_PURCHASE_FIELDS = ["order_id", "order_line_item_id"] as const;
+function parseOptionalNumber(value: unknown) {
+  if (typeof value === "string") {
+    return parseInt(value, 10);
+  }
+
+  return value;
+}
+
+function parseOptionalBoolean(value: unknown) {
+  if (typeof value === "string") {
+    if (value === "true") {
+      return true;
+    }
+
+    if (value === "false") {
+      return false;
+    }
+  }
+
+  return value;
+}
+
+export const GetStoreReviewsSchema = z.object({
+  fields: z.string().optional(),
+  offset: z.preprocess(parseOptionalNumber, z.number().optional().default(0)),
+  limit: z.preprocess(parseOptionalNumber, z.number().optional().default(20)),
+  order: z.string().optional(),
+  with_deleted: z.preprocess(parseOptionalBoolean, z.boolean().optional()),
+});
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params;
@@ -12,9 +39,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve("query");
   const reviewService: ProductReviewModuleService = req.scope.resolve(
     PRODUCT_REVIEW_MODULE,
-  );
-  const fields = Array.from(
-    new Set([...(req.queryConfig.fields ?? []), ...VERIFIED_PURCHASE_FIELDS]),
   );
 
   const [queryResult, averageRating, ratingDistribution] = await Promise.all([
@@ -25,38 +49,15 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         status: "approved",
       },
       ...req.queryConfig,
-      fields,
     }),
     reviewService.getAverageRating(id),
     reviewService.getRatingDistribution(id),
   ]);
 
   const {
-    data: rawReviews,
+    data: reviews,
     metadata: { count, take, skip } = { count: 0, take: 10, skip: 0 },
   } = queryResult;
-
-  const reviews = rawReviews.map(
-    (
-      review: Record<string, unknown> & {
-        order_id?: string | null;
-        order_line_item_id?: string | null;
-      },
-    ) => {
-      const {
-        order_id: _orderId,
-        order_line_item_id: _orderLineItemId,
-        ...rest
-      } = review;
-
-      return {
-        ...rest,
-        verified_purchase: Boolean(
-          review.order_id && review.order_line_item_id,
-        ),
-      };
-    },
-  );
 
   res.json({
     reviews,
