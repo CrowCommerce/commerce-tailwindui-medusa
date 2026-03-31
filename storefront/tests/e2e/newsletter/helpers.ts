@@ -146,6 +146,56 @@ export function expireStoredUnsubscribeToken(email: string): void {
   );
 }
 
+export function createEmailPreferencesToken(email: string): string {
+  const token = execFileSync(
+    "bun",
+    [
+      "-e",
+      `
+        import { issueEmailPreferencesToken } from "../backend/src/utils/email-preferences-token.ts";
+        console.log(issueEmailPreferencesToken(process.argv[2] || ""));
+      `,
+      "--",
+      email.toLowerCase(),
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      timeout: 10_000,
+    },
+  ).trim();
+
+  if (!token) {
+    throw new Error(`Could not generate email preferences token for ${email}`);
+  }
+
+  return token;
+}
+
+export function getSubscriberPreferences(email: string): {
+  status: string;
+  orderUpdatesEnabled: boolean;
+} | null {
+  const normalizedEmail = escapeSqlString(email.toLowerCase());
+  const row = runSql(
+    `SELECT status, order_updates_enabled
+     FROM newsletter_subscriber
+     WHERE email = '${normalizedEmail}' AND deleted_at IS NULL
+     LIMIT 1`,
+  );
+
+  if (!row) {
+    return null;
+  }
+
+  const [status, orderUpdatesEnabled] = row.split("|");
+
+  return {
+    status: status || "",
+    orderUpdatesEnabled: orderUpdatesEnabled === "t",
+  };
+}
+
 export function newsletterSubscriberExists(email: string): boolean {
   const normalizedEmail = escapeSqlString(email.toLowerCase());
   const count = runSql(
