@@ -1,0 +1,105 @@
+port: 3000
+
+defaults:
+  runtime: tmux
+  agent: codex
+  workspace: worktree
+  notifiers:
+    - desktop
+  orchestrator:
+    agent: codex
+  worker:
+    agent: codex
+
+projects:
+  commerce-tailwindui-medusa:
+    name: CrowCommerce
+    repo: EricJamesCrow/commerce-tailwindui-medusa
+    path: . # Run `ao start` from the repo root so this stays portable across machines.
+    defaultBranch: main
+    sessionPrefix: crow
+
+    scm:
+      plugin: github
+
+    postCreate:
+      - bun install --frozen-lockfile
+
+    agentConfig:
+      permissions: suggest
+
+    orchestratorSessionStrategy: reuse
+
+    orchestrator:
+      agent: codex
+      agentConfig:
+        permissions: suggest
+
+    worker:
+      agent: codex
+      agentConfig:
+        permissions: auto-edit
+
+    agentRulesFile: .ao-rules.md
+    orchestratorRules: |
+      There is no active external issue tracker for the current push. Use `TODO.md` as the source of truth and focus on the `Template Hardening` section plus the cursor-pointer audit task under `Maintenance / Docs`.
+      Default to Codex workers for most implementation tasks.
+      When a task is primarily frontend, visual, styling, Tailwind UI, accessibility, layout, component polish, or design-system cleanup, spawn the worker with `ao spawn --agent claude-code`.
+      When a task is backend, CI repair, type fixes, refactors, workflow logic, API integration, or infrastructure, use the default Codex worker unless there is a strong reason not to.
+      If Codex completes meaningful frontend work, spawn or direct a Claude Code worker for a UI cleanup and TailwindPlus conformance pass before the PR is considered ready.
+      If Claude Code completes frontend implementation, use a Codex worker for verification, regression review, and code-quality scrutiny before the PR is considered ready.
+      For composite issues with both backend and frontend concerns, split the work into separate workers when practical instead of forcing one worker to do both.
+      Keep PR and branch operations consistent with repo rules: Graphite for branch/PR lifecycle and GitHub for CI/review state.
+
+    reactions:
+      ci-failed:
+        auto: true
+        action: send-to-agent
+        retries: 3
+        escalateAfter: 2
+      changes-requested:
+        auto: true
+        action: send-to-agent
+        escalateAfter: 30m
+      approved-and-green:
+        auto: false
+        action: notify
+        priority: action
+      agent-stuck:
+        auto: true
+        action: notify
+        priority: urgent
+        threshold: 15m
+        includeSummary: true
+
+notificationRouting:
+  urgent:
+    - desktop
+  action:
+    - desktop
+  warning:
+    - desktop
+  info: []
+
+notifiers:
+  desktop:
+    plugin: desktop
+
+reactions:
+  ci-failed:
+    auto: true
+    action: send-to-agent
+    retries: 2
+  changes-requested:
+    auto: true
+    action: send-to-agent
+    escalateAfter: 30m
+  approved-and-green:
+    auto: false
+    action: notify
+    priority: action
+  agent-stuck:
+    auto: true
+    action: notify
+    priority: urgent
+    threshold: 10m

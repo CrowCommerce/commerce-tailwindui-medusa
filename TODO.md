@@ -3,6 +3,167 @@
 > For feature status and project overview, see [README.md](README.md).
 > For in-progress feature details, see [docs/features/](docs/features/).
 
+## Manual Agent Task Contracts
+
+Use the task labels below as shorthand when spawning agents manually. Example:
+`@TODO.md Task A`
+
+### Task A
+
+Cursor-pointer audit and fix pass.
+
+Required workflow:
+
+- Create a new dedicated git worktree for this task before making repo-tracked edits.
+- Inside that worktree, create a new Graphite branch before any repo-tracked edits.
+- Do not use `git push`, `git checkout -b`, or `gh pr create`. Use Graphite only.
+- Keep the write scope isolated to storefront interactive UI and any minimal related test/style files.
+- Run relevant verification for changed files.
+- Run `cr review` before submission, address valid findings, and commit fixes on the same branch.
+- Submit with `gt submit --stack --no-interactive`.
+- Mark the PR ready with `gh pr ready <number>` unless there is a real reason to keep it draft.
+- Update the PR description with summary and test plan.
+
+Implementation scope:
+
+- Audit cursor-pointer behavior across interactive storefront UI elements.
+- Check buttons, links, cards acting as links, toggles, tabs, drawer/menu triggers, pagination, product option selectors, account UI, cart UI, and newsletter UI.
+- Fix inconsistent pointer/default cursor behavior.
+- Preserve existing TailwindPlus/TailwindUI patterns.
+- Avoid unrelated redesigns.
+- Add or update tests only if there is an obvious low-cost assertion path.
+- Update `TODO.md` when complete.
+
+### Task B
+
+Newsletter unsubscribe hardening completion.
+
+Required workflow:
+
+- Create a new dedicated git worktree for this task before making repo-tracked edits.
+- Inside that worktree, create a new Graphite branch before any repo-tracked edits.
+- Do not use `git push`, `git checkout -b`, or `gh pr create`. Use Graphite only.
+- Keep the write scope isolated to newsletter unsubscribe backend/storefront flow, tests, and minimal docs updates.
+- Run relevant verification for changed files.
+- Run `cr review` before submission, address valid findings, and commit fixes on the same branch.
+- Submit with `gt submit --stack --no-interactive`.
+- Mark the PR ready with `gh pr ready <number>` unless there is a real reason to keep it draft.
+- Update the PR description with summary and test plan.
+
+Important context:
+
+- PR #66 already replaced the old HMAC/non-opaque unsubscribe flow with opaque server-stored tokens.
+- Do not re-implement that shipped work.
+- The remaining gap is first-request token exposure before the client-side scrub runs, plus replay/expiry regression coverage.
+
+Implementation scope:
+
+- Minimize token visibility on first load as much as the current product UX reasonably allows.
+- If full removal of initial URL exposure is not practical, implement the safest practical mitigation and document the residual risk clearly.
+- Add regression coverage for replay and expiry behavior.
+- Update `TODO.md` so it no longer describes the stale pre-PR-66 HMAC problem.
+- Do not drift into the email preferences task.
+
+### Task C
+
+Real email preferences flow.
+
+Required workflow:
+
+- Create a new dedicated git worktree for this task before making repo-tracked edits.
+- Inside that worktree, create a new Graphite branch before any repo-tracked edits.
+- Do not use `git push`, `git checkout -b`, or `gh pr create`. Use Graphite only.
+- Keep the write scope isolated to email preferences, related account/email-link UX, analytics/Sentry, tests, and docs.
+- Run relevant verification for changed files.
+- Run `cr review` before submission, address valid findings, and commit fixes on the same branch.
+- Submit with `gt submit --stack --no-interactive`.
+- Mark the PR ready with `gh pr ready <number>` unless there is a real reason to keep it draft.
+- Update the PR description with summary and test plan.
+
+Implementation scope:
+
+- Build a production-usable email preferences flow.
+- Prefer support for both logged-in account management and link-based access from emails if achievable without destabilizing the template.
+- Wire the email footer preferences link correctly.
+- Add analytics and Sentry where appropriate.
+- Update `TODO.md` and any relevant docs.
+- Keep this task separate from newsletter unsubscribe hardening.
+
+### Task D
+
+Licensing and template-fork documentation.
+
+Required workflow:
+
+- Create a new dedicated git worktree for this task before making repo-tracked edits.
+- Inside that worktree, create a new Graphite branch before any repo-tracked edits.
+- Do not use `git push`, `git checkout -b`, or `gh pr create`. Use Graphite only.
+- Keep the write scope isolated to `LICENSE` and documentation files.
+- Run relevant verification for changed files.
+- Run `cr review` before submission, address valid findings, and commit fixes on the same branch.
+- Submit with `gt submit --stack --no-interactive`.
+- Mark the PR ready with `gh pr ready <number>` unless there is a real reason to keep it draft.
+- Update the PR description with summary and test plan.
+
+Implementation scope:
+
+- Add a root `LICENSE` for the monorepo.
+- Update `README.md` and `docs/forking.md` with downstream fork usage guidance.
+- Document Tailwind Plus / Tailwind UI licensing expectations clearly.
+- Document inherited upstream and third-party license handling clearly.
+- Keep wording precise, practical, and template-consumer friendly.
+- Update `TODO.md` when complete.
+
+### Task E
+
+Docs hygiene and template status cleanup.
+
+Required workflow:
+
+- Create a new dedicated git worktree for this task before making repo-tracked edits.
+- Inside that worktree, create a new Graphite branch before any repo-tracked edits.
+- Do not use `git push`, `git checkout -b`, or `gh pr create`. Use Graphite only.
+- Keep the write scope isolated to `README.md`, `TODO.md`, `docs/features/*`, `docs/forking.md`, and similarly relevant docs only.
+- Run relevant verification for changed files.
+- Run `cr review` before submission, address valid findings, and commit fixes on the same branch.
+- Submit with `gt submit --stack --no-interactive`.
+- Mark the PR ready with `gh pr ready <number>` unless there is a real reason to keep it draft.
+- Update the PR description with summary and test plan.
+
+Implementation scope:
+
+- Reconcile `README.md`, `TODO.md`, and relevant feature docs with the actual shipped code.
+- Remove stale claims.
+- Make shipped vs partial vs deferred status accurate.
+- Ensure newsletter hardening language reflects PR #66 correctly.
+- Add or complete a lightweight docs hygiene checkpoint in `TODO.md`.
+- Keep this as a docs/status cleanup task, not a product implementation task.
+
+### Task F
+
+Production-hardening triage for externally blocked items.
+
+Required workflow:
+
+- Create a new dedicated git worktree for this task before making repo-tracked edits.
+- Inside that worktree, create a new Graphite branch before any repo-tracked edits.
+- Do not use `git push`, `git checkout -b`, or `gh pr create`. Use Graphite only.
+- Keep the write scope isolated to docs, CI/config, and minimal repo-side hardening changes related to this task.
+- Run relevant verification for changed files.
+- Run `cr review` before submission, address valid findings, and commit fixes on the same branch.
+- Submit with `gt submit --stack --no-interactive`.
+- Mark the PR ready with `gh pr ready <number>` unless there is a real reason to keep it draft.
+- Update the PR description with summary and test plan.
+
+Implementation scope:
+
+- Triage preview/health checks, Vercel Sentry env configuration, and production catalog revalidation verification.
+- Do not pretend to verify external systems you cannot access.
+- Produce implementation-ready checklists/runbooks where direct external verification is blocked.
+- Identify exact local code/config changes needed.
+- Clearly mark what still requires Vercel, Railway, dashboard, or production validation.
+- Update `TODO.md` and any relevant docs such as `README.md` or `SETUP.md`.
+
 ## Code Review Follow-ups
 
 ### From PR #8
@@ -33,7 +194,7 @@
 
 ### From PR #61 (Company Pages)
 
-- [ ] Wire up contact form to send email via Resend — the form at `/contact` currently has no backend. Add a Route Handler (`app/api/contact/route.ts`) that accepts the form payload, validates it, and sends a notification email to the store inbox using Resend. Consider rate limiting (reuse the existing Redis-backed middleware pattern). Track `contact_form_submitted` and `contact_form_failed` PostHog events. Decide whether to confirm to the sender with an auto-reply or just log the submission.
+- [x] Wire up contact form to send email via Resend — backend route, validation, rate limiting, analytics, and spam protection are now shipped for `/contact`
 
 ### From PR #33 (Newsletter Signup)
 
@@ -54,8 +215,19 @@
 
 - [x] General codebase cleanup pass — audit recently touched storefront/backend files for duplication, dead code, inconsistent patterns, and obvious simplification opportunities before the next feature push
 - [x] Update `README.md` to reflect current architecture, shipped scope, and the new fork-per-client ownership model
-- [ ] Install `nuqs`
+- [x] Install `nuqs`
 - [ ] Audit cursor-pointer behavior across interactive UI elements — ensure buttons, links, and other clickable controls consistently show the expected pointer cursor where appropriate
+
+## Template Hardening
+
+- [ ] Add a root `LICENSE` covering the full monorepo and document downstream fork usage, Tailwind Plus licensing expectations, and inherited third-party licenses in `README.md`
+- [ ] Harden newsletter unsubscribe for production-template use — replace the current tokenized URL flow with an opaque server-stored nonce, scrub the token from the address bar before analytics can observe it, and add regression coverage for replay/expiry behavior
+- [ ] Build a real email preferences flow and wire the footer preferences link to it — support both logged-in account management and link-based access from emails
+- [ ] Expand CI/CD from code quality to deploy confidence — add preview/health checks against the deployed storefront/backend, plus a documented failure triage path for preview-only regressions
+- [ ] Fix Vercel Sentry env configuration and verify the next production build successfully creates releases and uploads sourcemaps
+- [ ] Verify catalog revalidation end-to-end in production and write the operational runbook (trigger source, storefront webhook, cache invalidation expectations, failure checks)
+- [ ] Complete template boundary adoption — move more client-owned branding/navigation/theme concerns behind `packages/site-config`, add at least one real `storefront/site` extension point used by shared code, and document a concrete `backend/src/site` extension example
+- [ ] Add a docs hygiene checkpoint for shipped work — keep `TODO.md`, `README.md`, and feature docs in sync so template consumers are not misled by stale status claims
 
 ## Testing
 
