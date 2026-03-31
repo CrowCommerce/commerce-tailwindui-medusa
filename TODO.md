@@ -228,6 +228,8 @@ Implementation scope:
 - [ ] Fix Vercel Sentry env configuration and verify the next production build successfully creates releases and uploads sourcemaps
 - [ ] Verify catalog revalidation end-to-end in production and write the operational runbook (trigger source, storefront webhook, cache invalidation expectations, failure checks)
 - [ ] Complete template boundary adoption — move more client-owned branding/navigation/theme concerns behind `packages/site-config`, add at least one real `storefront/site` extension point used by shared code, and document a concrete `backend/src/site` extension example
+- [ ] Complete the env contract audit for shipped integrations — add undocumented runtime vars (`POSTHOG_EVENTS_API_KEY`, `POSTHOG_HOST`, `RESEND_AUDIENCE_ID`, and the storefront PostHog deployment vars) to `.env.example`, `SETUP.md`, and production env blocks so forks do not silently lose backend analytics or audience sync
+- [ ] Remove misleading client-facing placeholder defaults before broader template reuse — replace or hide the default nav/static page placeholders (`Company`, `Stores`, `Support`, and generic "content coming soon" pages) so a fresh fork does not ship obviously unfinished customer-facing copy
 - [x] Add a docs hygiene checkpoint for shipped work — when a feature status changes, update `README.md`, `TODO.md`, and any touched `docs/features/*` entries in the same PR before marking it ready
 
 ## Testing
@@ -258,6 +260,7 @@ Implementation scope:
 - [ ] Verify catalog revalidation end-to-end in production — after a Medusa product/collection create or update, confirm the webhook reaches `/api/revalidate`, `revalidateTag(TAGS.products|collections)` invalidates both the outer cached catalog loaders and the nested tagged fetches, and the storefront reflects the change without waiting for TTL expiry. Operator checklist: `docs/runbooks/production-hardening-external-validation.md`.
 - [ ] Update `DEFAULT_NAVIGATION` with real store categories
 - [ ] Upgrade Turborepo: `bunx @turbo/codemod@latest update`
+- [ ] Clean up template tooling noise — align Bun/Turbo lockfile expectations and resolve the current build warnings (`bun.lockb` vs Turbo workspace warning, stale `baseline-browser-mapping`, and `import-in-the-middle` version skew during Next compile builds) or document why they are safe to ignore
 - [x] Set up PostHog reverse proxy — Next.js rewrites proxy `/api/ph/:path*` to `us.i.posthog.com` (avoids ad blockers that target `/ingest`). See [PostHog Next.js proxy docs](https://posthog.com/docs/advanced/proxy/nextjs).
 - [ ] Switch PostHog proxy to managed proxy — the Next.js rewrite approach is vulnerable to DNS-level CNAME uncloaking (NextDNS, Pi-hole, ISP blockers follow the CNAME chain to `posthog.com` and block before the rewrite runs). PostHog's managed proxy uses randomized hash subdomains on rotating AWS infra that aren't on common blocklists. Also eliminates the rewrite config, `skipTrailingSlashRedirect` workaround, and Vercel edge invocations spent on analytics proxying — replace it all with one DNS CNAME record. Requires PostHog Teams+ plan. See [PostHog managed proxy docs](https://posthog.com/docs/advanced/proxy/managed-reverse-proxy).
 
