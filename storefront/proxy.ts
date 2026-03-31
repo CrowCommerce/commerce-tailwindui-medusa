@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { randomUUID } from "node:crypto";
 import {
-  NEWSLETTER_UNSUBSCRIBE_COOKIE,
+  NEWSLETTER_UNSUBSCRIBE_FLOW_PARAM,
+  getNewsletterUnsubscribeCookieName,
   getNewsletterUnsubscribeCookieOptions,
 } from "./lib/newsletter-unsubscribe-cookie";
 
@@ -22,11 +23,14 @@ function redirectNewsletterUnsubscribeToken(
   }
 
   const cleanUrl = request.nextUrl.clone();
+  const flowId = randomUUID();
   cleanUrl.searchParams.delete("token");
+  cleanUrl.searchParams.delete("status");
+  cleanUrl.searchParams.set(NEWSLETTER_UNSUBSCRIBE_FLOW_PARAM, flowId);
 
   const response = NextResponse.redirect(cleanUrl);
   response.cookies.set(
-    NEWSLETTER_UNSUBSCRIBE_COOKIE,
+    getNewsletterUnsubscribeCookieName(flowId),
     token,
     getNewsletterUnsubscribeCookieOptions(),
   );

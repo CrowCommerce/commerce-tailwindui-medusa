@@ -83,4 +83,44 @@ test.describe("Newsletter Unsubscribe", () => {
       ),
     ).toBeVisible();
   });
+
+  test("keeps each confirmation bound to the link that rendered it", async ({
+    page,
+  }, testInfo) => {
+    const emailOne = uniqueTestEmail("unsub-tab-one", testInfo.project.name);
+    const emailTwo = uniqueTestEmail("unsub-tab-two", testInfo.project.name);
+
+    await subscribeEmailViaApi(emailOne);
+    await subscribeEmailViaApi(emailTwo);
+
+    const tokenOne = getStoredUnsubscribeToken(emailOne);
+    const tokenTwo = getStoredUnsubscribeToken(emailTwo);
+    const secondPage = await page.context().newPage();
+
+    await page.goto(
+      `/newsletter/unsubscribe?token=${encodeURIComponent(tokenOne)}`,
+    );
+    await page.waitForLoadState("networkidle");
+    await expect.poll(() => page.url()).not.toContain("token=");
+
+    await secondPage.goto(
+      `/newsletter/unsubscribe?token=${encodeURIComponent(tokenTwo)}`,
+    );
+    await secondPage.waitForLoadState("networkidle");
+    await expect.poll(() => secondPage.url()).not.toContain("token=");
+
+    await waitForNewsletterRequestSlot();
+    await page.getByRole("button", { name: "Confirm unsubscribe" }).click();
+    await expect(
+      page.getByRole("heading", { name: "You've been unsubscribed" }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await waitForNewsletterRequestSlot();
+    await secondPage
+      .getByRole("button", { name: "Confirm unsubscribe" })
+      .click();
+    await expect(
+      secondPage.getByRole("heading", { name: "You've been unsubscribed" }),
+    ).toBeVisible({ timeout: 10_000 });
+  });
 });

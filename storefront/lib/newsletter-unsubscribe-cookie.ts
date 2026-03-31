@@ -1,7 +1,21 @@
 const NEWSLETTER_UNSUBSCRIBE_TOKEN_MAX_AGE_SECONDS = 60 * 10;
 
-export const NEWSLETTER_UNSUBSCRIBE_COOKIE = "_newsletter_unsubscribe_token";
+const NEWSLETTER_UNSUBSCRIBE_COOKIE_PREFIX = "_newsletter_unsubscribe_flow_";
+const NEWSLETTER_UNSUBSCRIBE_FLOW_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export const NEWSLETTER_UNSUBSCRIBE_COOKIE_PATH = "/";
+export const NEWSLETTER_UNSUBSCRIBE_FLOW_PARAM = "flow";
+
+export function getNewsletterUnsubscribeCookieName(flowId: string) {
+  return `${NEWSLETTER_UNSUBSCRIBE_COOKIE_PREFIX}${flowId}`;
+}
+
+export function isValidNewsletterUnsubscribeFlowId(
+  flowId: string | null | undefined,
+): flowId is string {
+  return Boolean(flowId && NEWSLETTER_UNSUBSCRIBE_FLOW_ID_PATTERN.test(flowId));
+}
 
 export function getNewsletterUnsubscribeCookieOptions() {
   return {

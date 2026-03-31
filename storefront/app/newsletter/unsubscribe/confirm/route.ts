@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sanitizeEnvUrl, sanitizeEnvValue } from "lib/env";
 import {
-  NEWSLETTER_UNSUBSCRIBE_COOKIE,
+  NEWSLETTER_UNSUBSCRIBE_FLOW_PARAM,
   getExpiredNewsletterUnsubscribeCookieOptions,
+  getNewsletterUnsubscribeCookieName,
+  isValidNewsletterUnsubscribeFlowId,
 } from "lib/newsletter-unsubscribe-cookie";
 
 const MEDUSA_BACKEND_URL = sanitizeEnvUrl(
@@ -27,9 +29,18 @@ function redirectToStatus(
 }
 
 export async function POST(request: NextRequest) {
-  const token = request.cookies.get(NEWSLETTER_UNSUBSCRIBE_COOKIE)?.value;
+  const formData = await request.formData();
+  const rawFlowId = formData.get(NEWSLETTER_UNSUBSCRIBE_FLOW_PARAM);
+  const flowId =
+    typeof rawFlowId === "string" &&
+    isValidNewsletterUnsubscribeFlowId(rawFlowId)
+      ? rawFlowId
+      : undefined;
+  const token = flowId
+    ? request.cookies.get(getNewsletterUnsubscribeCookieName(flowId))?.value
+    : undefined;
 
-  if (!token) {
+  if (!flowId || !token) {
     return redirectToStatus(request);
   }
 
@@ -52,7 +63,7 @@ export async function POST(request: NextRequest) {
     if (fetchResponse.ok) {
       const successResponse = redirectToStatus(request, "success");
       successResponse.cookies.set(
-        NEWSLETTER_UNSUBSCRIBE_COOKIE,
+        getNewsletterUnsubscribeCookieName(flowId),
         "",
         getExpiredNewsletterUnsubscribeCookieOptions(),
       );
@@ -79,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     if (isInvalidToken) {
       redirectResponse.cookies.set(
-        NEWSLETTER_UNSUBSCRIBE_COOKIE,
+        getNewsletterUnsubscribeCookieName(flowId),
         "",
         getExpiredNewsletterUnsubscribeCookieOptions(),
       );

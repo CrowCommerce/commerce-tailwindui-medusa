@@ -1,9 +1,11 @@
 type Status = "success" | "invalid-token" | "error" | null;
 
 export function UnsubscribeForm({
+  flowId,
   hasToken,
   status,
 }: {
+  flowId?: string;
   hasToken: boolean;
   status: Status;
 }) {
@@ -66,6 +68,7 @@ export function UnsubscribeForm({
           method="post"
           className="mt-6"
         >
+          {flowId ? <input type="hidden" name="flow" value={flowId} /> : null}
           <button
             type="submit"
             className="bg-primary-600 hover:bg-primary-700 rounded-md px-6 py-2 text-sm font-medium text-white"

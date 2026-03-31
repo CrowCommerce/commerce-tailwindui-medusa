@@ -1,9 +1,9 @@
 import "server-only";
 import { cookies as nextCookies } from "next/headers";
 import {
-  NEWSLETTER_UNSUBSCRIBE_COOKIE,
   getExpiredNewsletterUnsubscribeCookieOptions,
-  getNewsletterUnsubscribeCookieOptions,
+  getNewsletterUnsubscribeCookieName,
+  isValidNewsletterUnsubscribeFlowId,
 } from "../newsletter-unsubscribe-cookie";
 
 // --- Cart Cookie ---
@@ -80,28 +80,27 @@ export async function removeWishlistId(): Promise<void> {
 
 // --- Newsletter Unsubscribe Token ---
 
-export async function getNewsletterUnsubscribeToken(): Promise<
-  string | undefined
-> {
+export async function getNewsletterUnsubscribeToken(
+  flowId: string | null | undefined,
+): Promise<string | undefined> {
+  if (!isValidNewsletterUnsubscribeFlowId(flowId)) {
+    return undefined;
+  }
+
   const cookies = await nextCookies();
-  return cookies.get(NEWSLETTER_UNSUBSCRIBE_COOKIE)?.value;
+  return cookies.get(getNewsletterUnsubscribeCookieName(flowId))?.value;
 }
 
-export async function setNewsletterUnsubscribeToken(
-  token: string,
+export async function removeNewsletterUnsubscribeToken(
+  flowId: string | null | undefined,
 ): Promise<void> {
-  const cookies = await nextCookies();
-  cookies.set(
-    NEWSLETTER_UNSUBSCRIBE_COOKIE,
-    token,
-    getNewsletterUnsubscribeCookieOptions(),
-  );
-}
+  if (!isValidNewsletterUnsubscribeFlowId(flowId)) {
+    return;
+  }
 
-export async function removeNewsletterUnsubscribeToken(): Promise<void> {
   const cookies = await nextCookies();
   cookies.set(
-    NEWSLETTER_UNSUBSCRIBE_COOKIE,
+    getNewsletterUnsubscribeCookieName(flowId),
     "",
     getExpiredNewsletterUnsubscribeCookieOptions(),
   );
