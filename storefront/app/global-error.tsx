@@ -50,7 +50,7 @@ export default function GlobalError({
                 <div className="inline-flex items-center gap-3 rounded-full border border-gray-200 bg-white px-4 py-2 shadow-sm">
                   <ExclamationTriangleIcon
                     aria-hidden="true"
-                    className="size-5 text-primary-600"
+                    className="text-primary-600 size-5"
                   />
                   <span className="text-sm font-semibold text-gray-700">
                     Storefront recovery
@@ -130,7 +130,7 @@ export default function GlobalError({
                     />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-[0.18em]">
+                    <p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase">
                       Recovery options
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">
@@ -144,7 +144,7 @@ export default function GlobalError({
                     <p className="text-xs font-semibold tracking-[0.18em] text-gray-500 uppercase">
                       Error reference
                     </p>
-                    <p className="mt-2 break-all font-mono text-sm text-gray-700">
+                    <p className="mt-2 font-mono text-sm break-all text-gray-700">
                       {error.digest ?? "Unavailable for this request"}
                     </p>
                   </div>
