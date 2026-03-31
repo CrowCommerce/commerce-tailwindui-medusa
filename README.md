@@ -16,19 +16,19 @@ Last updated: 2026-03-30
 
 ## Built On
 
-Research across the codebase, archived plans, package metadata, licenses, and commit history points to these concrete upstream foundations and reference implementations:
+This project builds directly on:
 
-- **[Vercel Commerce](https://github.com/vercel/commerce)** — the storefront still carries Vercel’s MIT license text in `storefront/license.md`, and the Medusa migration docs explicitly describe replacing an earlier `lib/shopify` adapter while preserving Vercel Commerce-style types, routes, metadata, and caching patterns.
-- **[Medusa Starter / Medusa v2](https://github.com/medusajs/medusa)** — the backend workspace still identifies itself as “A starter for Medusa projects,” keeps the stock Medusa starter README, and layers custom modules, workflows, admin extensions, and integrations on top of that foundation.
-- **[Tailwind Plus / Tailwind UI](https://tailwindcss.com/plus)** — the storefront design system, many archived implementation plans, and the seed catalog all point to Tailwind Plus blocks and Tailwind UI commerce sample data as the primary UI source material.
-- **[Medusa Next.js Starter](https://github.com/medusajs/nextjs-starter-medusa)** — the customer account work explicitly cites the starter’s customer data layer as the reference implementation, and related checkout guidance references Medusa’s Next.js starter Stripe customization docs.
-- **[Untitled UI React Email](https://www.untitledui.com/)** — the email system was intentionally rebuilt from adapted Untitled UI email primitives, then remapped to CrowCommerce/Tailwind tokens.
-- **[Medusa Product Reviews Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/product-reviews)** — primary reference for the shipped review module and storefront/admin review flows.
-- **[Medusa Wishlist Tutorial](https://docs.medusajs.com/resources/plugins/guides/wishlist)** plus **[@alphabite/medusa-wishlist](https://github.com/alphabite-dev/medusa-wishlist)** and **[@godscodes/medusajs-wishlist-plugin](https://github.com/godscodes/medusajs-wishlist-plugin)** — documented reference set for the shipped wishlist architecture, guest flows, sharing, and storefront action patterns.
-- **[Medusa Checkout Docs](https://docs.medusajs.com/resources/storefront-development/checkout)**, **[Saved Payment Methods Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/saved-payment-methods)**, and **[lambda-curry/medusa2-starter](https://github.com/lambda-curry/medusa2-starter)** — documented references for the shipped Stripe checkout flow.
-- **[Medusa Invoice Generator Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/invoice-generator)** — reference for the shipped invoice module and PDF generation workflow.
-- **[Medusa Abandoned Cart Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/abandoned-cart)** — reference for the shipped cart recovery email flow.
-- **[lambda-curry/medusa-plugins](https://github.com/lambda-curry/medusa-plugins)** and **[@devx-commerce/plugin-product-reviews](https://www.npmjs.com/package/@devx-commerce/plugin-product-reviews)** — cited in the review image/admin-response phase as pattern references for Medusa review extensions.
+- **[Vercel Commerce](https://github.com/vercel/commerce)** — the storefront is a Vercel Commerce fork, with the Shopify adapter replaced by Medusa. The routing conventions, caching patterns, and type shapes follow Vercel Commerce closely.
+- **[Medusa Starter / Medusa v2](https://github.com/medusajs/medusa)** — the backend is a Medusa v2 starter extended with custom modules, workflows, admin extensions, and integrations.
+- **[Tailwind Plus / Tailwind UI](https://tailwindcss.com/plus)** — the UI design system is built on Tailwind Plus ecommerce blocks. Component layouts, the seed catalog, and interaction patterns all draw from Tailwind UI.
+- **[Medusa Next.js Starter](https://github.com/medusajs/nextjs-starter-medusa)** — the customer account flows and Stripe checkout customization follow patterns from the Medusa Next.js starter.
+- **[Untitled UI React Email](https://www.untitledui.com/)** — the email system was rebuilt from Untitled UI email primitives, remapped to CrowCommerce/Tailwind tokens.
+- **[Medusa Product Reviews Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/product-reviews)** — primary reference for the review module and storefront/admin review flows.
+- **[Medusa Wishlist Tutorial](https://docs.medusajs.com/resources/plugins/guides/wishlist)** plus **[@alphabite/medusa-wishlist](https://github.com/alphabite-dev/medusa-wishlist)** and **[@godscodes/medusajs-wishlist-plugin](https://github.com/godscodes/medusajs-wishlist-plugin)** — the wishlist architecture, guest flows, share tokens, and storefront action patterns draw from all three.
+- **[Medusa Checkout Docs](https://docs.medusajs.com/resources/storefront-development/checkout)**, **[Saved Payment Methods Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/saved-payment-methods)**, and **[lambda-curry/medusa2-starter](https://github.com/lambda-curry/medusa2-starter)** — the Stripe checkout flow, saved cards, and guest checkout are built against these references.
+- **[Medusa Invoice Generator Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/invoice-generator)** — reference for the invoice module and PDF generation workflow.
+- **[Medusa Abandoned Cart Tutorial](https://docs.medusajs.com/resources/how-to-tutorials/tutorials/abandoned-cart)** — reference for the cart recovery email flow.
+- **[lambda-curry/medusa-plugins](https://github.com/lambda-curry/medusa-plugins)** and **[@devx-commerce/plugin-product-reviews](https://www.npmjs.com/package/@devx-commerce/plugin-product-reviews)** — pattern references for the review image uploads and admin response features.
 
 ## Screenshots
 
@@ -69,7 +69,7 @@ tooling/typescript/   Shared TypeScript configuration
 
 ## Feature Overview
 
-Git history and archived plans show the project shipping in roughly this order: Medusa integration, customer accounts, reviews, wishlist, Stripe checkout, production deployment, product quick view, email infrastructure, invoice generation, S3/R2 storage, Sentry, PostHog, newsletter signup, Meilisearch search, legal/company pages, and site-boundary scaffolding.
+Features shipped in roughly this order: Medusa integration, customer accounts, reviews, wishlist, Stripe checkout, production deployment, product quick view, email infrastructure, invoice generation, S3/R2 storage, Sentry, PostHog, newsletter signup, Meilisearch search, legal/company pages, and site-boundary scaffolding.
 
 | Feature | Status | What's shipped | What's remaining |
 | --- | --- | --- | --- |
@@ -135,6 +135,4 @@ Completed plans and specs: [docs/archive/](docs/archive/)
 
 ## License
 
-Project-level license: TBD.
-
-The repo still includes the upstream Vercel storefront MIT text at `storefront/license.md`. Before publishing this monorepo as a reusable open-source template, add an explicit root `LICENSE` file that covers the full repository and clarifies how upstream licenses apply.
+Project-level license: TBD. The storefront inherits Vercel Commerce's MIT license (`storefront/license.md`); a root LICENSE file covering the full monorepo is pending.
