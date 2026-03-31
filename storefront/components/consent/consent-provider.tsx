@@ -105,3 +105,7 @@ export function useStorefrontConsent(): StorefrontConsentContextValue {
 
   return context;
 }
+
+export function useOptionalStorefrontConsent(): StorefrontConsentContextValue | null {
+  return useContext(StorefrontConsentContext);
+}
