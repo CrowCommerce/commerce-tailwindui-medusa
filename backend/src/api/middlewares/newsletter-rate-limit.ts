@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/node";
 import type { RequestHandler } from "express";
 import Redis from "ioredis";
+import { getClientIp } from "./client-ip";
 
 const MAX_REQUESTS = 5;
 const WINDOW_SECONDS = 60; // 1 minute
@@ -41,7 +42,7 @@ function getRedis(): Redis | null {
 
 export function newsletterRateLimit(): RequestHandler {
   return async (req, res, next) => {
-    const ip = req.ip || req.socket.remoteAddress;
+    const ip = getClientIp(req);
     if (!ip) return next();
 
     const key = `newsletter_sub:${ip}`;
