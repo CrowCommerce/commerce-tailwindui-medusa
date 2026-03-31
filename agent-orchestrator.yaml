@@ -15,7 +15,7 @@ projects:
   commerce-tailwindui-medusa:
     name: CrowCommerce
     repo: EricJamesCrow/commerce-tailwindui-medusa
-    path: /Users/itsjusteric/CrowCommerce/Templates/commerce-tailwindui-medusa
+    path: . # Run `ao start` from the repo root so this stays portable across machines.
     defaultBranch: main
     sessionPrefix: crow
 
