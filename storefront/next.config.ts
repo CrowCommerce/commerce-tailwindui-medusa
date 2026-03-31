@@ -7,6 +7,13 @@ function sanitizeEnvUrl(value: string | undefined, fallback = ""): string {
   return value?.replace(/[\r\n]+/g, "").trim() || fallback;
 }
 
+function isVercelPreviewEnvironment(): boolean {
+  return (
+    sanitizeEnvUrl(process.env.NEXT_PUBLIC_VERCEL_ENV) === "preview" ||
+    sanitizeEnvUrl(process.env.VERCEL_ENV) === "preview"
+  );
+}
+
 function getCspOrigin(value: string | undefined, fallback?: string): string {
   const sanitized = sanitizeEnvUrl(value, fallback ?? "");
 
@@ -27,6 +34,7 @@ function joinCspSources(sources: Array<string | false | undefined>): string {
 
 function buildContentSecurityPolicy(): string {
   const isDev = process.env.NODE_ENV !== "production";
+  const isPreview = isVercelPreviewEnvironment();
   const backendOrigin = getCspOrigin(
     process.env.MEDUSA_BACKEND_URL,
     isDev ? "http://localhost:9000" : "",
@@ -47,6 +55,8 @@ function buildContentSecurityPolicy(): string {
     "'unsafe-inline'",
     "https://js.stripe.com",
     "https://*.js.stripe.com",
+    "https://*.i.posthog.com",
+    isPreview && "https://vercel.live",
     isDev && "'unsafe-eval'",
   ]);
 
@@ -55,10 +65,12 @@ function buildContentSecurityPolicy(): string {
     backendOrigin,
     posthogOrigin,
     meilisearchOrigin,
+    "https://*.i.posthog.com",
     "https://*.sentry.io",
     "https://sentry.io",
     "https://*.stripe.com",
     "https://m.stripe.com",
+    isPreview && "https://vercel.live",
     isDev && "ws:",
     isDev && "wss:",
   ]);
