@@ -1,6 +1,5 @@
 import { siteBrand } from "@repo/site-config";
 import { GeistSans } from "geist/font/sans";
-import { baseUrl } from "lib/utils";
 import { Metadata } from "next";
 import { ReactNode, Suspense } from "react";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
@@ -24,22 +23,11 @@ import { getFeatureFlags } from "lib/feature-flags";
 import { WebVitals } from "./web-vitals";
 import { getCart } from "lib/medusa";
 import { retrieveCustomer } from "lib/medusa/customer";
+import { rootMetadata } from "lib/metadata";
 import { isStorefrontConsentFoundationEnabled } from "lib/consent/shared";
 import { getPostHogAnonId } from "lib/posthog-cookies";
 
-const siteName = process.env.SITE_NAME?.trim() || siteBrand.siteName;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
-  title: {
-    default: siteName,
-    template: `%s | ${siteName}`,
-  },
-  robots: {
-    follow: true,
-    index: true,
-  },
-};
+export const metadata: Metadata = rootMetadata;
 
 async function AppProviders({ children }: { children: ReactNode }) {
   const cartPromise = getCart();

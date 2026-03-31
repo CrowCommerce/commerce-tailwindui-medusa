@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import { safeJsonLd } from "lib/json-ld";
 import {
   buildBreadcrumbJsonLd,
+  buildFaqPageJsonLd,
   buildItemListJsonLd,
   buildOrganizationJsonLd,
   buildProductJsonLd,
+  buildWebsiteJsonLd,
 } from "lib/structured-data";
 import type { Product, ProductReviews } from "lib/types";
 
@@ -212,6 +214,49 @@ describe("structured data builders", () => {
     expect(organizationObject.logo).toBeUndefined();
     expect(organizationObject.contactPoint).toBeUndefined();
     expect(organizationObject.sameAs).toBeUndefined();
+  });
+
+  it("builds website schema with a search action", () => {
+    const website = buildWebsiteJsonLd({
+      name: "Example Store",
+      url: "https://store.example.com",
+      description: "Store description",
+    });
+
+    expect(website).toMatchObject({
+      "@type": "WebSite",
+      name: "Example Store",
+      url: "https://store.example.com",
+      description: "Store description",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "http://localhost:3000/search?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    });
+  });
+
+  it("builds FAQ page schema with question and answer pairs", () => {
+    const faqPage = buildFaqPageJsonLd([
+      {
+        question: "Do you ship internationally?",
+        answer: "Yes, we ship to 42 countries.",
+      },
+    ]);
+
+    expect(faqPage).toMatchObject({
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Do you ship internationally?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes, we ship to 42 countries.",
+          },
+        },
+      ],
+    });
   });
 });
 
