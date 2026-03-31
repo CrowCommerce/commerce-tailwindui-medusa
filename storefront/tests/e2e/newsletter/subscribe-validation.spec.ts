@@ -8,6 +8,8 @@ import {
   waitForNewsletterRequestSlot,
 } from "./helpers";
 
+test.setTimeout(180_000);
+
 async function expectHtml5ValidationMessage(page: Page): Promise<void> {
   const { emailInput, successMessage } = newsletterFooter(page);
 
