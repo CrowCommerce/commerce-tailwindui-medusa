@@ -17,6 +17,10 @@ const reviewMocks = vi.hoisted(() => ({
 
 vi.mock("lib/medusa", () => medusaMocks);
 vi.mock("lib/medusa/reviews", () => reviewMocks);
+vi.mock("next/link", () => ({
+  default: ({ children, href }: { children: React.ReactNode; href: string }) =>
+    React.createElement("a", { href }, children),
+}));
 vi.mock("components/layout/product-grid", () => ({
   default: () => React.createElement("div", { "data-testid": "product-grid" }),
 }));
@@ -45,6 +49,7 @@ vi.mock("components/home/collections", () => ({
 }));
 
 import HomePage from "app/page";
+import FaqPage from "app/faq/page";
 import ProductPage, {
   generateMetadata as generateProductMetadata,
 } from "app/product/[handle]/page";
@@ -155,6 +160,14 @@ describe("route JSON-LD output", () => {
     const html = renderToStaticMarkup(await HomePage());
 
     expect(html).toContain('"@type":"Organization"');
+    expect(html).toContain('"@type":"WebSite"');
+  });
+
+  it("renders FAQ page schema on the FAQ page", async () => {
+    const html = renderToStaticMarkup(<FaqPage />);
+
+    expect(html).toContain('"@type":"FAQPage"');
+    expect(html).toContain("How long does standard shipping take?");
   });
 
   it("renders product and breadcrumb schema on the PDP", async () => {

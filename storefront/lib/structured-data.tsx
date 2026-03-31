@@ -1,12 +1,15 @@
 import type {
   AggregateOffer,
   BreadcrumbList,
+  FAQPage,
   ItemList,
   ListItem,
   Organization,
   Product as SchemaProduct,
+  Question,
   Review as SchemaReview,
-  Thing,
+  SearchAction,
+  WebSite,
   WithContext,
 } from "schema-dts";
 import { safeJsonLd } from "lib/json-ld";
@@ -25,6 +28,11 @@ type ItemListEntry = {
   image?: string;
 };
 
+export type FaqEntry = {
+  question: string;
+  answer: string;
+};
+
 export type SiteSchemaConfig = {
   name: string;
   legalName?: string;
@@ -37,6 +45,8 @@ export type SiteSchemaConfig = {
 };
 
 const SCHEMA_CONTEXT = "https://schema.org" as const;
+export const DEFAULT_SITE_DESCRIPTION =
+  "High-performance ecommerce store built with Next.js, Vercel, and Medusa.";
 
 function toAbsoluteUrl(url: string): string {
   return new URL(url, createAbsoluteUrl("/")).toString();
@@ -209,11 +219,45 @@ export function buildOrganizationJsonLd(
   };
 }
 
-export function JsonLdScript({
-  data,
-}: {
-  data: WithContext<Thing> | WithContext<ItemList> | WithContext<Organization>;
-}) {
+export function buildWebsiteJsonLd(
+  siteConfig: SiteSchemaConfig,
+): WithContext<WebSite> {
+  const searchAction = {
+    "@type": "SearchAction",
+    target: `${createAbsoluteUrl("/search")}?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  } as SearchAction;
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "WebSite",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    ...(siteConfig.description ? { description: siteConfig.description } : {}),
+    potentialAction: searchAction,
+  };
+}
+
+export function buildFaqPageJsonLd(entries: FaqEntry[]): WithContext<FAQPage> {
+  const mainEntity = entries.map(
+    (entry): Question => ({
+      "@type": "Question",
+      name: entry.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: entry.answer,
+      },
+    }),
+  );
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "FAQPage",
+    mainEntity,
+  };
+}
+
+export function JsonLdScript({ data }: { data: unknown }) {
   return (
     <script
       type="application/ld+json"
