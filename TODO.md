@@ -8,9 +8,9 @@
 Use the task labels below as shorthand when spawning agents manually. Example:
 `@TODO.md Task A`
 
-### Task A
+### Task A ✓
 
-Cursor-pointer audit and fix pass.
+Cursor-pointer audit and fix pass. Completed in PR #75 (merged 2026-03-31). Two-pass audit: first pass caught onClick handlers (25 files); second pass caught type="submit" form buttons and icon-only buttons (22 additional files, 47 total).
 
 Required workflow:
 
