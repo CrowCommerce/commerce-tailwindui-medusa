@@ -161,6 +161,8 @@ or third-party term into one repo-wide rule.
 
 ### Tailwind Plus / Tailwind UI Expectations
 
+- This template assumes the repository owner already holds valid Tailwind Plus
+  access for any Tailwind Plus-derived material kept in the repo.
 - This template uses Tailwind Plus / Tailwind UI patterns and may include
   Tailwind Plus-derived components, templates, or design assets.
 - Those materials remain governed by Tailwind Labs' commercial license. This
