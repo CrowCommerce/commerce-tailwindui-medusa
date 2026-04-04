@@ -285,6 +285,15 @@ Implementation scope:
 - [ ] Search-focused layout option — brainstorm an alternative navbar/layout where search is the primary interaction (like the [Meilisearch ecommerce demo](https://github.com/meilisearch/ecommerce-demo)). Instant faceted filtering on `/products` and `/search` with the search bar front-and-center. This could be a swappable layout style alongside the current TailwindUI sidebar layout. Reference the demo for UX patterns (instant results, facet chips, filter counts).
 - [ ] Express checkout (Apple Pay / Google Pay) — composite flow that chains email → address → shipping → payment → order completion in one step. Requires Stripe `PaymentRequestButton` or `ExpressCheckoutElement`. `express-checkout.tsx` component exists but needs implementation. Track with: `express_checkout_started`, `express_checkout_completed`, `express_checkout_failed` events.
 
+## Performance
+
+**Lighthouse Mobile Performance (baseline: 81 → target: 90+)**
+
+- [ ] Add `priority` prop to hero `<Image>` component to fix LCP (currently 4.7s on mobile)
+- [ ] Investigate render-blocking requests flagged in mobile audit (est. 150ms savings) — likely Google Fonts; switch to `next/font` or add `font-display: swap`
+- [ ] Audit Legacy JavaScript insight (est. 45 KiB savings) — identify which dependency is shipping ES5 polyfills unnecessarily via the Lighthouse treemap
+- [ ] Add long-lived `Cache-Control` headers to Cloudflare R2 assets (est. 98 KiB cache savings)
+
 ## Known Limitations
 
 - [x] Browser back button broken after navigating to a product page — fixed by using `router.replace` for variant URL updates to prevent back button cycling

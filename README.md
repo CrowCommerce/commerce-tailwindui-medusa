@@ -39,6 +39,25 @@ This project builds directly on:
 ![Customer account sign-in](docs/screenshots/account-login.png)
 ![Medusa admin sign-in](docs/screenshots/admin-login.png)
 
+## Lighthouse Scores
+
+Baseline scores with zero performance optimization passes.
+
+| Metric | Desktop | Mobile |
+|--------|---------|--------|
+| Performance | 99 | 81 |
+| Accessibility | 100 | 100 |
+| Best Practices | 100 | 100 |
+| SEO | 100 | 100 |
+
+**Desktop**
+
+![Lighthouse desktop scores](.github/assets/lighthouse-desktop.png)
+
+**Mobile**
+
+![Lighthouse mobile scores](.github/assets/lighthouse-mobile.png)
+
 ## Tech Stack
 
 | Layer                          | Actual packages / services                                                                               | Version(s) from repo                                                                                                                                          | Purpose                                                                      |
